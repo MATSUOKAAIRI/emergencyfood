@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react'; // Suspense をインポート
 import { useRouter, useSearchParams } from 'next/navigation';
 import { auth, onAuthStateChanged } from '@/utils/firebase';
 import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore';
@@ -18,13 +18,14 @@ type Food = {
   uid: string;
 };
 
-export default function FoodListPage() {
+// クライアントサイドコンポーネントをラップする
+function FoodListPageClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [user, setUser] = useState<any>(null);
   const [teamIdFromURL, setTeamIdFromURL] = useState<string | null>(null);
   const [teamId, setTeamId] = useState<string | null>(null);
-  const [currentTeamId, setCurrentTeamId] = useState<string | null>(null); // 現在使用する teamId
+  const [currentTeamId, setCurrentTeamId] = useState<string | null>(null);
   const [foods, setFoods] = useState<Food[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -54,7 +55,7 @@ export default function FoodListPage() {
   }, [router]);
 
   useEffect(() => {
-    setCurrentTeamId(teamIdFromURL || teamId); // 現在使用する teamId を設定
+    setCurrentTeamId(teamIdFromURL || teamId);
   }, [teamIdFromURL, teamId]);
 
   useEffect(() => {
@@ -86,10 +87,9 @@ export default function FoodListPage() {
 
   return (
     <div>
-
       <div className="p-4">
         <h1 className="text-2xl font-bold mb-4">非常食一覧</h1>
-        {currentTeamId ? ( // currentTeamId の存在を確認
+        {currentTeamId ? (
           <>
             {loading && <p>ロード中...</p>}
             {error && <p className="text-red-500">{error}</p>}
@@ -113,5 +113,14 @@ export default function FoodListPage() {
         )}
       </div>
     </div>
+  );
+}
+
+// Suspense でラップ
+export default function FoodListPage() {
+  return (
+    <Suspense fallback={<p>Loading foods...</p>}>
+      <FoodListPageClient />
+    </Suspense>
   );
 }
