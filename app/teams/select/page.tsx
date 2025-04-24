@@ -5,8 +5,6 @@ import { useRouter } from 'next/navigation';
 import { auth, onAuthStateChanged } from '@/utils/firebase';
 import { db } from '@/utils/firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 
 export default function TeamSelectPage() {
   const router = useRouter();
