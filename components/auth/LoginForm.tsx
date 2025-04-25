@@ -25,8 +25,8 @@ export default function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-sm mx-auto p-4 border rounded mb-4">
-      <h2 className="text-xl font-bold mb-4">ログイン</h2>
+    <form onSubmit={handleSubmit} className="max-w-sm mx-auto p-4 border rounded mb-4 border-[#333] w-2/3 bg-[#f7f7f7] z-10">
+      <h2 className="text-xl font-bold mb-4 text-[#333]">ログイン</h2>
       {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">{error}</div>}
       <div className="mb-4">
         <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">メールアドレス</label>
@@ -52,7 +52,7 @@ export default function LoginForm() {
       </div>
       <button
         type="submit"
-        className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+        className="bg-[#333333] text-white hover:bg-[#332b1e] hover:text-gray-500  font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
       >
         ログイン
       </button>

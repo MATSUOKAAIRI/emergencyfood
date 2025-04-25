@@ -23,7 +23,7 @@ export default function TeamSelectPage() {
           setCurrentTeamId(userDocSnap.data()?.teamId || null);
         }
       } else {
-        router.push('/auth/login'); // 未ログインならログイン画面へ
+        router.push('/auth/login');
       }
     });
     return () => unsubscribeAuth();
@@ -41,7 +41,6 @@ export default function TeamSelectPage() {
         teamId: null,
       });
       setCurrentTeamId(null);
-      // 必要であれば、離脱後のメッセージなどを設定
     } catch (error: any) {
       console.error('Error leaving team: ', error);
       setLeaveError('チームから離れることができませんでした。');
@@ -51,28 +50,28 @@ export default function TeamSelectPage() {
   };
 
   return (
-    <div>
-      <div className="p-4">
-        <h1 className="text-2xl font-bold mb-4">チームへの参加または作成</h1>
+    <div className='p-4 items-center justify-center flex flex-col bg-[#ffd699] bottom-0 pt-40'>
+      <div className="p-4 items-center justify-center flex flex-col bottom-0 ">
+        <h1 className="text-5xl font-bold mb-28 text-[#333] ">チームへの参加または作成</h1>
         {leaveError && <p className="text-red-500">{leaveError}</p>}
         {currentTeamId && (
-          <div className="mb-4 p-4 border rounded">
-            <p>現在のチームに所属しています。</p>
+          <div className="mb-4 p-4 border rounded ">
+            <p className='text-[#333]'>現在のチームに所属しています。</p>
             <button
               onClick={handleLeaveTeam}
               disabled={leavingTeam}
-              className="inline-block bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-2"
+              className="inline-block bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-2 border-[#333]"
             >
               {leavingTeam ? '離脱処理中...' : 'チームから離れる'}
             </button>
           </div>
         )}
-        <p className="mb-4">既存のチームに参加する場合は、チームIDを入力してください。</p>
-        <Link href="/teams/join" className="inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2">
+        <p className="mb-4 text-[#333]">既存のチームに参加する場合は、チームIDを入力してください。</p>
+        <Link href="/teams/join" className="inline-block bg-[#333333] hover:bg-[#332b1e] text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2 mb-10">
           既存のチームに参加
         </Link>
-        <p className="mt-4 mb-4">新しいチームを作成する場合は、以下のボタンをクリックしてください。</p>
-        <Link href="/teams/create" className="inline-block bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+        <p className="mt-4 mb-4 text-[#333]">新しいチームを作成する場合は、以下のボタンをクリックしてください。</p>
+        <Link href="/teams/create" className="inline-block bg-[#333333] text-white hover:bg-[#332b1e] font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
           新しいチームを作成
         </Link>
       </div>

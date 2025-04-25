@@ -42,23 +42,23 @@ export default function RootLayout({
 
   const handleLogoClick = () => {
     if (isCheckingAuth) {
-      return; // まだ認証状態を確認中の場合は何もしない
+      return; 
     }
 
     if (!user) {
-      router.push('/'); // 未ログインならホームページへ
+      router.push('/');
     } else if (teamId !== null) {
-      router.push('/teams/select'); // ログイン済みでチームに所属していれば食品リストへ
+      router.push('/teams/select');
     } else {
-      router.push('/foods/add'); // ログイン済みだがチームに所属していなければチーム選択へ
+      router.push('/foods/add'); 
     }
   };
 
   return (
     <html lang="ja">
-      <body className={inter.className}>
-        <Header onLogoClick={handleLogoClick} /> {/* クリックイベントを Header に渡す */}
-        <main>{children}</main>
+      <body className=" flex-col flex min-h-screen">
+        <Header onLogoClick={handleLogoClick} />
+        <main className='flex-grow'>{children}</main>
         <Footer />
       </body>
     </html>
