@@ -75,35 +75,35 @@ export default function JoinTeamForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-sm mx-auto p-4 border rounded mb-4">
-      <h2 className="text-xl font-bold mb-4">既存のチームに参加</h2>
-      {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">{error}</div>}
+    <form onSubmit={handleSubmit} className="max-w-sm mx-auto p-4 border rounded mb-4 border-[#333] w-2/3">
+      <h2 className="text-xl font-bold mb-4 text-[#333]">既存のチームに参加</h2>
+      {error && <div className="bg-red-100 border border-red-600 text-red-700 px-4 py-3 rounded relative mb-4">{error}</div>}
       {successMessage && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">{successMessage}</div>}
       <div className="mb-4">
-        <label htmlFor="teamNameInput" className="block text-gray-700 text-sm font-bold mb-2">チーム名</label>
+        <label htmlFor="teamNameInput" className="block text-[#333] text-sm font-bold mb-2">チーム名</label>
         <input
           type="text"
           id="teamNameInput"
           value={teamNameInput}
           onChange={(e) => setTeamNameInput(e.target.value)}
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          className="shadow appearance-none border rounded w-full py-2 px-3 text-[#333] leading-tight focus:outline-none focus:shadow-outline"
           required
         />
       </div>
       <div className="mb-4">
-        <label htmlFor="teamPasswordInput" className="block text-gray-700 text-sm font-bold mb-2">パスワード</label>
+        <label htmlFor="teamPasswordInput" className="block text-[#333] text-sm font-bold mb-2">パスワード</label>
         <input
           type="password"
           id="teamPasswordInput"
           value={teamPasswordInput}
           onChange={(e) => setTeamPasswordInput(e.target.value)}
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          className="shadow appearance-none border rounded w-full py-2 px-3 text-[#333] leading-tight focus:outline-none focus:shadow-outline"
           required
         />
       </div>
       <button
         type="submit"
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+        className="bg-[#333333] text-white hover:bg-[#332b1e] font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
       >
         参加
       </button>

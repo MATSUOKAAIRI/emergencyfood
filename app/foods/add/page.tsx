@@ -43,14 +43,14 @@ function AddFoodContent() {
   const currentTeamId = teamIdFromURL || userTeamId;
 
   if (loading) {
-    return <p>読み込み中...</p>; // ローディング中の表示
+    return <p className='text-[#333]'>読み込み中...</p>; // ローディング中の表示
   }
 
   if (!user || currentTeamId === null) {
     return (
       <div>
         <div className="p-4">
-          {user ? <p>チーム情報を取得中です...</p> : <p>ログインしてください。</p>}
+          {user ? <p className='text-[#333]'>チーム情報を取得中です...</p> : <p className='text-[#333]'>ログインしてください。</p>}
         </div>
       </div>
     );
@@ -59,12 +59,12 @@ function AddFoodContent() {
   return (
     <div>
       <div className="p-4">
-        <h1 className="text-2xl font-bold mb-4">新しい非常食を登録</h1>
+        <h1 className="text-2xl font-bold mb-4 text-[#333]">新しい非常食を登録</h1>
         <FoodForm uid={user.uid} teamId={currentTeamId} />
         <div className="mt-4">
           <Link
             href={`/foods/list?teamId=${currentTeamId}`}
-            className="inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            className="inline-block bg-[#333333] text-white hover:bg-[#332b1e] font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
           >
             非常食一覧に戻る
           </Link>
@@ -76,7 +76,7 @@ function AddFoodContent() {
 
 export default function AddFoodPage() {
   return (
-    <Suspense fallback={<p>ページを読み込み中...</p>}>
+    <Suspense fallback={<p className='text-[#333]'>ページを読み込み中...</p>}>
       <AddFoodContent />
     </Suspense>
   );

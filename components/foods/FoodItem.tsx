@@ -33,23 +33,21 @@ export default function FoodItem({ food }: FoodItemProps) {
   const formattedRegisteredDate = registeredDate.toLocaleString('ja-JP');
 
   return (
-    <li className={`p-4 border-b ${isNearExpiry ? 'bg-yellow-100' : ''}`}>
-      <h3 className="text-lg font-semibold">{food.name}</h3>
-      <p>数量: {food.quantity}</p>
-      <p>賞味期限: {food.expiryDate} ({daysUntilExpiry})</p>
-      <p>カテゴリ: {food.category}</p>
-      <p>登録日時: {formattedRegisteredDate}</p>
-      {food.amount !== undefined && <p>金額: {food.amount} 円</p>}
-      {food.purchaseLocation && <p>買った場所: {food.purchaseLocation}</p>}
-      {food.label && <p>ラベル: {food.label}</p>}
-      {food.storageLocation && <p>保存場所: {food.storageLocation}</p>}
+    <li className={`p-4 border-b border-red-300 ${isNearExpiry ? 'bg-red-300' : ''}`}>
+      <h3 className="text-lg font-semibold text-[#333]">{food.name}</h3>
+      <p className='text-[#333]'>数量: {food.quantity}</p>
+      <p className='text-[#333]'>賞味期限: {food.expiryDate} ({daysUntilExpiry})</p>
+      <p className='text-[#333]'>カテゴリ: {food.category}</p>
+      <p className='text-[#333]'>登録日時: {formattedRegisteredDate}</p>
+      {food.amount !== undefined && <p className='text-[#333]'>金額: {food.amount} 円</p>}
+      {food.purchaseLocation && <p className='text-[#333]'>買った場所: {food.purchaseLocation}</p>}
+      {food.label && <p className='text-[#333]'>ラベル: {food.label}</p>}
+      {food.storageLocation && <p className='text-[#333]'>保存場所: {food.storageLocation}</p>}
       {isNearExpiry && <p className="text-red-500">賞味期限が近づいています！</p>}
-      {/* 感想表示・投稿機能へのリンクなどを追加する場合はここ */}
       <div>
-        <Link href={`/foods/${food.id}/reviews`} className="inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-2">
+        <Link href={`/foods/${food.id}/reviews`} className="inline-block bg-[#333333] hover:bg-[#332b1e] text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-2">
           感想を見る・書く
         </Link>
-        {/* 必要に応じて編集・削除ボタンなどを追加 */}
       </div>
     </li>
   );
