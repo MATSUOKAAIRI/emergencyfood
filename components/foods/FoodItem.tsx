@@ -45,7 +45,7 @@ export default function FoodItem({ food }: FoodItemProps) {
       {food.storageLocation && <p className='text-[#333]'>保存場所: {food.storageLocation}</p>}
       {isNearExpiry && <p className="text-red-500">賞味期限が近づいています！</p>}
       <div>
-        <Link href={`/foods/${food.id}/reviews`} className="inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-2">
+        <Link href={`/foods/${food.id}/reviews`} className="inline-block bg-[#333333] hover:bg-[#332b1e] text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-2">
           感想を見る・書く
         </Link>
       </div>
