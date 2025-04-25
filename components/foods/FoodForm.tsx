@@ -77,7 +77,7 @@ export default function FoodForm({ uid, teamId }: FoodFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-md mx-auto p-4 border rounded mb-4 border-[#333]">
+    <form onSubmit={handleSubmit} className="max-w-md mx-auto p-4 border rounded mb-4 border-[#333]  w-3/4">
       <h2 className="text-xl font-bold mb-4 text-[#333]">非常食の登録</h2>
       {errorMessage && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">{errorMessage}</div>}
       {successMessage && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">{successMessage}</div>}
@@ -107,16 +107,17 @@ export default function FoodForm({ uid, teamId }: FoodFormProps) {
         />
       </div>
       <div className="mb-4">
-        <label htmlFor="expiryDate" className="block text-[#333] text-sm font-bold mb-2">賞味期限 (YYYY-MM-DD)</label>
-        <input
-          type="date"
-          id="expiryDate"
-          name="expiryDate"
-          value={formData.expiryDate}
-          onChange={handleChange}
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-[#333] leading-tight focus:outline-none focus:shadow-outline"
-          required
-        />
+  <label htmlFor="expiryDate" className="block text-[#333] text-sm font-bold mb-2">賞味期限 (YYYY-MM-DD)</label>
+  <input
+    type="date"
+    id="expiryDate"
+    name="expiryDate"
+    value={formData.expiryDate}
+    onChange={handleChange}
+    className="shadow appearance-none border rounded w-full py-2 px-3 text-[#333] leading-tight focus:outline-none focus:shadow-outline"
+    required
+    min={new Date().toISOString().split('T')[0]}
+  />
       </div>
       <div className="mb-4">
         <label htmlFor="category" className="block text-[#333] text-sm font-bold mb-2">カテゴリ</label>
@@ -144,7 +145,6 @@ export default function FoodForm({ uid, teamId }: FoodFormProps) {
           onChange={handleChange}
           className="shadow appearance-none border rounded w-full py-2 px-3 text-[#333] leading-tight focus:outline-none focus:shadow-outline"
           min="0"
-          placeholder="任意"
         />
       </div>
       <div className="mb-4">
@@ -156,7 +156,7 @@ export default function FoodForm({ uid, teamId }: FoodFormProps) {
           value={formData.purchaseLocation || ''}
           onChange={handleChange}
           className="shadow appearance-none border rounded w-full py-2 px-3 text-[#333] leading-tight focus:outline-none focus:shadow-outline"
-          placeholder="任意"
+          
         />
       </div>
       <div className="mb-4">
@@ -168,7 +168,6 @@ export default function FoodForm({ uid, teamId }: FoodFormProps) {
           value={formData.label || ''}
           onChange={handleChange}
           className="shadow appearance-none border rounded w-full py-2 px-3 text-[#333] leading-tight focus:outline-none focus:shadow-outline"
-          placeholder="任意"
         />
       </div>
       <div className="mb-4">
@@ -180,7 +179,6 @@ export default function FoodForm({ uid, teamId }: FoodFormProps) {
           value={formData.storageLocation || ''}
           onChange={handleChange}
           className="shadow appearance-none border rounded w-full py-2 px-3 text-[#333] leading-tight focus:outline-none focus:shadow-outline"
-          placeholder="任意"
         />
       </div>
       <button
