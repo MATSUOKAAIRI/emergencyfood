@@ -4,12 +4,12 @@ import LoginForm from '@/components/auth/LoginForm';
 
 export default function Login() {
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">ログイン</h1>
+    <div className="p-4 items-center justify-center flex flex-col bottom-0 min-h-screen">
+      <h1 className="text-5xl font-bold mb-30 text-[#333]">ログイン</h1>
       <LoginForm />
-      <p className="mt-4">
+      <p className="mt-4 text-[#333]">
         まだアカウントをお持ちでない方はこちらから{' '}
-        <Link href="/auth/register" className="text-blue-500 hover:underline">
+        <Link href="/auth/register" className="text-[#a399ff] hover:underline hover:text-[#a399ff]">  
           ユーザー登録
         </Link>
       </p>

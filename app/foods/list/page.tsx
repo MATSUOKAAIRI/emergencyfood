@@ -87,14 +87,19 @@ function FoodListPageClient() {
 
   return (
     <div>
-      <div className="p-4">
-        <h1 className="text-2xl font-bold mb-4">非常食一覧</h1>
+      <div className="p-4 items-center justify-center flex flex-col bottom-0 pt-40 w-full max-w-screen-lg mx-auto">
+        <h1 className="text-5xl font-bold mb-10 text-[#333]">非常食一覧</h1>
         {currentTeamId ? (
           <>
             {loading && <p>ロード中...</p>}
             {error && <p className="text-red-500">{error}</p>}
+            <div className="mt-4">
+              <Link href={`/foods/add?teamId=${currentTeamId}`} className="inline-block bg-[#333333] hover:bg-[#332b1e] text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mb-20">
+                新しい非常食を登録する
+              </Link>
+            </div>
             {foods.length > 0 ? (
-              <ul className="mt-4">
+              <ul className="mt-4 w-3/4 items-center justify-center flex flex-col bg-[#ffd699] bottom-0 ">
                 {foods.map((food) => (
                   <FoodItem key={food.id} food={food} />
                 ))}
@@ -102,11 +107,7 @@ function FoodListPageClient() {
             ) : (
               <p>登録された非常食はありません。</p>
             )}
-            <div className="mt-4">
-              <Link href={`/foods/add?teamId=${currentTeamId}`} className="inline-block bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                新しい非常食を登録する
-              </Link>
-            </div>
+            
           </>
         ) : (
           <p>チームIDが設定されていません。チームに参加または作成してください。</p>
@@ -116,7 +117,6 @@ function FoodListPageClient() {
   );
 }
 
-// Suspense でラップ
 export default function FoodListPage() {
   return (
     <Suspense fallback={<p>Loading foods...</p>}>
