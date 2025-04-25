@@ -1,7 +1,6 @@
-// components/teams/JoinTeamForm.tsx
 'use client';
 import React, { useState } from 'react';
-import { doc, getDocs, query, where, updateDoc, collection, getDoc } from 'firebase/firestore';
+import { arrayUnion,doc, getDocs, query, where, updateDoc, collection, getDoc } from 'firebase/firestore';
 import { db } from '@/utils/firebase';
 import { useRouter } from 'next/navigation';
 import { getAuth } from 'firebase/auth';
@@ -27,10 +26,16 @@ export default function JoinTeamForm() {
 
     try {
       const teamsRef = collection(db, 'teams');
+
+
       const q = query(teamsRef, where('name', '==', teamNameInput));
+
+
       const querySnapshot = await getDocs(q);
+ 
 
       if (querySnapshot.empty) {
+        console.log('指定されたチーム名が見つかりません');
         setError('指定されたチーム名は見つかりません。');
         return;
       }
@@ -39,7 +44,8 @@ export default function JoinTeamForm() {
       let passwordMatch = false;
       querySnapshot.forEach((doc) => {
         const teamData = doc.data();
-        if (teamData?.password === teamPasswordInput){
+
+        if (teamData?.password === teamPasswordInput) {
           foundTeamId = doc.id;
           passwordMatch = true;
         }
@@ -47,25 +53,37 @@ export default function JoinTeamForm() {
 
       if (foundTeamId && passwordMatch) {
         const teamDocRef = doc(db, 'teams', foundTeamId);
+
         const teamDocSnap = await getDoc(teamDocRef);
 
         if (teamDocSnap.exists()) {
           const teamData = teamDocSnap.data();
+
+
           const currentMemberIds = teamData?.members || [];
 
+
           if (!currentMemberIds.includes(user.uid)) {
-            await updateDoc(doc(db, 'users', user.uid), { teamId: foundTeamId });
+            console.log('ユーザーがチームに未参加。更新処理を開始します。');
+            await updateDoc(doc(db, 'users', user.uid), { teamId: arrayUnion(foundTeamId) });
+            console.log('ユーザードキュメントを更新しました。');
+
             await updateDoc(teamDocRef, { members: [...currentMemberIds, user.uid] });
+            console.log('チームドキュメントを更新しました。');
+
             setSuccessMessage(`チーム "${teamData?.name || teamNameInput}" に参加しました！`);
             router.push(`/foods/list?teamId=${foundTeamId}`);
           } else {
+            console.log('ユーザーは既にチームに参加しています。');
             setSuccessMessage('既にこのチームに参加しています。');
             router.push(`/foods/list?teamId=${foundTeamId}`);
           }
         } else {
+          console.log('チーム情報の取得に失敗しました。');
           setError('チーム情報の取得に失敗しました。');
         }
       } else {
+        console.log('チーム名またはパスワードが間違っています。');
         setError('チーム名またはパスワードが間違っています。');
       }
     } catch (error: any) {
