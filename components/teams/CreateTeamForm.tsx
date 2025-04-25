@@ -50,7 +50,7 @@ export default function CreateTeamForm() {
     
         await setDoc(doc(db, 'teams', generatedTeamId), {
           name: teamName,
-          password: teamPassword, // ★ 平文で保存 (非推奨)
+          password: teamPassword,
           members: [user.uid],
           ownerId: user.uid,
         });
