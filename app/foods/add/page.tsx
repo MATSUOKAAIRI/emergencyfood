@@ -58,17 +58,17 @@ function AddFoodContent() {
 
   return (
     <div>
-      <div className="p-4">
-        <h1 className="text-2xl font-bold mb-4 text-[#333]">新しい非常食を登録</h1>
-        <FoodForm uid={user.uid} teamId={currentTeamId} />
+      <div className="p-4 items-center justify-center flex flex-col bg-[#ffd699] bottom-0 pt-40">
+        <h1 className="text-5xl font-bold mb-10 text-[#333]">新しい非常食を登録</h1>
         <div className="mt-4">
           <Link
             href={`/foods/list?teamId=${currentTeamId}`}
-            className="inline-block bg-[#333333] text-white hover:bg-[#332b1e] font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            className="inline-block bg-[#333333] text-white hover:bg-[#332b1e] font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mb-10"
           >
             非常食一覧に戻る
           </Link>
         </div>
+        <FoodForm uid={user.uid} teamId={currentTeamId} />
       </div>
     </div>
   );

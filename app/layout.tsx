@@ -39,18 +39,18 @@ export default function RootLayout({
     });
     return () => unsubscribeAuth();
   }, []);
-
+  
   const handleLogoClick = () => {
     if (isCheckingAuth) {
-      return; 
+      return;
     }
 
     if (!user) {
       router.push('/');
-    } else if (teamId !== null) {
+    } else if (teamId === null) {
       router.push('/teams/select');
     } else {
-      router.push('/foods/add'); 
+      router.push(`/foods/add?teamId=${teamId}`); 
     }
   };
 

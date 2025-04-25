@@ -54,18 +54,6 @@ export default function TeamSelectPage() {
       <div className="p-4 items-center justify-center flex flex-col bottom-0 ">
         <h1 className="text-5xl font-bold mb-28 text-[#333] ">チームへの参加または作成</h1>
         {leaveError && <p className="text-red-500">{leaveError}</p>}
-        {currentTeamId && (
-          <div className="mb-4 p-4 border rounded ">
-            <p className='text-[#333]'>現在のチームに所属しています。</p>
-            <button
-              onClick={handleLeaveTeam}
-              disabled={leavingTeam}
-              className="inline-block bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-2 border-[#333]"
-            >
-              {leavingTeam ? '離脱処理中...' : 'チームから離れる'}
-            </button>
-          </div>
-        )}
         <p className="mb-4 text-[#333]">既存のチームに参加する場合は、チームIDを入力してください。</p>
         <Link href="/teams/join" className="inline-block bg-[#333333] hover:bg-[#332b1e] text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2 mb-10">
           既存のチームに参加

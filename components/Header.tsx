@@ -8,15 +8,15 @@ interface HeaderProps {
 
 export default function Header({ onLogoClick }: HeaderProps) {
   const pathname = usePathname();
-  const hiddenPaths = ['/auth/login', '/auth/register', '/teams/select', '/']; // 非表示にしたいパスのリスト
+  const hiddenPaths = ['/auth/login', '/auth/register', '/teams/select', '/'];
 
   const shouldShowTeamSelectLink = !hiddenPaths.includes(pathname); 
 
 return (
-    <header className="bg-[#333] py-5 z-20">
+    <header className="bg-[#333] py-5 z-20 sticky top-0 w-full">
       <div className="container mx-auto flex justify-between items-center">
-      <button onClick={onLogoClick} className="text-xl font-bold cursor-pointer text-[#ffd699]">
-          非常食管理アプリ
+      <button onClick={onLogoClick} className="text-xl font-bold cursor-pointer ml-2 text-[#ffd699]">
+          一備一会
         </button>
         <nav>
         {shouldShowTeamSelectLink && (
