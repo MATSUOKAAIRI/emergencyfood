@@ -15,10 +15,10 @@ type Food = {
   registeredAt: { seconds: number; nanoseconds: number };
   teamId: string;
   uid: string;
-  amount?: number; // 金額
-  purchaseLocation?: string; // 買った場所
-  label?: string; // ラベル
-  storageLocation?: string; // 保存場所
+  amount?: number | null;
+  purchaseLocation?: string | null;
+  label?: string | null;
+  storageLocation?: string | null; 
 };
 
 type FoodItemProps = {
@@ -32,14 +32,14 @@ export default function FoodItem({ food }: FoodItemProps) {
   const registeredDate = new Date(food.registeredAt.seconds * 1000);
   const formattedRegisteredDate = registeredDate.toLocaleString('ja-JP');
 
-  return (
-    <li className={`p-4 border-b border-red-300 ${isNearExpiry ? 'bg-red-300' : ''}`}>
+  return (<>
+    <li className={`p-4 border-b  ${isNearExpiry ? 'bg-red-300 border-red-300' : ''}`}>
       <h3 className="text-lg font-semibold text-[#333]">{food.name}</h3>
       <p className='text-[#333]'>数量: {food.quantity}</p>
       <p className='text-[#333]'>賞味期限: {food.expiryDate} ({daysUntilExpiry})</p>
       <p className='text-[#333]'>カテゴリ: {food.category}</p>
       <p className='text-[#333]'>登録日時: {formattedRegisteredDate}</p>
-      {food.amount !== undefined && <p className='text-[#333]'>金額: {food.amount} 円</p>}
+      {food.amount !== undefined && food.amount !== null && <p className='text-[#333]'>金額: {food.amount} 円</p>}
       {food.purchaseLocation && <p className='text-[#333]'>買った場所: {food.purchaseLocation}</p>}
       {food.label && <p className='text-[#333]'>ラベル: {food.label}</p>}
       {food.storageLocation && <p className='text-[#333]'>保存場所: {food.storageLocation}</p>}
@@ -50,5 +50,7 @@ export default function FoodItem({ food }: FoodItemProps) {
         </Link>
       </div>
     </li>
+    <div className="border-b border-[#333] w-full mt-10 mb-10"></div>
+    </>
   );
 }

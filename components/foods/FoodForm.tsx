@@ -52,22 +52,27 @@ export default function FoodForm({ uid, teamId }: FoodFormProps) {
       setErrorMessage('チームIDが設定されていません。');
       return;
     }
+    const { name, quantity, expiryDate, category, amount, purchaseLocation, label, storageLocation } = formData;
 
+    if (!name || !quantity || !expiryDate || !category) {
+      setErrorMessage('必須フィールドをすべて入力してください。');
+      return;
+    }
     try {
-      const { name, quantity, expiryDate, category, amount, purchaseLocation, label, storageLocation } = formData;
-      await addDoc(collection(db, 'foods'), {
+     const data ={
         name,
         quantity: Number(quantity),
         expiryDate,
         category,
-        amount: amount !== undefined ? Number(amount) : undefined,
-        purchaseLocation,
-        label,
-        storageLocation,
+        amount: amount !== undefined ? Number(amount) : null, // undefined なら null
+        purchaseLocation: purchaseLocation || null, // undefined または空文字列なら null
+        label: label || null, // undefined または空文字列なら null
+        storageLocation: storageLocation || '未設定',
         registeredAt: serverTimestamp(),
         teamId,
         uid,
-      });
+      };
+      await addDoc(collection(db, 'foods'), data);
       setFormData({ name: '', quantity: 1, expiryDate: '', category: '', amount: undefined, purchaseLocation: undefined, label: undefined, storageLocation: undefined });
       setSuccessMessage('非常食を登録しました！');
     } catch (error: any) {
@@ -77,9 +82,9 @@ export default function FoodForm({ uid, teamId }: FoodFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-md mx-auto p-4 border rounded mb-4 border-[#333]  w-3/4">
+    <form onSubmit={handleSubmit} className="max-w-md mx-auto p-4 border rounded mb-4 border-[#333] w-3/4">
       <h2 className="text-xl font-bold mb-4 text-[#333]">非常食の登録</h2>
-      {errorMessage && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">{errorMessage}</div>}
+      {errorMessage && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 ">{errorMessage}</div>}
       {successMessage && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">{successMessage}</div>}
       <div className="mb-4">
         <label htmlFor="name" className="block text-[#333] text-sm font-bold mb-2">品名</label>
@@ -143,6 +148,7 @@ export default function FoodForm({ uid, teamId }: FoodFormProps) {
           name="amount"
           value={formData.amount || ''}
           onChange={handleChange}
+          placeholder="任意"
           className="shadow appearance-none border rounded w-full py-2 px-3 text-[#333] leading-tight focus:outline-none focus:shadow-outline"
           min="0"
         />
@@ -155,6 +161,7 @@ export default function FoodForm({ uid, teamId }: FoodFormProps) {
           name="purchaseLocation"
           value={formData.purchaseLocation || ''}
           onChange={handleChange}
+          placeholder="任意"
           className="shadow appearance-none border rounded w-full py-2 px-3 text-[#333] leading-tight focus:outline-none focus:shadow-outline"
           
         />
@@ -167,6 +174,7 @@ export default function FoodForm({ uid, teamId }: FoodFormProps) {
           name="label"
           value={formData.label || ''}
           onChange={handleChange}
+          placeholder="任意"
           className="shadow appearance-none border rounded w-full py-2 px-3 text-[#333] leading-tight focus:outline-none focus:shadow-outline"
         />
       </div>
@@ -178,6 +186,7 @@ export default function FoodForm({ uid, teamId }: FoodFormProps) {
           name="storageLocation"
           value={formData.storageLocation || ''}
           onChange={handleChange}
+          placeholder="任意"
           className="shadow appearance-none border rounded w-full py-2 px-3 text-[#333] leading-tight focus:outline-none focus:shadow-outline"
         />
       </div>

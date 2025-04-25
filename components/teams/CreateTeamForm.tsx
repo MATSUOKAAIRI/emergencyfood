@@ -42,9 +42,9 @@ export default function CreateTeamForm() {
     const userDocRef = doc(db, 'users', user.uid);
     const userDocSnap = await getDoc(userDocRef);
       if (!userDocSnap.exists()) {
-        await setDoc(userDocRef, { teamId: arrayUnion(generatedTeamId)})
+        await setDoc(userDocRef, { teamId: arrayUnion(generatedTeamId)});
       } else {
-        await updateDoc(userDocRef, { teamId: arrayUnion(generatedTeamId)})
+        await updateDoc(userDocRef, { teamId: arrayUnion(generatedTeamId)});
       }
 
     
