@@ -25,10 +25,8 @@ export default function RegisterForm() {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       if (userCredential.user) {
-        // users コレクションに新しいドキュメントを作成
         await setDoc(doc(db, 'users', userCredential.user.uid), {
-          teamId: null, // 初期状態ではチームに所属しない
-          // その他のユーザー情報があれば追加
+          teamId: null, 
         });
         console.log('登録成功');
         router.push('/teams/select');

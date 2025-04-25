@@ -20,7 +20,7 @@ return (
         </button>
         <nav>
         {shouldShowTeamSelectLink && (
-            <Link href="/teams/select" className="text-[#ffd699] hover:text-[#e6a756]">
+            <Link href="/teams/select" className="text-[#ffd699] hover:text-[#e6a756] mr-3">
               チームを選択する
             </Link>
           )}
