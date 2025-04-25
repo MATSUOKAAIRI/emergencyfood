@@ -20,7 +20,7 @@ export default function LoginForm() {
       console.log('ログイン成功');
       router.push('/teams/select');
     } catch (error: any) {
-      setError(error.message);
+      setError("パスワードまたはメールアドレスが間違っています");
     }
   };
 

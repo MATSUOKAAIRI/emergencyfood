@@ -32,7 +32,7 @@ export default function RegisterForm() {
         router.push('/teams/select');
       }
     } catch (error: any) {
-      setError(error.message);
+      setError("すでに登録済みです");
     }
   };
 
