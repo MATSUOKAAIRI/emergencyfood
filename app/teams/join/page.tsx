@@ -18,10 +18,10 @@ export default function JoinTeamPage() {
   }, [router]);
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">既存のチームに参加</h1>
+    <div className="p-4 items-center justify-center flex flex-col bottom-0 pt-40">
+      <h1 className="text-5xl font-bold text-[#333] mb-30">既存のチームに参加</h1>
       <JoinTeamForm />
-      <Link href="/teams/select" className="inline-block mt-4 text-blue-500 hover:underline">
+      <Link href="/teams/select" className="inline-block mt-4 hover:text-[#a399ff] text-[#a399ff] hover:underline">
         チーム選択画面に戻る
       </Link>
     </div>
