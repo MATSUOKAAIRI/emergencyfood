@@ -1,7 +1,7 @@
 // components/teams/CreateTeamForm.tsx
 'use client';
 import React, { useState } from 'react';
-import { doc, getDocs, query, where, setDoc, updateDoc, collection, getDoc } from 'firebase/firestore';
+import { doc,arrayUnion, getDocs, query, where, setDoc, updateDoc, collection, getDoc } from 'firebase/firestore';
 import { db } from '@/utils/firebase';
 import { useRouter } from 'next/navigation';
 import { v4 as uuidv4 } from 'uuid';
@@ -42,9 +42,9 @@ export default function CreateTeamForm() {
     const userDocRef = doc(db, 'users', user.uid);
     const userDocSnap = await getDoc(userDocRef);
       if (!userDocSnap.exists()) {
-        await setDoc(userDocRef, { teamId: generatedTeamId });
+        await setDoc(userDocRef, { teamId: arrayUnion(generatedTeamId)})
       } else {
-        await updateDoc(userDocRef, { teamId: generatedTeamId });
+        await updateDoc(userDocRef, { teamId: arrayUnion(generatedTeamId)})
       }
 
     
