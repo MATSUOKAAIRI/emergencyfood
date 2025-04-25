@@ -52,22 +52,27 @@ export default function FoodForm({ uid, teamId }: FoodFormProps) {
       setErrorMessage('チームIDが設定されていません。');
       return;
     }
+    const { name, quantity, expiryDate, category, amount, purchaseLocation, label, storageLocation } = formData;
 
+    if (!name || !quantity || !expiryDate || !category) {
+      setErrorMessage('必須フィールドをすべて入力してください。');
+      return;
+    }
     try {
-      const { name, quantity, expiryDate, category, amount, purchaseLocation, label, storageLocation } = formData;
-      await addDoc(collection(db, 'foods'), {
+     const data ={
         name,
         quantity: Number(quantity),
         expiryDate,
         category,
-        amount: amount !== undefined ? Number(amount) : undefined,
-        purchaseLocation,
-        label,
-        storageLocation: storageLocation|| '未設定',
+        amount: amount !== undefined ? Number(amount) : null, // undefined なら null
+        purchaseLocation: purchaseLocation || null, // undefined または空文字列なら null
+        label: label || null, // undefined または空文字列なら null
+        storageLocation: storageLocation || '未設定',
         registeredAt: serverTimestamp(),
         teamId,
         uid,
-      });
+      };
+      await addDoc(collection(db, 'foods'), data);
       setFormData({ name: '', quantity: 1, expiryDate: '', category: '', amount: undefined, purchaseLocation: undefined, label: undefined, storageLocation: undefined });
       setSuccessMessage('非常食を登録しました！');
     } catch (error: any) {
@@ -143,6 +148,7 @@ export default function FoodForm({ uid, teamId }: FoodFormProps) {
           name="amount"
           value={formData.amount || ''}
           onChange={handleChange}
+          placeholder="任意"
           className="shadow appearance-none border rounded w-full py-2 px-3 text-[#333] leading-tight focus:outline-none focus:shadow-outline"
           min="0"
         />
@@ -155,6 +161,7 @@ export default function FoodForm({ uid, teamId }: FoodFormProps) {
           name="purchaseLocation"
           value={formData.purchaseLocation || ''}
           onChange={handleChange}
+          placeholder="任意"
           className="shadow appearance-none border rounded w-full py-2 px-3 text-[#333] leading-tight focus:outline-none focus:shadow-outline"
           
         />
@@ -167,6 +174,7 @@ export default function FoodForm({ uid, teamId }: FoodFormProps) {
           name="label"
           value={formData.label || ''}
           onChange={handleChange}
+          placeholder="任意"
           className="shadow appearance-none border rounded w-full py-2 px-3 text-[#333] leading-tight focus:outline-none focus:shadow-outline"
         />
       </div>
@@ -178,6 +186,7 @@ export default function FoodForm({ uid, teamId }: FoodFormProps) {
           name="storageLocation"
           value={formData.storageLocation || ''}
           onChange={handleChange}
+          placeholder="任意"
           className="shadow appearance-none border rounded w-full py-2 px-3 text-[#333] leading-tight focus:outline-none focus:shadow-outline"
         />
       </div>
