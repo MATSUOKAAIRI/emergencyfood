@@ -13,7 +13,7 @@
 //   });
 // }
 
-// export async function POST(req: Request) {
+ export async function POST(req: Request) {}
 //   const { idToken } = await req.json();
 //   if (!idToken) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
