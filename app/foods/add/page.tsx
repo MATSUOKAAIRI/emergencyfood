@@ -58,7 +58,7 @@ function AddFoodContent() {
 
   return (
     <div>
-      <div className="p-4 items-center justify-center flex flex-col bg-[#ffd699] bottom-0 pt-40">
+      <div className="items-center flex flex-col bottom-0 mt-12 min-h-screen">
         <h1 className="text-5xl font-bold mb-10 text-[#333]">新しい非常食を登録</h1>
         <div className="mt-4">
           <Link

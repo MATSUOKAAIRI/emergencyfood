@@ -82,7 +82,7 @@ export default function FoodForm({ uid, teamId }: FoodFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-md mx-auto p-4 border rounded mb-4 border-[#333] w-3/4">
+    <form onSubmit={handleSubmit} className="max-w-md mx-auto p-4 border rounded mb-4 border-[#333] w-3/4 bottom-0">
       <h2 className="text-xl font-bold mb-4 text-[#333]">非常食の登録</h2>
       {errorMessage && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 ">{errorMessage}</div>}
       {successMessage && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">{successMessage}</div>}
