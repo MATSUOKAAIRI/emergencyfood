@@ -28,12 +28,12 @@ type FoodItemProps = {
 export default function FoodItem({ food }: FoodItemProps) {
   const expiryDate = new Date(food.expiryDate);
   const daysUntilExpiry = formatDistanceToNow(expiryDate, { locale: ja });
-  const isNearExpiry = expiryDate < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30日以内
+  const isNearExpiry = expiryDate < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
   const registeredDate = new Date(food.registeredAt.seconds * 1000);
   const formattedRegisteredDate = registeredDate.toLocaleString('ja-JP');
 
   return (<>
-    <li className={`p-4 border-b  ${isNearExpiry ? 'bg-red-300 border-red-300' : ''}`}>
+    <li className={`p-4 border-b  ${isNearExpiry ? 'bg-red-300 border-red-300' : 'bg-white border-[#333]'}`}>
       <h3 className="text-lg font-semibold text-[#333]">{food.name}</h3>
       <p className='text-[#333]'>数量: {food.quantity}</p>
       <p className='text-[#333]'>賞味期限: {food.expiryDate} ({daysUntilExpiry})</p>

@@ -57,7 +57,7 @@ export default function FoodReviewsPage() {
     try {
       await addDoc(collection(db, 'foodReviews'), {
         foodId: foodId,
-        userId: user.uid,
+        userName: user.email,
         text: reviewText,
         createdAt: serverTimestamp(),
       });
@@ -71,7 +71,7 @@ export default function FoodReviewsPage() {
   return (
     <div>
   
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto py-8 min-h-screen">
         <h2 className="text-2xl font-bold mb-4 text-[#333]">食品レビュー</h2>
         {error && <p className="text-red-500 mb-4">{error}</p>}
 
