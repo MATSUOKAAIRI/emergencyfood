@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState, Suspense } from 'react'; // Suspense をインポート
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { auth, onAuthStateChanged } from '@/utils/firebase';
 import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore';
@@ -18,7 +18,6 @@ type Food = {
   uid: string;
 };
 
-// クライアントサイドコンポーネントをラップする
 function FoodListPageClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -86,8 +85,7 @@ function FoodListPageClient() {
   }, [user, currentTeamId]);
 
   return (
-    <div>
-      <div className="p-4 items-center justify-center flex flex-col bottom-0 pt-40 w-full max-w-screen-lg mx-auto">
+    <div className='mt-12 items-center flex flex-col h-screen'>
         <h1 className="text-5xl font-bold mb-10 text-[#333]">非常食一覧</h1>
         {currentTeamId ? (
           <>
@@ -99,7 +97,7 @@ function FoodListPageClient() {
               </Link>
             </div>
             {foods.length > 0 ? (
-              <ul className="mt-4 w-3/4 items-center justify-center flex flex-col bg-[#ffd699] bottom-0 ">
+              <ul className="mt-4 w-3/4 items-center justify-center flex flex-col bottom-0 ">
                 {foods.map((food) => (
                   <FoodItem key={food.id} food={food} />
                 ))}
@@ -113,7 +111,6 @@ function FoodListPageClient() {
           <p className='text-[#333]'>チームIDが設定されていません。チームに参加または作成してください。</p>
         )}
       </div>
-    </div>
   );
 }
 
