@@ -1,7 +1,7 @@
 'use client';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { auth, onAuthStateChanged } from '@/utils/firebase';
 import Header from '@/components/Header';
@@ -20,10 +20,19 @@ export default function RootLayout({
   const [teamId, setTeamId] = useState<string | null>(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState<boolean>(true);
 
- 
-  const handleRedirect = async (currentUser: any, currentPath: string) => {
-    setIsCheckingAuth(false);
+  const isRedirecting = useRef(false);
+  const lastRedirectPath = useRef<string | null>(null);
 
+  useEffect(() => {
+    const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser); // user stateを更新
+      setIsCheckingAuth(false);
+    
+      const currentPath = pathname;
+      if (isRedirecting.current) {
+          console.log("DEBUG: Already redirecting, skipping onAuthStateChanged execution.");
+          return;
+      }
 
       const isAuthPage = pathname.startsWith('/auth/');
       const isHomepage = pathname === '/';
@@ -34,16 +43,18 @@ export default function RootLayout({
         pathname === '/teams/create';
 
       const isFoodsListPage = pathname.startsWith('/foods/');
+      let targetPath: string | null = null;
 
       if (!currentUser) {
         setTeamId(null); 
         if (!isAuthPage && !isHomepage) {
-          router.replace('/auth/login'); 
+          targetPath = '/auth/login'; // ログインページへリダイレクト
+        } else if (isHomepage) { // トップページにいる場合、何もせず。
+          targetPath = currentPath; // 明示的に同じパスに留まる
         }
-        return;
-      }
+      } else {
+        let userTeamId: string | null = null;
 
-      let userTeamId: string | null = null;
       try {
         const idTokenResult = await currentUser.getIdTokenResult(true);
         userTeamId = (idTokenResult.claims.teamId as string | null) || null;
@@ -66,20 +77,36 @@ export default function RootLayout({
       if (userTeamId) {
 
         if (!isFoodsListPage) { 
-          router.replace(`/foods/list?teamId=${userTeamId}`);
+            targetPath = `/foods/list?teamId=${userTeamId}`;
+          } else {
+            // 食品関連ページにいる場合は、そのまま滞在
+            targetPath = currentPath; // 明示的に同じパスに留まる
+          }
+        } else {
+          // ユーザーがチームに所属していない場合
+          if (!isAllowedWithoutTeamPage && !isHomepage) { // チーム関連ページやトップページ以外にいたらチーム選択ページへ
+            targetPath = '/teams/select';
+          } else {
+            // チーム関連ページやトップページにいる場合は、そのまま滞在
+            targetPath = currentPath; // 明示的に同じパスに留まる
+          }
         }
-      } else {
-        if (!isAllowedWithoutTeamPage && !isHomepage) { 
-          router.replace('/teams/select');
-        }
-      }
     }
-     useEffect(() => {
-    const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-      await handleRedirect(currentUser, pathname); 
+     if (targetPath && targetPath !== currentPath) {
+        isRedirecting.current = true; // リダイレクトフラグをセット
+        lastRedirectPath.current = targetPath; // 最後のターゲットパスを記録
+        console.log(`DEBUG: Attempting redirect from ${currentPath} to ${targetPath}`);
+        router.replace(targetPath);
+      } else {
+        console.log(`DEBUG: No redirect needed. Current path: ${currentPath}, Target path: ${targetPath}`);
+      }
+      console.log("--- LAYOUT DEBUG: onAuthStateChanged End ---");
     });
-    return () => unsubscribeAuth();
+    return () => {
+      unsubscribeAuth();
+      isRedirecting.current = false; // コンポーネントがアンマウントされたらフラグをリセット
+      lastRedirectPath.current = null;
+    };
   }, [pathname, router]); 
 
   const handleLogoClick = () => {
