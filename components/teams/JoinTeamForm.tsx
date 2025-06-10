@@ -25,62 +25,6 @@ export default function JoinTeamForm() {
     }
 
     try {
-  //     const teamsRef = collection(db, 'teams');
-  //     const q = query(teamsRef, where('name', '==', teamNameInput));
-  //     const querySnapshot = await getDocs(q);
-
-  //     if (querySnapshot.empty) {
-  //       console.log('指定されたチーム名が見つかりません');
-  //       setError('指定されたチーム名は見つかりません。');
-  //       return;
-  //     }
-
-  //     let foundTeamId = null;
-  //     let passwordMatch = false;
-  //     querySnapshot.forEach((doc) => {
-  //       const teamData = doc.data();
-
-  //       if (teamData?.password === teamPasswordInput) {
-  //         foundTeamId = doc.id;
-  //         passwordMatch = true;
-  //       }
-  //     });
-
-  //     if (foundTeamId && passwordMatch) {
-  //       const teamDocRef = doc(db, 'teams', foundTeamId);
-  //       const teamDocSnap = await getDoc(teamDocRef);
-
-  //       if (teamDocSnap.exists()) {
-  //         const teamData = teamDocSnap.data();
-  //         const currentMemberIds = teamData?.members || [];
-
-  //         if (!currentMemberIds.includes(user.uid)) {
-  //           await updateDoc(doc(db, 'users', user.uid), { teamId: arrayUnion(foundTeamId) });
-  //           await updateDoc(teamDocRef, { members: [...currentMemberIds, user.uid] });
-            
-  //           const idToken = await user.getIdToken();
-  //           await fetch('/api/setMyCustomClaims', {
-  //             method: 'POST',
-  //             headers: { 'Content-Type': 'application/json' },
-  //             body: JSON.stringify({ idToken }),
-  //           });
-  //           await user.getIdToken(true); // クレーム反映のため再取得
-            
-  //           setSuccessMessage(`チーム "${teamData?.name || teamNameInput}" に参加しました！`);
-  //           router.push(`/foods/list?teamId=${foundTeamId}`);
-  //         } else {
-  //           setSuccessMessage('既にこのチームに参加しています。');
-  //           router.push(`/foods/list?teamId=${foundTeamId}`);
-  //         }
-  //       } else {
-  //         setError('チーム情報の取得に失敗しました。');
-  //       }
-  //     } else {
-  //       setError('チーム名またはパスワードが間違っています。');
-  //     }
-  //   } catch (error: any) {
-  //     setError('チームへの参加に失敗しました。');
-  //   }
   const idToken = await user.getIdToken();
 
       const response = await fetch('/api/actions/joinTeam', {
@@ -102,26 +46,19 @@ export default function JoinTeamForm() {
       }
 
       setSuccessMessage(result.message || `チームに参加しました！`);
-      const setClaimsRes = await fetch('/api/setCustomClaims', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        uid: user.uid,
-        teamId: result.teamId,
-        idToken: idToken
-      }),
-    });
 
-    if (!setClaimsRes.ok) {
-        const errorData = await setClaimsRes.json();
-        console.error('カスタムクレーム更新APIエラー:', errorData);
-        setError(`クレームの同期に失敗しました: ${errorData.error || setClaimsRes.statusText}`);
-        return;
-    }
-
-      
       await user.getIdToken(true);
-
+if (result.teamId) {
+        // router.replace を使用することで、ブラウザの履歴にこの遷移が残らないようにします。
+        // これにより、ユーザーが「戻る」ボタンを押しても、参加フォームに戻るのではなく、
+        // 参加前のページ（通常はチーム選択画面）に戻ります。
+        router.replace(`/foods/list?teamId=${result.teamId}`); 
+        console.log(`EMERGENCY REDIRECT: Navigating to /foods/list?teamId=${result.teamId}`);
+    } else {
+        // 万が一、APIからteamIdが返されない場合は、汎用的なリストページへ（このケースは稀であるべき）
+        router.replace('/foods/list');
+        console.log("EMERGENCY REDIRECT: Navigating to /foods/list (teamId not returned).");
+    }
     } catch (error: any) {
       console.error('Error joining team:', error);
       setError(`チームへの参加に失敗しました: ${error.message || '不明なエラ-'}`);
