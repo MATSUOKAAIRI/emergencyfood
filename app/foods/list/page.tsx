@@ -12,6 +12,7 @@ type Food = {
   name: string;
   quantity: number;
   expiryDate: string;
+  isArchived: boolean;
   category: string;
   registeredAt: { seconds: number; nanoseconds: number };
   teamId: string;
