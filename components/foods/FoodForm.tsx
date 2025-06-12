@@ -8,6 +8,7 @@ type FormData = {
   name: string;
   quantity: number;
   expiryDate: string;
+  isArchived: boolean;
   category: string;
   amount?: number;
   purchaseLocation?: string;
@@ -25,6 +26,7 @@ export default function FoodForm({ uid, teamId }: FoodFormProps) {
     name: '',
     quantity: 1,
     expiryDate: '',
+    isArchived: false,
     category: '',
     amount: undefined,
     purchaseLocation: undefined,
@@ -52,7 +54,7 @@ export default function FoodForm({ uid, teamId }: FoodFormProps) {
       setErrorMessage('チームIDが設定されていません。');
       return;
     }
-    const { name, quantity, expiryDate, category, amount, purchaseLocation, label, storageLocation } = formData;
+    const { name, quantity, expiryDate, isArchived, category, amount, purchaseLocation, label, storageLocation } = formData;
 
     if (!name || !quantity || !expiryDate || !category) {
       setErrorMessage('必須フィールドをすべて入力してください。');
@@ -63,6 +65,7 @@ export default function FoodForm({ uid, teamId }: FoodFormProps) {
         name,
         quantity: Number(quantity),
         expiryDate,
+        isArchived,
         category,
         amount: amount !== undefined ? Number(amount) : null, // undefined なら null
         purchaseLocation: purchaseLocation || null, // undefined または空文字列なら null
@@ -73,7 +76,7 @@ export default function FoodForm({ uid, teamId }: FoodFormProps) {
         uid,
       };
       await addDoc(collection(db, 'foods'), data);
-      setFormData({ name: '', quantity: 1, expiryDate: '', category: '', amount: undefined, purchaseLocation: undefined, label: undefined, storageLocation: undefined });
+      setFormData({ name: '', quantity: 1, expiryDate: '', isArchived: false, category: '', amount: undefined, purchaseLocation: undefined, label: undefined, storageLocation: undefined });
       setSuccessMessage('非常食を登録しました！');
     } catch (error: any) {
       console.error('Error adding document: ', error);

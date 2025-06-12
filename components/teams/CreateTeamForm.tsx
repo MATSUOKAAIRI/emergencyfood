@@ -79,7 +79,13 @@ export default function CreateTeamForm() {
       // setSuccessMessage(`新しいチーム "${teamName}" (ID: ${generatedTeamId}) を作成しました！`);
       // router.push(`/foods/list?teamId=${generatedTeamId}`);
       await user.getIdToken(true);
-
+if (result.teamId) {
+        router.replace(`/foods/list?teamId=${result.teamId}`); 
+        console.log(`EMERGENCY REDIRECT: Navigating to /foods/list?teamId=${result.teamId}`);
+    } else {
+        router.replace('/foods/list');
+        console.log("EMERGENCY REDIRECT: Navigating to /foods/list (teamId not returned).");
+    }
     } catch (error: any) {
       console.error('チーム作成エラー:', error);
       setError(`チームの作成に失敗しました: ${error.message || '不明なエラー'}`);
