@@ -25,7 +25,7 @@ export default function JoinTeamForm() {
     }
 
     try {
-  const idToken = await user.getIdToken();
+      const idToken = await user.getIdToken();
 
       const response = await fetch('/api/actions/joinTeam', {
         method: 'POST',
@@ -48,17 +48,17 @@ export default function JoinTeamForm() {
       setSuccessMessage(result.message || `チームに参加しました！`);
 
       await user.getIdToken(true);
-if (result.teamId) {
+      if (result.teamId) {
         // router.replace を使用することで、ブラウザの履歴にこの遷移が残らないようにします。
         // これにより、ユーザーが「戻る」ボタンを押しても、参加フォームに戻るのではなく、
         // 参加前のページ（通常はチーム選択画面）に戻ります。
         router.replace(`/foods/list?teamId=${result.teamId}`); 
         console.log(`EMERGENCY REDIRECT: Navigating to /foods/list?teamId=${result.teamId}`);
-    } else {
+      } else {
         // 万が一、APIからteamIdが返されない場合は、汎用的なリストページへ（このケースは稀であるべき）
         router.replace('/foods/list');
         console.log("EMERGENCY REDIRECT: Navigating to /foods/list (teamId not returned).");
-    }
+      }
     } catch (error: any) {
       console.error('Error joining team:', error);
       setError(`チームへの参加に失敗しました: ${error.message || '不明なエラ-'}`);

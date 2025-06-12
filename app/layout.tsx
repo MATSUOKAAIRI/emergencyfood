@@ -25,7 +25,7 @@ export default function RootLayout({
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser); // user stateを更新
+      setUser(currentUser);
       setIsCheckingAuth(false);
     
       const currentPath = pathname;
@@ -48,9 +48,9 @@ export default function RootLayout({
       if (!currentUser) {
         setTeamId(null); 
         if (!isAuthPage && !isHomepage) {
-          targetPath = '/auth/login'; // ログインページへリダイレクト
-        } else if (isHomepage) { // トップページにいる場合、何もせず。
-          targetPath = currentPath; // 明示的に同じパスに留まる
+          targetPath = '/auth/login';
+        } else if (isHomepage) {
+          targetPath = currentPath; 
         }
       } else {
         let userTeamId: string | null = null;
@@ -58,15 +58,6 @@ export default function RootLayout({
       try {
         const idTokenResult = await currentUser.getIdTokenResult(true);
         userTeamId = (idTokenResult.claims.teamId as string | null) || null;
-
-        // if (!userTeamId) {
-        //   const userDocRef = doc(db, 'users', currentUser.uid);
-        //   const userDocSnap = await getDoc(userDocRef);
-        //   if (userDocSnap.exists()) {
-        //     userTeamId = userDocSnap.data()?.teamId || null;
-        //   }
-        // }
-
       } catch (error) {
         console.error("Error fetching ID token result in layout:", error);
         userTeamId = null;
@@ -75,36 +66,32 @@ export default function RootLayout({
       setTeamId(userTeamId);
 
       if (userTeamId) {
-
         if (!isFoodsListPage) { 
             targetPath = `/foods/list?teamId=${userTeamId}`;
-          } else {
-            // 食品関連ページにいる場合は、そのまま滞在
-            targetPath = currentPath; // 明示的に同じパスに留まる
-          }
         } else {
-          // ユーザーがチームに所属していない場合
-          if (!isAllowedWithoutTeamPage && !isHomepage) { // チーム関連ページやトップページ以外にいたらチーム選択ページへ
-            targetPath = '/teams/select';
-          } else {
-            // チーム関連ページやトップページにいる場合は、そのまま滞在
-            targetPath = currentPath; // 明示的に同じパスに留まる
-          }
+          targetPath = currentPath;
         }
-    }
-     if (targetPath && targetPath !== currentPath) {
-        isRedirecting.current = true; // リダイレクトフラグをセット
-        lastRedirectPath.current = targetPath; // 最後のターゲットパスを記録
-        console.log(`DEBUG: Attempting redirect from ${currentPath} to ${targetPath}`);
-        router.replace(targetPath);
       } else {
-        console.log(`DEBUG: No redirect needed. Current path: ${currentPath}, Target path: ${targetPath}`);
+        if (!isAllowedWithoutTeamPage && !isHomepage) {
+          targetPath = '/teams/select';
+        } else {
+          targetPath = currentPath;
+        }
       }
+    }
+    if (targetPath && targetPath !== currentPath) {
+      isRedirecting.current = true;
+      lastRedirectPath.current = targetPath;
+      console.log(`DEBUG: Attempting redirect from ${currentPath} to ${targetPath}`);
+      router.replace(targetPath);
+    } else {
+      console.log(`DEBUG: No redirect needed. Current path: ${currentPath}, Target path: ${targetPath}`);
+    }
       console.log("--- LAYOUT DEBUG: onAuthStateChanged End ---");
     });
     return () => {
       unsubscribeAuth();
-      isRedirecting.current = false; // コンポーネントがアンマウントされたらフラグをリセット
+      isRedirecting.current = false;
       lastRedirectPath.current = null;
     };
   }, [pathname, router]); 
