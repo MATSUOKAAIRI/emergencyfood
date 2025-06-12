@@ -35,7 +35,8 @@ export default function RegisterForm() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
             uid: userCredential.user.uid,
-            teamId: null
+            teamId: null,
+            idToken: idToken
           }),
         });
         if (!res.ok) {
@@ -43,8 +44,6 @@ export default function RegisterForm() {
           return;
         }
         await userCredential.user.getIdToken(true);
-
-        router.push('/teams/select');
       }
     } catch (error: any) {
       if (error.code === 'auth/email-already-in-use') {
