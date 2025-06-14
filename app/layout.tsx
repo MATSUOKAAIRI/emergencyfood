@@ -1,13 +1,13 @@
-'use client';
-import { Inter } from 'next/font/google';
-import './globals.css';
-import { useEffect, useState, useCallback } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { auth, onAuthStateChanged } from '@/utils/firebase';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+"use client";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { useEffect, useState, useCallback } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { auth, onAuthStateChanged } from "@/utils/firebase";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
   children,
@@ -19,62 +19,68 @@ export default function RootLayout({
   const [user, setUser] = useState<any>(null);
   const [teamId, setTeamId] = useState<string | null>(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState<boolean>(true);
-  const handleRedirect = useCallback(async (currentUser: any, currentPath: string) => {
+  const handleRedirect = useCallback(
+    async (currentUser: any, currentPath: string) => {
+      const isAuthPage = pathname.startsWith("/auth/");
+      const isHomepage = pathname === "/";
 
-      const isAuthPage = pathname.startsWith('/auth/');
-      const isHomepage = pathname === '/';
+      const isAllowedWithoutTeamPage =
+        pathname === "/teams/select" ||
+        pathname === "/teams/join" ||
+        pathname === "/teams/create";
 
-      const isAllowedWithoutTeamPage = 
-        pathname === '/teams/select' ||
-        pathname === '/teams/join' ||
-        pathname === '/teams/create';
-
-      const isFoodsListPage = pathname.startsWith('/foods/');
+      const isFoodsListPage =
+        pathname.startsWith("/foods/") || currentPath.startsWith("/settings");
       let targetPath: string | null = null;
 
       if (!currentUser) {
-        setTeamId(null); 
+        setTeamId(null);
         if (!isAuthPage && !isHomepage) {
-          targetPath = '/auth/login';
-        } else if (isHomepage) {
-          targetPath = currentPath; 
+          targetPath = "/auth/login";
+        } else {
+          targetPath = currentPath;
         }
       } else {
         let userTeamId: string | null = null;
 
-      try {
-        const idTokenResult = await currentUser.getIdTokenResult(true);
-        userTeamId = (idTokenResult.claims.teamId as string | null) || null;
-      } catch (error) {
-        console.error("Error fetching ID token result in layout:", error);
-        userTeamId = null;
-      }
+        try {
+          const idTokenResult = await currentUser.getIdTokenResult(true);
+          userTeamId = (idTokenResult.claims.teamId as string | null) || null;
+        } catch (error) {
+          console.error("Error fetching ID token result in layout:", error);
+          userTeamId = null;
+        }
 
-      setTeamId(userTeamId);
+        setTeamId(userTeamId);
 
-      if (userTeamId) {
-        if (!isFoodsListPage) { 
+        if (userTeamId) {
+          if (!isFoodsListPage) {
             targetPath = `/foods/list?teamId=${userTeamId}`;
+          } else {
+            targetPath = currentPath;
+          }
         } else {
-          targetPath = currentPath;
-        }
-      } else {
-        if (!isAllowedWithoutTeamPage && !isHomepage) {
-          targetPath = '/teams/select';
-        } else {
-          targetPath = currentPath;
+          if (!isAllowedWithoutTeamPage && !isHomepage) {
+            targetPath = "/teams/select";
+          } else {
+            targetPath = currentPath;
+          }
         }
       }
-    }
-    if (targetPath && targetPath !== currentPath) {
-      console.log(`DEBUG: Attempting redirect from ${currentPath} to ${targetPath}`);
-      router.replace(targetPath);
-    } else {
-      console.log(`DEBUG: No redirect needed. Current path: ${currentPath}, Target path: ${targetPath}`);
-    }
+      if (targetPath && targetPath !== currentPath) {
+        console.log(
+          `DEBUG: Attempting redirect from ${currentPath} to ${targetPath}`
+        );
+        router.replace(targetPath);
+      } else {
+        console.log(
+          `DEBUG: No redirect needed. Current path: ${currentPath}, Target path: ${targetPath}`
+        );
+      }
       console.log("--- LAYOUT DEBUG: onAuthStateChanged End ---");
-
-  }, [pathname, router]); 
+    },
+    [pathname, router]
+  );
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
@@ -85,15 +91,15 @@ export default function RootLayout({
     return () => {
       unsubscribeAuth();
     };
-  }, [pathname, router, handleRedirect]); 
+  }, [pathname, router, handleRedirect]);
   const handleLogoClick = () => {
     if (isCheckingAuth) return;
     if (!user) {
-      router.push('/');
+      router.push("/");
     } else if (teamId !== null) {
       router.push(`/foods/list?teamId=${teamId}`);
     } else {
-      router.push('/teams/select');
+      router.push("/teams/select");
     }
   };
 
@@ -112,13 +118,10 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className={inter.className}>
-        <div className='min-h-screen'>
-        <Header 
-          onLogoClick={handleLogoClick} 
-          isLoggedIn={!!user}
-        />
-        <main>{children}</main>
-        <Footer />
+        <div className="min-h-screen">
+          <Header onLogoClick={handleLogoClick} isLoggedIn={!!user} />
+          <main>{children}</main>
+          <Footer />
         </div>
       </body>
     </html>
