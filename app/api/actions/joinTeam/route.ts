@@ -2,8 +2,6 @@ import { NextResponse } from 'next/server';
 import { adminAuth, adminDb } from '@/utils/firebase-admin';
 import * as admin from 'firebase-admin';
 
-// const adminAuth = getAdminAuth();
-// const adminDb = getAdminFirestore();
 
 export async function POST(req: Request) {
   try {
@@ -38,7 +36,6 @@ export async function POST(req: Request) {
     const teamDoc = querySnapshot.docs[0];
     const teamData = teamDoc.data();
     const foundTeamId = teamDoc.id;
-// Check if the team has a password
     if (teamData?.password !== teamPassword) {
       return NextResponse.json({ error: 'Incorrect team name or password' }, { status: 401 });
     }

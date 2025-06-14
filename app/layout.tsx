@@ -1,7 +1,7 @@
 'use client';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { auth, onAuthStateChanged } from '@/utils/firebase';
 import Header from '@/components/Header';
@@ -19,20 +19,7 @@ export default function RootLayout({
   const [user, setUser] = useState<any>(null);
   const [teamId, setTeamId] = useState<string | null>(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState<boolean>(true);
-
-  const isRedirecting = useRef(false);
-  const lastRedirectPath = useRef<string | null>(null);
-
-  useEffect(() => {
-    const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-      setIsCheckingAuth(false);
-    
-      const currentPath = pathname;
-      if (isRedirecting.current) {
-          console.log("DEBUG: Already redirecting, skipping onAuthStateChanged execution.");
-          return;
-      }
+  const handleRedirect = useCallback(async (currentUser: any, currentPath: string) => {
 
       const isAuthPage = pathname.startsWith('/auth/');
       const isHomepage = pathname === '/';
@@ -80,22 +67,25 @@ export default function RootLayout({
       }
     }
     if (targetPath && targetPath !== currentPath) {
-      isRedirecting.current = true;
-      lastRedirectPath.current = targetPath;
       console.log(`DEBUG: Attempting redirect from ${currentPath} to ${targetPath}`);
       router.replace(targetPath);
     } else {
       console.log(`DEBUG: No redirect needed. Current path: ${currentPath}, Target path: ${targetPath}`);
     }
       console.log("--- LAYOUT DEBUG: onAuthStateChanged End ---");
+
+  }, [pathname, router]); 
+  useEffect(() => {
+    const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser);
+      setIsCheckingAuth(true);
+      await handleRedirect(currentUser, pathname);
+      setIsCheckingAuth(false);
     });
     return () => {
       unsubscribeAuth();
-      isRedirecting.current = false;
-      lastRedirectPath.current = null;
     };
-  }, [pathname, router]); 
-
+  }, [pathname, router, handleRedirect]); 
   const handleLogoClick = () => {
     if (isCheckingAuth) return;
     if (!user) {
