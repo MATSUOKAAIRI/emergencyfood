@@ -36,7 +36,8 @@ export default function LoginForm() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               uid: user.uid,
-              teamId: firestoreTeamId
+              teamId: firestoreTeamId,
+              idToken,
             }),
           });
 
