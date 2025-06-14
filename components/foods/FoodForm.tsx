@@ -67,9 +67,9 @@ export default function FoodForm({ uid, teamId }: FoodFormProps) {
         expiryDate,
         isArchived,
         category,
-        amount: amount !== undefined ? Number(amount) : null, // undefined なら null
-        purchaseLocation: purchaseLocation || null, // undefined または空文字列なら null
-        label: label || null, // undefined または空文字列なら null
+        amount: amount !== undefined ? Number(amount) : null,
+        purchaseLocation: purchaseLocation || null,
+        label: label || null,
         storageLocation: storageLocation || '未設定',
         registeredAt: serverTimestamp(),
         teamId,
