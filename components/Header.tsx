@@ -54,8 +54,14 @@ export default function Header({ onLogoClick, isLoggedIn }: HeaderProps) {
                 <Link
                   href="/foods/archived"
                   className="mr-4 text-[#fff] hover:text-[#a399ff] text-base sm:text-lg"
-                  >
+                >
                   過去の非常食
+                </Link>
+                <Link
+                  href="/settings"
+                  className="mr-4 text-[#fff] hover:text-[#a399ff] text-base sm:text-lg"
+                >
+                  設定
                 </Link>
               </>
             )}
