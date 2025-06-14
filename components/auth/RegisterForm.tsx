@@ -1,4 +1,4 @@
-
+// components/auth/RegisterForm.tsx
 'use client';
 import React, { useState } from 'react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
@@ -29,10 +29,32 @@ export default function RegisterForm() {
           teamId: null, 
         });
         console.log('登録成功');
-        router.push('/teams/select');
+        const idToken = await userCredential.user.getIdToken();
+        const res = await fetch('/api/setCustomClaims', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            uid: userCredential.user.uid,
+            teamId: null,
+            idToken: idToken
+          }),
+        });
+        if (!res.ok) {
+          setError('クレームの同期に失敗しました');
+          return;
+        }
+        await userCredential.user.getIdToken(true);
       }
     } catch (error: any) {
-      setError("すでに登録済みです");
+      if (error.code === 'auth/email-already-in-use') {
+        setError('このメールアドレスはすでに使われています。');
+      } else if (error.code === 'auth/invalid-email') {
+        setError('メールアドレスの形式が正しくありません。');
+      } else if (error.code === 'auth/weak-password') {
+        setError('パスワードは6文字以上にしてください。');
+      } else {
+        setError('登録に失敗しました。');
+      }
     }
   };
 

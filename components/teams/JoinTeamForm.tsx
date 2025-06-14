@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
-import { arrayUnion,doc, getDocs, query, where, updateDoc, collection, getDoc } from 'firebase/firestore';
-import { db } from '@/utils/firebase';
+//import { arrayUnion,doc, getDocs, query, where, updateDoc, collection, getDoc } from 'firebase/firestore';
+//import { db } from '@/utils/firebase';
 import { useRouter } from 'next/navigation';
 import { getAuth } from 'firebase/auth';
 
@@ -25,52 +25,43 @@ export default function JoinTeamForm() {
     }
 
     try {
-      const teamsRef = collection(db, 'teams');
-      const q = query(teamsRef, where('name', '==', teamNameInput));
-      const querySnapshot = await getDocs(q);
+      const idToken = await user.getIdToken();
 
-      if (querySnapshot.empty) {
-        console.log('指定されたチーム名が見つかりません');
-        setError('指定されたチーム名は見つかりません。');
-        return;
-      }
-
-      let foundTeamId = null;
-      let passwordMatch = false;
-      querySnapshot.forEach((doc) => {
-        const teamData = doc.data();
-
-        if (teamData?.password === teamPasswordInput) {
-          foundTeamId = doc.id;
-          passwordMatch = true;
-        }
+      const response = await fetch('/api/actions/joinTeam', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({
+          teamName: teamNameInput,
+          teamPassword: teamPasswordInput,
+        }),
       });
 
-      if (foundTeamId && passwordMatch) {
-        const teamDocRef = doc(db, 'teams', foundTeamId);
-        const teamDocSnap = await getDoc(teamDocRef);
+      const result = await response.json();
 
-        if (teamDocSnap.exists()) {
-          const teamData = teamDocSnap.data();
-          const currentMemberIds = teamData?.members || [];
+      if (!response.ok) {
+        throw new Error(result.error || 'チームへの参加に失敗しました。');
+      }
 
-          if (!currentMemberIds.includes(user.uid)) {
-            await updateDoc(doc(db, 'users', user.uid), { teamId: arrayUnion(foundTeamId) });
-            await updateDoc(teamDocRef, { members: [...currentMemberIds, user.uid] });
-            setSuccessMessage(`チーム "${teamData?.name || teamNameInput}" に参加しました！`);
-            router.push(`/foods/list?teamId=${foundTeamId}`);
-          } else {
-            setSuccessMessage('既にこのチームに参加しています。');
-            router.push(`/foods/list?teamId=${foundTeamId}`);
-          }
-        } else {
-          setError('チーム情報の取得に失敗しました。');
-        }
+      setSuccessMessage(result.message || `チームに参加しました！`);
+
+      await user.getIdToken(true);
+      if (result.teamId) {
+        // router.replace を使用することで、ブラウザの履歴にこの遷移が残らないようにします。
+        // これにより、ユーザーが「戻る」ボタンを押しても、参加フォームに戻るのではなく、
+        // 参加前のページ（通常はチーム選択画面）に戻ります。
+        router.replace(`/foods/list?teamId=${result.teamId}`); 
+        console.log(`EMERGENCY REDIRECT: Navigating to /foods/list?teamId=${result.teamId}`);
       } else {
-        setError('チーム名またはパスワードが間違っています。');
+        // 万が一、APIからteamIdが返されない場合は、汎用的なリストページへ（このケースは稀であるべき）
+        router.replace('/foods/list');
+        console.log("EMERGENCY REDIRECT: Navigating to /foods/list (teamId not returned).");
       }
     } catch (error: any) {
-      setError('チームへの参加に失敗しました。');
+      console.error('Error joining team:', error);
+      setError(`チームへの参加に失敗しました: ${error.message || '不明なエラ-'}`);
     }
   };
 
