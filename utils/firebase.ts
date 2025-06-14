@@ -6,13 +6,13 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 
 const firebaseConfig = {
-    apiKey: "AIzaSyD73TXNKjsZIWzBUIyo3EIQS_ChkZ5vv6s",
-    authDomain: "emergencyfood-55567.firebaseapp.com",
-    projectId: "emergencyfood-55567",
-    storageBucket: "emergencyfood-55567.firebasestorage.app",
-    messagingSenderId: "939531573563",
-    appId: "1:939531573563:web:e35f916fe51ff533557f1e"
-  };
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+};
 
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
