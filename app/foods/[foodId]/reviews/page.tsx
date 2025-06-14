@@ -9,6 +9,7 @@ import { collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, where 
 type Review = {
   id: string;
   userId: string;
+  userName: string; 
   text: string;
   createdAt: { seconds: number; nanoseconds: number };
 };
@@ -49,7 +50,7 @@ export default function FoodReviewsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user?.uid) {
+    if (!user?.uid || !user?.email) { 
       setError('ログインが必要です。');
       return;
     }
@@ -58,6 +59,7 @@ export default function FoodReviewsPage() {
       await addDoc(collection(db, 'foodReviews'), {
         foodId: foodId,
         userId: user.uid,
+        userName: user.email,
         text: reviewText,
         createdAt: serverTimestamp(),
       });
@@ -71,7 +73,7 @@ export default function FoodReviewsPage() {
   return (
     <div>
   
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto py-8 min-h-screen">
         <h2 className="text-2xl font-bold mb-4 text-[#333]">食品レビュー</h2>
         {error && <p className="text-red-500 mb-4">{error}</p>}
 
@@ -106,7 +108,7 @@ export default function FoodReviewsPage() {
          <ul>
          {reviews.map((review) => (
            <li key={review.id} className="mb-4 p-4 border rounded border-[#333]">
-             <p className="font-semibold text-[#333]">ユーザー ID: {review.userId}</p>
+             <p className="font-semibold text-[#333]">ユーザー ID: {review.userName}</p>
              <p className="italic text-[#333]">
                {review.createdAt?.seconds
                  ? new Date(review.createdAt.seconds * 1000).toLocaleString()

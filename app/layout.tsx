@@ -1,17 +1,13 @@
 'use client';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState, useCallback } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import { auth, onAuthStateChanged } from '@/utils/firebase';
-import { db } from '@/utils/firebase';
-import { doc, getDoc } from 'firebase/firestore';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
 const inter = Inter({ subsets: ['latin'] });
-
-
 
 export default function RootLayout({
   children,
@@ -19,48 +15,123 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [user, setUser] = useState<any>(null);
   const [teamId, setTeamId] = useState<string | null>(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState<boolean>(true);
+  const handleRedirect = useCallback(async (currentUser: any, currentPath: string) => {
 
+      const isAuthPage = pathname.startsWith('/auth/');
+      const isHomepage = pathname === '/';
+
+      const isAllowedWithoutTeamPage = 
+        pathname === '/teams/select' ||
+        pathname === '/teams/join' ||
+        pathname === '/teams/create';
+
+      const isFoodsListPage = pathname.startsWith('/foods/');
+      let targetPath: string | null = null;
+
+      if (!currentUser) {
+        setTeamId(null); 
+        if (!isAuthPage && !isHomepage) {
+          targetPath = '/auth/login';
+        } else if (isHomepage) {
+          targetPath = currentPath; 
+        }
+      } else {
+        let userTeamId: string | null = null;
+
+      try {
+        const idTokenResult = await currentUser.getIdTokenResult(true);
+        userTeamId = (idTokenResult.claims.teamId as string | null) || null;
+      } catch (error) {
+        console.error("Error fetching ID token result in layout:", error);
+        userTeamId = null;
+      }
+
+      setTeamId(userTeamId);
+
+      if (userTeamId) {
+        if (!isFoodsListPage) { 
+            targetPath = `/foods/list?teamId=${userTeamId}`;
+        } else {
+          targetPath = currentPath;
+        }
+      } else {
+        if (!isAllowedWithoutTeamPage && !isHomepage) {
+          targetPath = '/teams/select';
+        } else {
+          targetPath = currentPath;
+        }
+      }
+    }
+    if (targetPath && targetPath !== currentPath) {
+      console.log(`DEBUG: Attempting redirect from ${currentPath} to ${targetPath}`);
+      router.replace(targetPath);
+    } else {
+      console.log(`DEBUG: No redirect needed. Current path: ${currentPath}, Target path: ${targetPath}`);
+    }
+      console.log("--- LAYOUT DEBUG: onAuthStateChanged End ---");
+
+  }, [pathname, router]); 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
-      if (currentUser) {
-        const userDocRef = doc(db, 'users', currentUser.uid);
-        const userDocSnap = await getDoc(userDocRef);
-        if (userDocSnap.exists()) {
-          setTeamId(userDocSnap.data()?.teamId || null);
-        }
-      } else {
-        setTeamId(null);
-      }
+      setIsCheckingAuth(true);
+      await handleRedirect(currentUser, pathname);
       setIsCheckingAuth(false);
     });
-    return () => unsubscribeAuth();
-  }, []);
-  
+    return () => {
+      unsubscribeAuth();
+    };
+  }, [pathname, router, handleRedirect]); 
   const handleLogoClick = () => {
-    if (isCheckingAuth) {
-      return;
-    }
-
+    if (isCheckingAuth) return;
     if (!user) {
       router.push('/');
-    } else if (teamId === null) {
-      router.push('/teams/select');
+    } else if (teamId !== null) {
+      router.push(`/foods/list?teamId=${teamId}`);
     } else {
-      router.push(`/foods/add?teamId=${teamId}`); 
+      router.push('/teams/select');
     }
   };
 
+  if (isCheckingAuth) {
+    return (
+      <html lang="ja">
+        <body className={inter.className}>
+          <div className="flex justify-center items-center min-h-screen">
+            読み込み中...
+          </div>
+        </body>
+      </html>
+    );
+  }
+
   return (
     <html lang="ja">
-      <body className=" flex-col flex min-h-screen">
-        <Header onLogoClick={handleLogoClick} />
-        <main className='flex-grow'>{children}</main>
+      <body className={inter.className}>
+        <div className='min-h-screen'>
+        <Header 
+          onLogoClick={handleLogoClick} 
+          isLoggedIn={!!user}
+        />
+        <main>{children}</main>
         <Footer />
+        </div>
       </body>
     </html>
   );
 }
+
+//   return (
+//     <html lang="ja">
+//       <body className=" flex-col flex min-h-screen">
+//         <Header onLogoClick={handleLogoClick} />
+//         <main className='flex-grow'>{children}</main>
+//         <Footer />
+//       </body>
+//     </html>
+//   );
+// }

@@ -1,18 +1,18 @@
 // components/teams/CreateTeamForm.tsx
 'use client';
-import React, { useState } from 'react';
-import { doc,arrayUnion, getDocs, query, where, setDoc, updateDoc, collection, getDoc } from 'firebase/firestore';
-import { db } from '@/utils/firebase';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { v4 as uuidv4 } from 'uuid';
 import { getAuth } from 'firebase/auth';
+// import { doc, getDocs, query, where, setDoc, collection } from 'firebase/firestore';
+// import { db } from '@/utils/firebase';
+// import { v4 as uuidv4 } from 'uuid';
 
 export default function CreateTeamForm() {
   const [teamName, setTeamName] = useState('');
   const [teamPassword, setTeamPassword] = useState('');
-  const [newTeamId, setNewTeamId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false); 
   const router = useRouter();
   const firebaseAuth = getAuth();
 
@@ -20,48 +20,78 @@ export default function CreateTeamForm() {
     e.preventDefault();
     setError(null);
     setSuccessMessage(null);
-    setNewTeamId(null);
+    setLoading(true);
 
     const user = firebaseAuth.currentUser;
     if (!user) {
       setError('ログインしていません。');
+      setLoading(false);
       return;
     }
 
     try {
-      const teamsRef = collection(db, 'teams');
-      const q = query(teamsRef, where('name', '==', teamName));
-      const querySnapshot = await getDocs(q);
+      const idToken = await user.getIdToken(true);
 
-      if (!querySnapshot.empty) {
-        setError('入力されたチーム名はすでに存在します。');
-        return;
+      const response = await fetch('/api/actions/createTeam', { 
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({
+          teamName,
+          teamPassword,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'チームの作成に失敗しました。'); 
       }
 
-    const generatedTeamId = uuidv4().substring(0, 8);
-    const userDocRef = doc(db, 'users', user.uid);
-    const userDocSnap = await getDoc(userDocRef);
-      if (!userDocSnap.exists()) {
-        await setDoc(userDocRef, { teamId: arrayUnion(generatedTeamId)});
-      } else {
-        await updateDoc(userDocRef, { teamId: arrayUnion(generatedTeamId)});
-      }
+      setSuccessMessage(result.message || `チーム "${teamName}" を作成し、参加しました！`);
+      
+      // const teamsRef = collection(db, 'teams');
+      // const q = query(teamsRef, where('name', '==', teamName));
+      // const querySnapshot = await getDocs(q);
+    //   if (!querySnapshot.empty) {
+    //     setError('入力されたチーム名はすでに存在します。');
+    //     return;
+    //   }
+    // const generatedTeamId = uuidv4().substring(0, 8);
+    //     await setDoc(doc(db, 'teams', generatedTeamId), {
+    //       name: teamName,
+    //       password: teamPassword,
+    //       members: [user.uid],
+    //       ownerId: user.uid,
+    //     });
+    // await setDoc(doc(db, 'users', user.uid), {
+    //     teamId: generatedTeamId,
+    //   });
+    // const idToken = await user.getIdToken();
+    //   await fetch('/api/setMyCustomClaims', {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify({ idToken }),
+    //   });
 
-    
-        await setDoc(doc(db, 'teams', generatedTeamId), {
-          name: teamName,
-          password: teamPassword,
-          members: [user.uid],
-          ownerId: user.uid,
-        });
-    
-        setNewTeamId(generatedTeamId);
-        setSuccessMessage(`新しいチーム "${teamName}" (ID: ${generatedTeamId}) を作成しました！`);
-        router.push(`/foods/list?teamId=${generatedTeamId}`);
-      } catch (error: any) {
-        console.error('チーム作成エラー:', error);
-        setError('チームの作成に失敗しました。');
-      }
+      // setSuccessMessage(`新しいチーム "${teamName}" (ID: ${generatedTeamId}) を作成しました！`);
+      // router.push(`/foods/list?teamId=${generatedTeamId}`);
+      await user.getIdToken(true);
+if (result.teamId) {
+        router.replace(`/foods/list?teamId=${result.teamId}`); 
+        console.log(`EMERGENCY REDIRECT: Navigating to /foods/list?teamId=${result.teamId}`);
+    } else {
+        router.replace('/foods/list');
+        console.log("EMERGENCY REDIRECT: Navigating to /foods/list (teamId not returned).");
+    }
+    } catch (error: any) {
+      console.error('チーム作成エラー:', error);
+      setError(`チームの作成に失敗しました: ${error.message || '不明なエラー'}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -69,7 +99,6 @@ export default function CreateTeamForm() {
       <h2 className="text-xl font-bold mb-4 text-[#333]">新しいチームを作成</h2>
       {error && <div className="bg-red-100 border border-red-600 text-red-700 px-4 py-3 rounded relative mb-4">{error}</div>}
       {successMessage && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">{successMessage}</div>}
-      {newTeamId && <p className="mb-4">チームID: <span className="font-bold">{newTeamId}</span></p>}
       <div className="mb-4">
         <label htmlFor="teamName" className="block text-[#333] text-sm font-bold mb-2">チーム名</label>
         <input
@@ -79,6 +108,7 @@ export default function CreateTeamForm() {
           onChange={(e) => setTeamName(e.target.value)}
           className="shadow appearance-none border rounded w-full py-2 px-3 text-[#333] leading-tight focus:outline-none focus:shadow-outline"
           required
+          disabled={loading} 
         />
       </div>
       <div className="mb-4">
@@ -90,13 +120,14 @@ export default function CreateTeamForm() {
           onChange={(e) => setTeamPassword(e.target.value)}
           className="shadow appearance-none border rounded w-full py-2 px-3 text-[#333] leading-tight focus:outline-none focus:shadow-outline"
           required
+          disabled={loading} 
         />
       </div>
       <button
         type="submit"
         className="bg-[#333333] text-white hover:bg-[#332b1e] font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
       >
-        作成
+        {loading ? '作成中...' : '作成'}
       </button>
     </form>
   );
