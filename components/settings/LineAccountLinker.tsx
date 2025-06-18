@@ -71,6 +71,9 @@ export default function LineAccountLinker({
     if (!window.confirm("LINEアカウントの連携を解除しますか？")) {
       return;
     }
+    setError(null);
+    setSuccessMessage(null);
+
     if (!currentUser?.uid) {
       setError("ログインが必要です。");
       return;
@@ -114,9 +117,9 @@ export default function LineAccountLinker({
         LINEアカウント連携
       </h3>
       {error && <p className="text-red-500 mb-4">{error}</p>}
-      {successMessage && (
-        <p className="text-green-500 mb-4">{successMessage}</p>
-      )}
+      {!error && successMessage && (
+  <p className="text-green-500 mb-4">{successMessage}</p>
+)}
 
       {currentLineUserId ? (
         <div>
