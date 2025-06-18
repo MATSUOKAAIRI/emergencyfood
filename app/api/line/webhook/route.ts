@@ -7,7 +7,7 @@ import * as crypto from "crypto";
 
 const lineConfig = {
   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN || "",
-  channelSecret: process.env.LINE_CHANNEL_CHANNEL_SECRET || "",
+  channelSecret: process.env.LINE_CHANNEL_SECRET || "",
 };
 const lineClient = new Client(lineConfig);
 
