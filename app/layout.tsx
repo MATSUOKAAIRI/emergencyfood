@@ -19,6 +19,7 @@ export default function RootLayout({
   const [user, setUser] = useState<any>(null);
   const [teamId, setTeamId] = useState<string | null>(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState<boolean>(true);
+
   const handleRedirect = useCallback(
     async (currentUser: any, currentPath: string) => {
       const isAuthPage = pathname.startsWith("/auth/");
@@ -30,7 +31,7 @@ export default function RootLayout({
         pathname === "/teams/create";
 
       const isFoodsListPage =
-        pathname.startsWith("/foods/") || currentPath.startsWith("/settings");
+        pathname.startsWith("/foods/") || currentPath.startsWith("/settings/");
       let targetPath: string | null = null;
 
       if (!currentUser) {
