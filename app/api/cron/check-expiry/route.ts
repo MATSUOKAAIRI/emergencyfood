@@ -22,7 +22,7 @@ export async function POST(req: Request) {
 
     const now = new Date();
     const thirtyDaysLater = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
-    const sevenDaysLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    //const sevenDaysLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
     //const todayIso = now.toISOString().split('T')[0];
     const thirtyDaysLaterIso = thirtyDaysLater.toISOString().split('T')[0];
     //const sevenDaysLaterIso = sevenDaysLater.toISOString().split('T')[0];
