@@ -22,16 +22,18 @@ export default function RootLayout({
 
   const handleRedirect = useCallback(
     async (currentUser: any, currentPath: string) => {
-      const isAuthPage = pathname.startsWith("/auth/");
-      const isHomepage = pathname === "/";
-
-      const isAllowedWithoutTeamPage =
+      const isAuthPage = currentPath.startsWith("/auth/");
+      const isHomepage = currentPath === "/";
+      const isTeamRelatedPage =
         pathname === "/teams/select" ||
         pathname === "/teams/join" ||
         pathname === "/teams/create";
 
-      const isFoodsListPage =
-        pathname.startsWith("/foods/") || currentPath.startsWith("/settings/");
+    const isAllowedForTeamUsersPage = 
+        currentPath.startsWith("/foods/") || 
+        currentPath.startsWith("/settings/"); 
+
+    const isSettingsPage = currentPath.startsWith('/settings/'); 
       let targetPath: string | null = null;
 
       if (!currentUser) {
@@ -55,13 +57,13 @@ export default function RootLayout({
         setTeamId(userTeamId);
 
         if (userTeamId) {
-          if (!isFoodsListPage) {
+          if (!isAllowedForTeamUsersPage) {
             targetPath = `/foods/list?teamId=${userTeamId}`;
           } else {
             targetPath = currentPath;
           }
         } else {
-          if (!isAllowedWithoutTeamPage && !isHomepage) {
+          if (!isTeamRelatedPage && !isHomepage && !isSettingsPage) {
             targetPath = "/teams/select";
           } else {
             targetPath = currentPath;
@@ -80,7 +82,7 @@ export default function RootLayout({
       }
       console.log("--- LAYOUT DEBUG: onAuthStateChanged End ---");
     },
-    [pathname, router]
+    [router, pathname] 
   );
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
