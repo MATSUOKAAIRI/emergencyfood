@@ -31,9 +31,9 @@ export default function RootLayout({
 
     const isAllowedForTeamUsersPage = 
         currentPath.startsWith("/foods/") || 
-        currentPath.startsWith("/settings/"); 
+        currentPath.startsWith("/settings");
 
-    const isSettingsPage = currentPath.startsWith('/settings/'); 
+    const isSettingsPage = currentPath.startsWith('/settings'); 
       let targetPath: string | null = null;
 
       if (!currentUser) {
