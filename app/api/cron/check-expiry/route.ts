@@ -1,12 +1,13 @@
 // app/api/cron/check-expiry/route.ts
-import { NextResponse } from 'next/server';
-import { adminDb } from '@/utils/firebase-admin';
 import { Client } from '@line/bot-sdk';
-import * as admin from 'firebase-admin'; 
+import * as admin from 'firebase-admin';
+import { NextResponse } from 'next/server';
+
+import { adminDb } from '@/utils/firebase/admin';
 
 const lineConfig = {
   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN || '',
-  channelSecret: process.env.LINE_CHANNEL_CHANNEL_SECRET || '', 
+  channelSecret: process.env.LINE_CHANNEL_CHANNEL_SECRET || '',
 };
 const lineClient = new Client(lineConfig);
 
@@ -22,11 +23,7 @@ export async function POST(req: Request) {
 
     const now = new Date();
     const thirtyDaysLater = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
-    //const sevenDaysLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-    //const todayIso = now.toISOString().split('T')[0];
     const thirtyDaysLaterIso = thirtyDaysLater.toISOString().split('T')[0];
-    //const sevenDaysLaterIso = sevenDaysLater.toISOString().split('T')[0];
-
 
     const foodsRef = adminDb.collection('foods');
     const q = foodsRef
@@ -37,22 +34,25 @@ export async function POST(req: Request) {
     const querySnapshot = await q.get();
 
     if (querySnapshot.empty) {
-      console.log('No expiring foods found or already notified.');
-      return NextResponse.json({ message: 'No expiring foods found or already notified.' }, { status: 200 });
+      console.log('No expiring foods found.');
+      return NextResponse.json(
+        { message: 'No expiring foods found.' },
+        { status: 200 }
+      );
     }
 
-    const notifications: { 
-        [uid: string]: { 
-            lineUserId: string;
-            foods: { 
-                foodId: string;
-                foodName: string;
-                expiryDate: string;
-                remainingDays: number;
-                teamId: string;
-                lastNotifiedAt?: admin.firestore.Timestamp;
-            }[]; 
-        } 
+    const notifications: {
+      [uid: string]: {
+        lineUserId: string;
+        foods: {
+          foodId: string;
+          foodName: string;
+          expiryDate: string;
+          remainingDays: number;
+          teamId: string;
+          lastNotifiedAt?: admin.firestore.Timestamp;
+        }[];
+      };
     } = {};
 
     for (const doc of querySnapshot.docs) {
@@ -64,11 +64,14 @@ export async function POST(req: Request) {
 
       const shouldNotifyToday = remainingDays <= 7;
 
-      const lastNotifiedAt = food.lastNotifiedAt; 
-      const notifiedRecently = lastNotifiedAt && (now.getTime() - lastNotifiedAt.toDate().getTime() < 7 * 24 * 60 * 60 * 1000); // 過去7日以内に通知済みならスキップ
+      const lastNotifiedAt = food.lastNotifiedAt;
+      const notifiedRecently =
+        lastNotifiedAt &&
+        now.getTime() - lastNotifiedAt.toDate().getTime() <
+          2 * 24 * 60 * 60 * 1000;
 
       if (!shouldNotifyToday || notifiedRecently) {
-          continue;
+        continue;
       }
 
       const userDoc = await adminDb.collection('users').doc(food.uid).get();
@@ -92,7 +95,10 @@ export async function POST(req: Request) {
       }
     }
 
-    const foodsToUpdateNotifiedAt: { foodId: string; lastNotifiedAt: admin.firestore.FieldValue }[] = [];
+    const foodsToUpdateNotifiedAt: {
+      foodId: string;
+      lastNotifiedAt: admin.firestore.FieldValue;
+    }[] = [];
 
     for (const uid in notifications) {
       const notificationData = notifications[uid];
@@ -102,9 +108,9 @@ export async function POST(req: Request) {
       if (lineUserId && userFoods.length > 0) {
         let messageText = `【SonaBase通知】賞味期限が近い非常食があります！\n\n`;
         userFoods.forEach(f => {
-          messageText += `・${f.foodName}: ${f.expiryDate} (残り ${f.remainingDays} 日)\n`;
-          // アプリ内の該当食品の編集ページへのリンクを追加すると便利
-          // 例: messageText += ` [詳細: <span class="math-inline">\{process\.env\.NEXT\_PUBLIC\_APP\_URL\}/foods/edit/</span>{f.foodId}]\n`;
+          const urgency =
+            f.remainingDays <= 3 ? '!' : f.remainingDays <= 7 ? '!' : '!';
+          messageText += `${urgency} ${f.foodName}: ${f.expiryDate} (残り ${f.remainingDays} 日)\n`;
 
           foodsToUpdateNotifiedAt.push({
             foodId: f.foodId,
@@ -118,32 +124,47 @@ export async function POST(req: Request) {
             type: 'text',
             text: messageText,
           });
-          console.log(`LINE notification sent to user ${uid} (LINE ID: ${lineUserId}) for ${userFoods.length} foods.`);
-
+          console.log(
+            `LINE notification sent to user ${uid} (LINE ID: ${lineUserId}) for ${userFoods.length} foods.`
+          );
         } catch (lineError: any) {
-          console.error(`Failed to send LINE notification to user ${uid} (LINE ID: ${lineUserId}):`, lineError);
-          if (lineError.originalError?.response?.data?.message === 'User has not agreed to receive messages.') {
-              console.warn(`User ${uid} has not agreed to receive messages from your LINE official account.`);
+          console.error(
+            `Failed to send LINE notification to user ${uid} (LINE ID: ${lineUserId}):`,
+            lineError
+          );
+          if (
+            lineError.originalError?.response?.data?.message ===
+            'User has not agreed to receive messages.'
+          ) {
+            console.warn(
+              `User ${uid} has not agreed to receive messages from your LINE official account.`
+            );
           }
-          // 他のエラーハンドリング（例: 無効なLINE IDのユーザーをFirestoreから削除するなど）
         }
       }
     }
 
     if (foodsToUpdateNotifiedAt.length > 0) {
-        const batch = adminDb.batch();
-        foodsToUpdateNotifiedAt.forEach(update => {
-            const foodDocRef = adminDb.collection('foods').doc(update.foodId);
-            batch.update(foodDocRef, { lastNotifiedAt: update.lastNotifiedAt });
-        });
-        await batch.commit();
-        console.log(`Updated lastNotifiedAt for ${foodsToUpdateNotifiedAt.length} notified foods.`);
+      const batch = adminDb.batch();
+      foodsToUpdateNotifiedAt.forEach(update => {
+        const foodDocRef = adminDb.collection('foods').doc(update.foodId);
+        batch.update(foodDocRef, { lastNotifiedAt: update.lastNotifiedAt });
+      });
+      await batch.commit();
+      console.log(
+        `Updated lastNotifiedAt for ${foodsToUpdateNotifiedAt.length} notified foods.`
+      );
     }
 
-    return NextResponse.json({ message: 'Expiry check completed and notifications sent.' }, { status: 200 });
-
+    return NextResponse.json(
+      { message: 'Expiry check completed and notifications sent.' },
+      { status: 200 }
+    );
   } catch (error: any) {
     console.error('Cron API Error:', error);
-    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || 'Internal Server Error' },
+      { status: 500 }
+    );
   }
 }

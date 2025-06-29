@@ -1,31 +1,32 @@
 // app/api/actions/link-line-account/route.ts
-import { NextResponse } from "next/server";
-import { adminAuth, adminDb } from "@/utils/firebase-admin";
-import * as admin from "firebase-admin";
-import { Client } from "@line/bot-sdk";
+import { Client } from '@line/bot-sdk';
+import * as admin from 'firebase-admin';
+import { NextRequest, NextResponse } from 'next/server';
+
+import { adminAuth, adminDb } from '@/utils/firebase/admin';
 
 const lineConfig = {
-  channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN || "",
+  channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN || '',
 };
 const lineClient = new Client(lineConfig); // MessagingApiClient
 
 export async function POST(req: Request) {
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json(
-        { error: "Authorization header missing or malformed" },
+        { error: 'Authorization header missing or malformed' },
         { status: 401 }
       );
     }
-    const idToken = authHeader.split("Bearer ")[1];
+    const idToken = authHeader.split('Bearer ')[1];
     let decodedToken;
     try {
       decodedToken = await adminAuth.verifyIdToken(idToken);
     } catch (error) {
-      console.error("ID Token verification failed:", error);
+      console.error('ID Token verification failed:', error);
       return NextResponse.json(
-        { error: "Invalid or expired ID token" },
+        { error: 'Invalid or expired ID token' },
         { status: 403 }
       );
     }
@@ -35,20 +36,20 @@ export async function POST(req: Request) {
 
     if (!authCode) {
       return NextResponse.json(
-        { error: "Authentication code is required" },
+        { error: 'Authentication code is required' },
         { status: 400 }
       );
     }
 
-    const lineAuthCodesRef = adminDb.collection("lineAuthCodes");
+    const lineAuthCodesRef = adminDb.collection('lineAuthCodes');
     const querySnapshot = await lineAuthCodesRef
-      .where("code", "==", authCode)
+      .where('code', '==', authCode)
       .limit(1)
       .get();
 
     if (querySnapshot.empty) {
       return NextResponse.json(
-        { error: "Invalid or expired authentication code." },
+        { error: 'Invalid or expired authentication code.' },
         { status: 400 }
       );
     }
@@ -61,12 +62,12 @@ export async function POST(req: Request) {
     if (expireAt && expireAt.toDate().getTime() < Date.now()) {
       await authCodeDoc.ref.delete();
       return NextResponse.json(
-        { error: "Authentication code has expired." },
+        { error: 'Authentication code has expired.' },
         { status: 400 }
       );
     }
 
-    const userDocRef = adminDb.collection("users").doc(firebaseUid);
+    const userDocRef = adminDb.collection('users').doc(firebaseUid);
     await userDocRef.update({
       lineUserId: lineUserId,
       lineLinkedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -80,13 +81,13 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({
-      message: "LINE account linked successfully!",
+      message: 'LINE account linked successfully!',
       lineUserId: lineUserId,
     });
   } catch (error: any) {
-    console.error("LINE account linking API Error:", error);
+    console.error('LINE account linking API Error:', error);
     return NextResponse.json(
-      { error: error.message || "Internal Server Error" },
+      { error: error.message || 'Internal Server Error' },
       { status: 500 }
     );
   }

@@ -1,26 +1,26 @@
 // app/api/actions/create-team/route.ts
-import { NextResponse } from "next/server";
-import { adminAuth, adminDb } from "@/utils/firebase-admin";
-import * as admin from "firebase-admin";
-// import bcrypt from 'bcryptjs';
+import type * as admin from 'firebase-admin';
+import { NextResponse } from 'next/server';
+
+import { adminAuth, adminDb } from '@/utils/firebase/admin';
 
 export async function POST(req: Request) {
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json(
-        { error: "Authorization header missing or malformed" },
+        { error: 'Authorization header missing or malformed' },
         { status: 401 }
       );
     }
-    const idToken = authHeader.split("Bearer ")[1];
+    const idToken = authHeader.split('Bearer ')[1];
     let decodedToken;
     try {
       decodedToken = await adminAuth.verifyIdToken(idToken);
     } catch (error) {
-      console.error("ID Token verification failed:", error);
+      console.error('ID Token verification failed:', error);
       return NextResponse.json(
-        { error: "Invalid or expired ID token" },
+        { error: 'Invalid or expired ID token' },
         { status: 403 }
       );
     }
@@ -30,18 +30,18 @@ export async function POST(req: Request) {
 
     if (!teamName || !teamPassword) {
       return NextResponse.json(
-        { error: "Team name and password are required" },
+        { error: 'Team name and password are required' },
         { status: 400 }
       );
     }
 
-    const teamsRef = adminDb.collection("teams");
+    const teamsRef = adminDb.collection('teams');
     const existingTeamSnapshot = await teamsRef
-      .where("name", "==", teamName)
+      .where('name', '==', teamName)
       .get();
     if (!existingTeamSnapshot.empty) {
       return NextResponse.json(
-        { error: "Team name already exists" },
+        { error: 'Team name already exists' },
         { status: 409 }
       );
     }
@@ -50,17 +50,17 @@ export async function POST(req: Request) {
 
     const newTeamId = await adminDb.runTransaction(
       async (transaction: admin.firestore.Transaction) => {
-        const userDocRef = adminDb.collection("users").doc(uid);
+        const userDocRef = adminDb.collection('users').doc(uid);
         const userDoc = await transaction.get(userDocRef);
 
         if (!userDoc.exists) {
-          throw new Error("User document not found.");
+          throw new Error('User document not found.');
         }
 
         const userData = userDoc.data();
         if (userData?.teamId !== null && userData?.teamId !== undefined) {
           throw new Error(
-            "You are already a member of another team. Please leave it first."
+            'You are already a member of another team. Please leave it first.'
           );
         }
 
@@ -71,6 +71,8 @@ export async function POST(req: Request) {
           name: teamName,
           password: hashedPassword,
           members: [uid],
+          ownerId: uid,
+          admins: [uid],
           createdAt: new Date(),
           createdBy: uid,
         });
@@ -89,15 +91,15 @@ export async function POST(req: Request) {
       teamId: newTeamId,
     });
   } catch (error: any) {
-    console.error("API Error in create-team:", error);
-    if (error.message.includes("You are already a member of another team")) {
+    console.error('API Error in create-team:', error);
+    if (error.message.includes('You are already a member of another team')) {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
-    if (error.message.includes("Team name already exists")) {
+    if (error.message.includes('Team name already exists')) {
       return NextResponse.json({ error: error.message }, { status: 409 });
     }
     return NextResponse.json(
-      { error: error.message || "Internal Server Error" },
+      { error: error.message || 'Internal Server Error' },
       { status: 500 }
     );
   }

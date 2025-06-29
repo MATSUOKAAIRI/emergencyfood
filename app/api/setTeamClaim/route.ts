@@ -1,6 +1,8 @@
+import { NextResponse } from 'next/server';
+
+import { adminAuth, adminDb } from '@/utils/firebase/admin';
 // import { getAuth } from 'firebase-admin/auth';
 // import { cert, getApps, initializeApp } from 'firebase-admin/app';
-// import { NextResponse } from 'next/server';
 // //import { db } from '@/utils/firebase-admin';
 
 // if (!getApps().length) {
@@ -13,24 +15,33 @@
 //   });
 // }
 
- export async function POST(req: Request) {}
-//   const { idToken } = await req.json();
-//   if (!idToken) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+export async function POST(req: Request) {
+  const { idToken } = await req.json();
+  if (!idToken)
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-//   const auth = getAuth();
-//   const decoded = await auth.verifyIdToken(idToken);
-//   const uid = decoded.uid;
+  try {
+    const decoded = await adminAuth.verifyIdToken(idToken);
+    const uid = decoded.uid;
 
-//   // Firestore から teamId を取得
-//   const userDoc = await db.collection('users').doc(uid).get();
-//   const teamId = userDoc.data()?.teamId;
+    const userDoc = await adminDb.collection('users').doc(uid).get();
+    const teamId = userDoc.data()?.teamId;
 
-//   if (!teamId) {
-//     return NextResponse.json({ error: 'teamId が存在しません' }, { status: 400 });
-//   }
+    if (!teamId) {
+      return NextResponse.json(
+        { error: 'teamId が存在しません' },
+        { status: 400 }
+      );
+    }
 
-//   // カスタムクレームを設定
-//   await auth.setCustomUserClaims(uid, { teamId });
+    await adminAuth.setCustomUserClaims(uid, { teamId });
 
-//   return NextResponse.json({ message: 'カスタムクレームが設定されました' });
-// }
+    return NextResponse.json({ message: 'カスタムクレームが設定されました' });
+  } catch (error: any) {
+    console.error('Error setting team claim:', error);
+    return NextResponse.json(
+      { error: error.message || 'カスタムクレームの設定に失敗しました' },
+      { status: 500 }
+    );
+  }
+}
