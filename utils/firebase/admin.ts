@@ -1,4 +1,5 @@
-import { initializeApp, cert, getApps } from 'firebase-admin/app';
+// Server-side Firebase Admin configuration
+import { cert, getApps, initializeApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 

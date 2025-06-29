@@ -1,4 +1,5 @@
-import { auth } from '@/utils/firebase';
+// Team ID claims management
+import { auth } from './client';
 
 export const setTeamIdClaim = async () => {
   const user = auth.currentUser;
