@@ -67,7 +67,7 @@ export default function Modal({
               aria-label='閉じる'
               className='text-gray-400 hover:text-gray-600 transition-colors'
               onClick={onClose}
-            ></button>
+            />
           </div>
         )}
 
