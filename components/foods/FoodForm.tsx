@@ -1,32 +1,42 @@
 // components/foods/FoodForm.tsx
 'use client';
-import React, { useState } from 'react';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import type { FoodFormData } from '@/types';
+import {
+  ERROR_MESSAGES,
+  FOOD_CATEGORIES,
+  SUCCESS_MESSAGES,
+} from '@/utils/constants';
 import { db } from '@/utils/firebase';
-
-type FormData = {
-  name: string;
-  quantity: number;
-  expiryDate: string;
-  isArchived: boolean;
-  category: string;
-  amount?: number;
-  purchaseLocation?: string;
-  label?: string;
-  storageLocation?: string;
-};
+import {
+  addDoc,
+  collection,
+  doc,
+  serverTimestamp,
+  updateDoc,
+} from 'firebase/firestore';
+import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
 
 type FoodFormProps = {
   uid: string | null;
   teamId: string | null;
+  mode?: 'add' | 'edit';
+  foodId?: string;
+  initialData?: FoodFormData;
 };
 
-export default function FoodForm({ uid, teamId }: FoodFormProps) {
-  const [formData, setFormData] = useState<FormData>({
+export default function FoodForm({
+  uid,
+  teamId,
+  mode = 'add',
+  foodId,
+  initialData,
+}: FoodFormProps) {
+  const router = useRouter();
+  const [formData, setFormData] = useState<FoodFormData>({
     name: '',
     quantity: 1,
     expiryDate: '',
-    isArchived: false,
     category: '',
     amount: undefined,
     purchaseLocation: undefined,
@@ -35,8 +45,18 @@ export default function FoodForm({ uid, teamId }: FoodFormProps) {
   });
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  // 編集モードの場合、初期データを設定
+  useEffect(() => {
+    if (mode === 'edit' && initialData) {
+      setFormData(initialData);
+    }
+  }, [mode, initialData]);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
@@ -45,159 +65,285 @@ export default function FoodForm({ uid, teamId }: FoodFormProps) {
     e.preventDefault();
     setErrorMessage(null);
     setSuccessMessage(null);
+    setSubmitting(true);
 
     if (!uid) {
-      setErrorMessage('ログインしていません。');
+      setErrorMessage(ERROR_MESSAGES.UNAUTHORIZED);
+      setSubmitting(false);
       return;
     }
     if (!teamId) {
-      setErrorMessage('チームIDが設定されていません。');
+      setErrorMessage(ERROR_MESSAGES.TEAM_ID_MISSING);
+      setSubmitting(false);
       return;
     }
-    const { name, quantity, expiryDate, isArchived, category, amount, purchaseLocation, label, storageLocation } = formData;
+
+    const {
+      name,
+      quantity,
+      expiryDate,
+      category,
+      amount,
+      purchaseLocation,
+      label,
+      storageLocation,
+    } = formData;
 
     if (!name || !quantity || !expiryDate || !category) {
       setErrorMessage('必須フィールドをすべて入力してください。');
+      setSubmitting(false);
       return;
     }
+
     try {
-     const data ={
-        name,
-        quantity: Number(quantity),
-        expiryDate,
-        isArchived,
-        category,
-        amount: amount !== undefined ? Number(amount) : null,
-        purchaseLocation: purchaseLocation || null,
-        label: label || null,
-        storageLocation: storageLocation || '未設定',
-        registeredAt: serverTimestamp(),
-        teamId,
-        uid,
-      };
-      await addDoc(collection(db, 'foods'), data);
-      setFormData({ name: '', quantity: 1, expiryDate: '', isArchived: false, category: '', amount: undefined, purchaseLocation: undefined, label: undefined, storageLocation: undefined });
-      setSuccessMessage('非常食を登録しました！');
+      if (mode === 'add') {
+        // 新規追加
+        const data = {
+          name,
+          quantity: Number(quantity),
+          expiryDate,
+          isArchived: false,
+          category,
+          amount: amount !== undefined ? Number(amount) : null,
+          purchaseLocation: purchaseLocation || null,
+          label: label || null,
+          storageLocation: storageLocation || '未設定',
+          registeredAt: serverTimestamp(),
+          teamId,
+          uid,
+        };
+        await addDoc(collection(db, 'foods'), data);
+        setFormData({
+          name: '',
+          quantity: 1,
+          expiryDate: '',
+          category: '',
+          amount: undefined,
+          purchaseLocation: undefined,
+          label: undefined,
+          storageLocation: undefined,
+        });
+        setSuccessMessage(SUCCESS_MESSAGES.FOOD_CREATED);
+      } else {
+        // 編集更新
+        if (!foodId) {
+          setErrorMessage('食品IDが見つかりません。');
+          setSubmitting(false);
+          return;
+        }
+
+        const updates = {
+          name,
+          quantity: Number(quantity),
+          expiryDate,
+          category,
+          amount: amount !== undefined ? Number(amount) : null,
+          purchaseLocation: purchaseLocation || null,
+          label: label || null,
+          storageLocation: storageLocation || '未設定',
+        };
+
+        const foodRef = doc(db, 'foods', foodId);
+        await updateDoc(foodRef, updates);
+        setSuccessMessage('食品情報が正常に更新されました！');
+
+        // 少し待ってからリダイレクト
+        setTimeout(() => {
+          router.push('/foods/list');
+        }, 1500);
+      }
     } catch (error: any) {
-      console.error('Error adding document: ', error);
-      setErrorMessage('登録に失敗しました。');
+      console.error('Error saving document: ', error);
+      setErrorMessage(
+        mode === 'add'
+          ? ERROR_MESSAGES.FOOD_CREATE_FAILED
+          : '食品情報の更新に失敗しました。'
+      );
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-md mx-auto p-4 border rounded mb-4 border-[#333] w-3/4 bottom-0">
-      <h2 className="text-xl font-bold mb-4 text-[#333]">非常食の登録</h2>
-      {errorMessage && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 ">{errorMessage}</div>}
-      {successMessage && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">{successMessage}</div>}
-      <div className="mb-4">
-        <label htmlFor="name" className="block text-[#333] text-sm font-bold mb-2">品名</label>
-        <input
-        type="text"
-        id="name"
-        name="name"
-        value={formData.name}
-        onChange={handleChange}
-        className="shadow appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline text-[#333]"
-        required
-      />
+    <form onSubmit={handleSubmit}>
+      {errorMessage && (
+        <div className='bg-red-200 border text-black px-4 py-3 rounded mb-4'>
+          {errorMessage}
+        </div>
+      )}
+      {successMessage && (
+        <div className='bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4'>
+          {successMessage}
+        </div>
+      )}
+
+      <div className='space-y-4'>
+        <div>
+          <label
+            className='block text-sm font-medium text-gray-700 mb-1'
+            htmlFor='name'
+          >
+            品名 *
+          </label>
+          <input
+            required
+            className='w-full px-3 py-2 border border-gray-300 rounded'
+            id='name'
+            name='name'
+            type='text'
+            value={formData.name}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div>
+          <label
+            className='block text-sm font-medium text-gray-700 mb-1'
+            htmlFor='quantity'
+          >
+            数量 *
+          </label>
+          <input
+            required
+            className='w-full px-3 py-2 border border-gray-300 rounded'
+            id='quantity'
+            min='1'
+            name='quantity'
+            type='number'
+            value={formData.quantity}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div>
+          <label
+            className='block text-sm font-medium text-gray-700 mb-1'
+            htmlFor='expiryDate'
+          >
+            賞味期限 *
+          </label>
+          <input
+            required
+            className='w-full px-3 py-2 border border-gray-300 rounded'
+            id='expiryDate'
+            min={new Date().toISOString().split('T')[0]}
+            name='expiryDate'
+            type='date'
+            value={formData.expiryDate}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div>
+          <label
+            className='block text-sm font-medium text-gray-700 mb-1'
+            htmlFor='category'
+          >
+            カテゴリ *
+          </label>
+          <select
+            required
+            className='w-full px-3 py-2 border border-gray-300 rounded'
+            id='category'
+            name='category'
+            value={formData.category}
+            onChange={handleChange}
+          >
+            <option value=''>選択してください</option>
+            {FOOD_CATEGORIES.map(category => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label
+            className='block text-sm font-medium text-gray-700 mb-1'
+            htmlFor='amount'
+          >
+            金額 (円)
+          </label>
+          <input
+            className='w-full px-3 py-2 border border-gray-300 rounded'
+            id='amount'
+            min='0'
+            name='amount'
+            placeholder='任意'
+            type='number'
+            value={formData.amount || ''}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div>
+          <label
+            className='block text-sm font-medium text-gray-700 mb-1'
+            htmlFor='purchaseLocation'
+          >
+            購入場所
+          </label>
+          <input
+            className='w-full px-3 py-2 border border-gray-300 rounded'
+            id='purchaseLocation'
+            name='purchaseLocation'
+            placeholder='任意'
+            type='text'
+            value={formData.purchaseLocation || ''}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div>
+          <label
+            className='block text-sm font-medium text-gray-700 mb-1'
+            htmlFor='label'
+          >
+            ラベル
+          </label>
+          <input
+            className='w-full px-3 py-2 border border-gray-300 rounded'
+            id='label'
+            name='label'
+            placeholder='任意'
+            type='text'
+            value={formData.label || ''}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div>
+          <label
+            className='block text-sm font-medium text-gray-700 mb-1'
+            htmlFor='storageLocation'
+          >
+            保存場所
+          </label>
+          <input
+            className='w-full px-3 py-2 border border-gray-300 rounded text-gray-900 bg-white'
+            id='storageLocation'
+            name='storageLocation'
+            type='text'
+            value={formData.storageLocation || ''}
+            onChange={handleChange}
+            placeholder='例: 冷蔵庫、棚、地下室など'
+          />
+        </div>
       </div>
-      <div className="mb-4">
-        <label htmlFor="quantity" className="block text-[#333] text-sm font-bold mb-2">数量</label>
-        <input
-          type="number"
-          id="quantity"
-          name="quantity"
-          value={formData.quantity}
-          onChange={handleChange}
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-[#333] leading-tight focus:outline-none focus:shadow-outline"
-          min="0"
-          required
-        />
-      </div>
-      <div className="mb-4">
-  <label htmlFor="expiryDate" className="block text-[#333] text-sm font-bold mb-2">賞味期限 (YYYY-MM-DD)</label>
-  <input
-    type="date"
-    id="expiryDate"
-    name="expiryDate"
-    value={formData.expiryDate}
-    onChange={handleChange}
-    className="shadow appearance-none border rounded w-full py-2 px-3 text-[#333] leading-tight focus:outline-none focus:shadow-outline"
-    required
-    min={new Date().toISOString().split('T')[0]}
-  />
-      </div>
-      <div className="mb-4">
-        <label htmlFor="category" className="block text-[#333] text-sm font-bold mb-2">カテゴリ</label>
-        <select
-          id="category"
-          name="category"
-          value={formData.category}
-          onChange={handleChange}
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-[#333] leading-tight focus:outline-none focus:shadow-outline"
-          required
-        >
-          <option value="">選択してください</option>
-          <option value="水">水</option>
-          <option value="食料">食料</option>
-          <option value="その他">その他</option>
-        </select>
-      </div>
-      <div className="mb-4">
-        <label htmlFor="amount" className="block text-[#333] text-sm font-bold mb-2">金額 (円)</label>
-        <input
-          type="number"
-          id="amount"
-          name="amount"
-          value={formData.amount || ''}
-          onChange={handleChange}
-          placeholder="任意"
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-[#333] leading-tight focus:outline-none focus:shadow-outline"
-          min="0"
-        />
-      </div>
-      <div className="mb-4">
-        <label htmlFor="purchaseLocation" className="block text-[#333] text-sm font-bold mb-2">買った場所</label>
-        <input
-          type="text"
-          id="purchaseLocation"
-          name="purchaseLocation"
-          value={formData.purchaseLocation || ''}
-          onChange={handleChange}
-          placeholder="任意"
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-[#333] leading-tight focus:outline-none focus:shadow-outline"
-          
-        />
-      </div>
-      <div className="mb-4">
-        <label htmlFor="label" className="block text-[#333] text-sm font-bold mb-2">ラベル</label>
-        <input
-          type="text"
-          id="label"
-          name="label"
-          value={formData.label || ''}
-          onChange={handleChange}
-          placeholder="任意"
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-[#333] leading-tight focus:outline-none focus:shadow-outline"
-        />
-      </div>
-      <div className="mb-4">
-        <label htmlFor="storageLocation" className="block text-[#333] text-sm font-bold mb-2">保存場所</label>
-        <input
-          type="text"
-          id="storageLocation"
-          name="storageLocation"
-          value={formData.storageLocation || ''}
-          onChange={handleChange}
-          placeholder="任意"
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-[#333] leading-tight focus:outline-none focus:shadow-outline"
-        />
-      </div>
+
       <button
-        type="submit"
-        className="bg-[#333333] text-white hover:bg-[#332b1e] font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+        disabled={submitting}
+        className='w-full bg-gray-800 text-white font-semibold py-3 px-4 rounded mt-6 disabled:opacity-50 disabled:cursor-not-allowed'
+        type='submit'
       >
-        登録
+        {submitting
+          ? mode === 'add'
+            ? '登録中...'
+            : '更新中...'
+          : mode === 'add'
+            ? '登録'
+            : '更新'}
       </button>
     </form>
   );

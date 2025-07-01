@@ -1,15 +1,13 @@
-// app/foods/archived/page.tsx
 'use client';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Suspense } from 'react';
 
 import FoodItem from '@/components/foods/FoodItem';
 import { useAuth, useFoods, useTeam } from '@/hooks';
 import type { Food } from '@/types';
 import { ERROR_MESSAGES } from '@/utils/constants';
 
-function ArchivedFoodsPageClient() {
+export default function FoodListClient() {
   const router = useRouter();
 
   const { user } = useAuth(true);
@@ -18,7 +16,7 @@ function ArchivedFoodsPageClient() {
     foods,
     loading: foodsLoading,
     archiveFood,
-  } = useFoods(user, currentTeamId, true);
+  } = useFoods(user, currentTeamId, false);
 
   const canDelete = team
     ? team.ownerId === user?.uid || team.admins?.includes(user?.uid || '')
@@ -64,24 +62,23 @@ function ArchivedFoodsPageClient() {
   }
 
   return (
-    <div className='min-h-screen mx-auto px-4 py-6 container'>
-      <h1 className='text-3xl font-bold text-[#333] border-b border-gray-300 pb-4 mb-6'>
-        過去の保存食リスト
-      </h1>
+    <div className='min-h-screen mx-auto px-4 py-6'>
       {currentTeamId ? (
         <>
           <div className='mb-6'>
             <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
               <div>
                 <p className='text-gray-600'>
-                  {foods.length > 0 ? `${foods.length}件の過去の非常食` : ''}
+                  {foods.length > 0
+                    ? `${foods.length}件の非常食`
+                    : '登録された非常食はありません'}
                 </p>
               </div>
               <Link
                 className='inline-block bg-gray-800 text-white font-semibold py-2 px-4 rounded hover:bg-gray-700'
-                href={`/foods/list?teamId=${currentTeamId}`}
+                href={`/foods/add?teamId=${currentTeamId}`}
               >
-                現在の非常食一覧に戻る
+                新しい非常食を登録する
               </Link>
             </div>
           </div>
@@ -102,13 +99,13 @@ function ArchivedFoodsPageClient() {
           ) : (
             <div className='text-center py-8'>
               <p className='text-gray-600 mb-4'>
-                アーカイブされた非常食はありません
+                {ERROR_MESSAGES.NO_FOODS_REGISTERED}
               </p>
               <Link
                 className='inline-block bg-gray-800 text-white font-semibold py-2 px-4 rounded hover:bg-gray-700'
-                href={`/foods/list?teamId=${currentTeamId}`}
+                href={`/foods/add?teamId=${currentTeamId}`}
               >
-                現在の非常食一覧に戻る
+                最初の非常食を登録する
               </Link>
             </div>
           )}
@@ -119,13 +116,5 @@ function ArchivedFoodsPageClient() {
         </div>
       )}
     </div>
-  );
-}
-
-export default function ArchivedFoodsPage() {
-  return (
-    <Suspense fallback={<p>{ERROR_MESSAGES.LOADING}</p>}>
-      <ArchivedFoodsPageClient />
-    </Suspense>
   );
 }

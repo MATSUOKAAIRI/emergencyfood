@@ -1,25 +1,51 @@
 //components/settings/LineAccountLinker.tsx
-"use client";
-import React, { useState } from "react";
-import { getAuth } from "firebase/auth";
+'use client';
+import { getAuth } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
+
+import type { AppUser } from '@/types';
+import { db } from '@/utils/firebase';
 
 interface LineAccountLinkerProps {
-  currentUser: any;
-  currentLineUserId: string | null;
-  onLinkSuccess: (newLineId: string) => void;
-  onUnlinkSuccess: () => void;
+  currentUser: AppUser;
 }
 
 export default function LineAccountLinker({
   currentUser,
-  currentLineUserId,
-  onLinkSuccess,
-  onUnlinkSuccess,
 }: LineAccountLinkerProps) {
-  const [lineAuthCode, setLineAuthCode] = useState("");
+  const [lineUserIdFromFirestore, setLineUserIdFromFirestore] = useState<
+    string | null
+  >(null);
+  const [lineAuthCode, setLineAuthCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const firebaseAuth = getAuth();
+
+  // Fetch LINE user ID from Firestore
+  useEffect(() => {
+    const fetchLineUserId = async () => {
+      if (!currentUser?.uid) return;
+
+      try {
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        if (userDocSnap.exists()) {
+          setLineUserIdFromFirestore(userDocSnap.data()?.lineUserId || null);
+        }
+      } catch (e) {
+        console.error('Error fetching lineUserId from Firestore:', e);
+        setError('ユーザー情報の取得に失敗しました。');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (currentUser) {
+      fetchLineUserId();
+    }
+  }, [currentUser]);
 
   const handleLinkLineAccount = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,21 +53,21 @@ export default function LineAccountLinker({
     setSuccessMessage(null);
 
     if (!currentUser?.uid) {
-      setError("ログインが必要です。");
+      setError('ログインが必要です。');
       return;
     }
     if (!lineAuthCode) {
-      setError("認証コードを入力してください。");
+      setError('認証コードを入力してください。');
       return;
     }
 
     try {
       const idToken = await currentUser.getIdToken();
 
-      const response = await fetch("/api/actions/link-line-account", {
-        method: "POST",
+      const response = await fetch('/api/actions/link-line-account', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${idToken}`,
         },
         body: JSON.stringify({ authCode: lineAuthCode }),
@@ -50,40 +76,40 @@ export default function LineAccountLinker({
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || "LINEアカウントの連携に失敗しました。");
+        throw new Error(result.error || 'LINEアカウントの連携に失敗しました。');
       }
 
       setSuccessMessage(
-        result.message || "LINEアカウントが正常に連携されました！"
+        result.message || 'LINEアカウントが正常に連携されました！'
       );
-      onLinkSuccess(result.lineUserId);
+      setLineUserIdFromFirestore(result.lineUserId);
 
       await currentUser.getIdToken(true);
     } catch (e: any) {
-      console.error("LINE連携エラー:", e);
+      console.error('LINE連携エラー:', e);
       setError(
-        `LINEアカウントの連携に失敗しました: ${e.message || "不明なエラー"}`
+        `LINEアカウントの連携に失敗しました: ${e.message || '不明なエラー'}`
       );
     }
   };
 
   const handleUnlinkLineAccount = async () => {
-    if (!window.confirm("LINEアカウントの連携を解除しますか？")) {
+    if (!window.confirm('LINEアカウントの連携を解除しますか？')) {
       return;
     }
     setError(null);
     setSuccessMessage(null);
 
     if (!currentUser?.uid) {
-      setError("ログインが必要です。");
+      setError('ログインが必要です。');
       return;
     }
     try {
       const idToken = await currentUser.getIdToken();
-      const response = await fetch("/api/actions/unlink-line-account", {
-        method: "POST",
+      const response = await fetch('/api/actions/unlink-line-account', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${idToken}`,
         },
         body: JSON.stringify({ uid: currentUser.uid }),
@@ -93,97 +119,143 @@ export default function LineAccountLinker({
 
       if (!response.ok) {
         throw new Error(
-          result.error || "LINEアカウントの連携解除に失敗しました。"
+          result.error || 'LINEアカウントの連携解除に失敗しました。'
         );
       }
 
       setSuccessMessage(
-        result.message || "LINEアカウントの連携を解除しました。"
+        result.message || 'LINEアカウントの連携を解除しました。'
       );
-      onUnlinkSuccess();
+      setLineUserIdFromFirestore(null);
 
       await currentUser.getIdToken(true);
     } catch (e: any) {
-      console.error("LINE連携解除エラー:", e);
+      console.error('LINE連携解除エラー:', e);
       setError(
-        `LINEアカウントの連携解除に失敗しました: ${e.message || "不明なエラー"}`
+        `LINEアカウントの連携解除に失敗しました: ${e.message || '不明なエラー'}`
       );
     }
   };
 
-  return (
-    <div className="mb-8 p-4 border rounded border-[#333]">
-      <h3 className="text-lg font-semibold mb-2 text-[#333]">
-        LINEアカウント連携
-      </h3>
-      {error && <p className="text-red-500 mb-4">{error}</p>}
-      {!error && successMessage && (
-  <p className="text-green-500 mb-4">{successMessage}</p>
-)}
+  if (loading) {
+    return <div className='text-center py-8'>読み込み中...</div>;
+  }
 
-      {currentLineUserId ? (
-        <div>
-          <p className="text-[#333] mb-4">
-            現在、LINEアカウントが連携されています。
-          </p>
-          <button
-            onClick={handleUnlinkLineAccount}
-            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-          >
-            連携解除
-          </button>
+  return (
+    <div className='space-y-6'>
+      <h2 className='text-xl font-semibold text-gray-900 mb-4'>LINE通知設定</h2>
+
+      {error && (
+        <div className='p-3 bg-red-200 text-black border rounded-md'>
+          {error}
         </div>
-      ) : (
-        <>
-          <p className="text-[#333] mb-4">
-            SonaBaseからの通知を受け取るには、LINE公式アカウントと連携してください。
-          </p>
-          <ol className="list-decimal list-inside text-[#333] mb-4">
-            <li>
-              以下のQRコードをスキャンするか、友だち追加ボタンからLINE公式アカウントを友だち追加してください。
-            </li>
-            <li>友だち追加後、LINEから連携用の認証コードが届きます。</li>
-            <li>
-              届いた認証コードを下の入力欄に入力し、「連携する」ボタンを押してください。
-            </li>
-          </ol>
-          <div className="flex flex-col items-center mb-6">
-            {/*<img src="https://scdn.line-apps.com/n/line_add_friends/btn/ja.png" alt="友だち追加" className="w-32 h-32 mb-4" />*/}
-            <a
-              href="https://lin.ee/jIZZZHZ"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            >
-              LINEで友だち追加
-            </a>
+      )}
+
+      {!error && successMessage && (
+        <div className='p-3 bg-green-50 text-green-800 border border-green-200 rounded-md'>
+          {successMessage}
+        </div>
+      )}
+
+      {lineUserIdFromFirestore ? (
+        <div>
+          <div className='flex items-start space-x-3'>
+            <div className='flex-shrink-0'>
+              <svg
+                className='h-6 w-6 text-gray-600'
+                fill='none'
+                viewBox='0 0 24 24'
+                stroke='currentColor'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M5 13l4 4L19 7'
+                />
+              </svg>
+            </div>
+            <div className='flex-1'>
+              <h3 className='text-sm font-medium text-gray-900'>
+                LINEアカウントが連携されています
+              </h3>
+              <div className='mt-2 text-sm text-gray-700'>
+                <p>SonaBaseからの通知をLINEで受け取ることができます。</p>
+              </div>
+            </div>
           </div>
 
-          <form onSubmit={handleLinkLineAccount}>
-            <div className="mb-4">
+          <div className='mt-4'>
+            <button
+              className='px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors'
+              onClick={handleUnlinkLineAccount}
+            >
+              連携解除
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className='space-y-6'>
+          <div className='p-6 bg-gray-100 border border-gray-300 rounded-lg'>
+            <div className='flex items-start space-x-3'>
+              <div className='flex-shrink-0'>
+                <svg
+                  className='h-6 w-6 text-gray-600'
+                  fill='none'
+                  viewBox='0 0 24 24'
+                  stroke='currentColor'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+                  />
+                </svg>
+              </div>
+              <div className='flex-1'>
+                <h3 className='text-sm font-medium text-gray-900'>
+                  LINEアカウントの連携
+                </h3>
+                <div className='mt-2 text-sm text-gray-700'>
+                  <p>
+                    LINEアカウントを連携すると、SonaBaseからの通知をLINEで受け取ることができます。
+                  </p>
+                  <p className='mt-1'>
+                    連携するには、LINEアプリでSonaBaseの公式アカウントを友達追加し、認証コードを取得してください。
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <form onSubmit={handleLinkLineAccount} className='space-y-4'>
+            <div>
               <label
-                htmlFor="lineAuthCode"
-                className="block text-[#333] text-sm font-bold mb-2"
+                htmlFor='lineAuthCode'
+                className='block text-sm font-medium text-gray-900 mb-2'
               >
-                認証コード
+                LINE認証コード
               </label>
               <input
-                type="text"
-                id="lineAuthCode"
+                type='text'
+                id='lineAuthCode'
                 value={lineAuthCode}
-                onChange={(e) => setLineAuthCode(e.target.value)}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-[#333] leading-tight focus:outline-none focus:shadow-outline"
+                onChange={e => setLineAuthCode(e.target.value)}
+                className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-black'
+                placeholder='認証コードを入力してください'
                 required
               />
             </div>
+
             <button
-              type="submit"
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              type='submit'
+              className='px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors'
             >
               連携する
             </button>
           </form>
-        </>
+        </div>
       )}
     </div>
   );
