@@ -6,7 +6,7 @@ import RegisterClient from './RegisterClient';
 
 export default function Register() {
   return (
-    <div className='min-h-screen  flex items-center justify-center p-6'>
+    <div className='min-h-screen flex items-center justify-center p-6'>
       <div className='max-w-md w-full'>
         <div className='bg-white rounded-xl shadow-lg border border-gray-200 p-8'>
           <Suspense

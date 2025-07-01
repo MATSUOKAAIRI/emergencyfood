@@ -1,17 +1,46 @@
 import Link from 'next/link';
+import { Suspense } from 'react';
+
+import { ERROR_MESSAGES, UI_CONSTANTS } from '@/utils/constants';
+
+import TeamSelectClient from './TeamSelectClient';
 
 export default function TeamSelectPage() {
   return (
-    <div className='items-center justify-center flex flex-col min-h-screen'>
-      <h1 className="text-5xl font-bold mb-28 text-[#333] ">チームへの参加または作成</h1>
-      <p className="mb-4 text-[#333]">既存のチームに参加する場合は、チームIDを入力してください。</p>
-      <Link href="/teams/join" className="inline-block bg-[#333333] hover:bg-[#332b1e] text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2 mb-10">
-        既存のチームに参加
-      </Link>
-      <p className="mt-4 mb-4 text-[#333]">新しいチームを作成する場合は、以下のボタンをクリックしてください。</p>
-      <Link href="/teams/create" className="inline-block bg-[#333333] text-white hover:bg-[#332b1e] font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-        新しいチームを作成
-      </Link>
+    <div className='min-h-screen flex items-center justify-center p-6'>
+      <div className='max-w-lg w-full text-center'>
+        <h1 className='text-4xl font-bold text-gray-900 mb-12'>
+          {UI_CONSTANTS.TEAM_SELECTION_TITLE}
+        </h1>
+
+        <div className='space-y-10 mb-12'>
+          <div>
+            <p className='text-gray-600 mb-4 text-lg'>既存のチームに参加する</p>
+            <Link
+              className='inline-block w-full max-w-xs bg-gray-800 text-white font-semibold py-4 px-6 rounded-md hover:bg-gray-700 transition-colors'
+              href='/teams/join'
+            >
+              チームに参加
+            </Link>
+          </div>
+
+          <div>
+            <p className='text-black mb-4 text-lg'>新しいチームを作成する</p>
+            <Link
+              className='inline-block w-full max-w-xs bg-black text-white font-semibold py-4 px-6 rounded-md hover:bg-gray-800 transition-colors'
+              href='/teams/create'
+            >
+              チームを作成
+            </Link>
+          </div>
+        </div>
+
+        <Suspense
+          fallback={<p className='text-black'>{ERROR_MESSAGES.LOADING}</p>}
+        >
+          <TeamSelectClient />
+        </Suspense>
+      </div>
     </div>
   );
 }
