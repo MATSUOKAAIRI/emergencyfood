@@ -1,29 +1,35 @@
-'use client';
 import Link from 'next/link';
-import JoinTeamForm from '@/components/teams/JoinTeamForm';
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { auth, onAuthStateChanged } from '@/utils/firebase';
+import { Suspense } from 'react';
+
+import { ERROR_MESSAGES, UI_CONSTANTS } from '@/utils/constants';
+
+import JoinTeamClient from './JoinTeamClient';
 
 export default function JoinTeamPage() {
-  const router = useRouter();
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        router.push('/auth/login');
-      }
-    });
-    return () => unsubscribe();
-  }, [router]);
-
   return (
-    <div className="p-4 items-center justify-center flex flex-col bottom-0 pt-40">
-      <h1 className="text-5xl font-bold text-[#333] mb-30">既存のチームに参加</h1>
-      <JoinTeamForm />
-      <Link href="/teams/select" className="inline-block mt-4 hover:text-[#a399ff] text-[#a399ff] hover:underline">
-        チーム選択画面に戻る
-      </Link>
+    <div className='min-h-screen flex items-center justify-center p-6'>
+      <div className='max-w-md w-full'>
+        <div className='bg-white rounded-xl shadow-lg border border-gray-200 p-8'>
+          <Suspense
+            fallback={
+              <p className='text-center py-8 text-gray-600'>
+                {ERROR_MESSAGES.LOADING}
+              </p>
+            }
+          >
+            <JoinTeamClient />
+          </Suspense>
+        </div>
+
+        <div className='text-center mt-6'>
+          <Link
+            className='text-black font-medium hover:text-gray-600 transition-colors focus:underline rounded'
+            href='/teams/select'
+          >
+            {UI_CONSTANTS.BACK_TO_TEAM_SELECTION}
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }

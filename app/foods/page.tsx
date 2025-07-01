@@ -1,16 +1,16 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { auth, onAuthStateChanged } from '@/utils/firebase';
-import { db } from '@/utils/firebase';
 import { doc, getDoc } from 'firebase/firestore';
-import Link from 'next/link'; // Link コンポーネントをインポート
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+
+import { auth, db, onAuthStateChanged } from '@/utils/firebase';
 
 export default function FoodsPage() {
   const [userTeamId, setUserTeamId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
+    const unsubscribeAuth = onAuthStateChanged(auth, async user => {
       if (user) {
         const userDocRef = doc(db, 'users', user.uid);
         const userDocSnap = await getDoc(userDocRef);
@@ -37,10 +37,15 @@ export default function FoodsPage() {
       {userTeamId ? (
         <p>食品リストにリダイレクト中です...</p>
       ) : (
-        <div className="p-4">
-          <h1 className="text-xl font-bold mb-4">チームへの参加が必要です</h1>
-          <p className="mb-4">食品リストを閲覧するには、いずれかのチームに参加してください。</p>
-          <Link href="/teams/select" className="inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+        <div className='p-4'>
+          <h1 className='text-xl font-bold mb-4'>チームへの参加が必要です</h1>
+          <p className='mb-4'>
+            食品リストを閲覧するには、いずれかのチームに参加してください。
+          </p>
+          <Link
+            className='inline-block text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline'
+            href='/teams/select'
+          >
             チームを選択または作成する
           </Link>
         </div>

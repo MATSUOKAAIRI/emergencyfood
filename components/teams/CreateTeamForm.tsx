@@ -1,20 +1,21 @@
 // components/teams/CreateTeamForm.tsx
 'use client';
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getAuth } from 'firebase/auth';
-// import { doc, getDocs, query, where, setDoc, collection } from 'firebase/firestore';
-// import { db } from '@/utils/firebase';
-// import { v4 as uuidv4 } from 'uuid';
+import React, { useState } from 'react';
+
+import { useAuth, useTeam } from '@/hooks';
+import { ERROR_MESSAGES } from '@/utils/constants';
 
 export default function CreateTeamForm() {
   const [teamName, setTeamName] = useState('');
   const [teamPassword, setTeamPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const firebaseAuth = getAuth();
+  const { user } = useAuth();
+  const { createTeam } = useTeam(user);
 
   const handleCreateTeam = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,110 +23,112 @@ export default function CreateTeamForm() {
     setSuccessMessage(null);
     setLoading(true);
 
-    const user = firebaseAuth.currentUser;
     if (!user) {
-      setError('ログインしていません。');
+      setError(ERROR_MESSAGES.UNAUTHORIZED);
+      setLoading(false);
+      return;
+    }
+
+    if (teamPassword !== confirmPassword) {
+      setError('パスワードが一致しません');
       setLoading(false);
       return;
     }
 
     try {
-      const idToken = await user.getIdToken(true);
+      const result = await createTeam(teamName, teamPassword);
+      setSuccessMessage(
+        result.message || `チーム "${teamName}" を作成し、参加しました！`
+      );
 
-      const response = await fetch('/api/actions/createTeam', { 
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${idToken}`,
-        },
-        body: JSON.stringify({
-          teamName,
-          teamPassword,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'チームの作成に失敗しました。'); 
-      }
-
-      setSuccessMessage(result.message || `チーム "${teamName}" を作成し、参加しました！`);
-      
-      // const teamsRef = collection(db, 'teams');
-      // const q = query(teamsRef, where('name', '==', teamName));
-      // const querySnapshot = await getDocs(q);
-    //   if (!querySnapshot.empty) {
-    //     setError('入力されたチーム名はすでに存在します。');
-    //     return;
-    //   }
-    // const generatedTeamId = uuidv4().substring(0, 8);
-    //     await setDoc(doc(db, 'teams', generatedTeamId), {
-    //       name: teamName,
-    //       password: teamPassword,
-    //       members: [user.uid],
-    //       ownerId: user.uid,
-    //     });
-    // await setDoc(doc(db, 'users', user.uid), {
-    //     teamId: generatedTeamId,
-    //   });
-    // const idToken = await user.getIdToken();
-    //   await fetch('/api/setMyCustomClaims', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify({ idToken }),
-    //   });
-
-      // setSuccessMessage(`新しいチーム "${teamName}" (ID: ${generatedTeamId}) を作成しました！`);
-      // router.push(`/foods/list?teamId=${generatedTeamId}`);
-      await user.getIdToken(true);
-if (result.teamId) {
-        router.replace(`/foods/list?teamId=${result.teamId}`); 
-        console.log(`EMERGENCY REDIRECT: Navigating to /foods/list?teamId=${result.teamId}`);
-    } else {
+      if (result.teamId) {
+        router.replace(`/foods/list?teamId=${result.teamId}`);
+      } else {
         router.replace('/foods/list');
-        console.log("EMERGENCY REDIRECT: Navigating to /foods/list (teamId not returned).");
-    }
-    } catch (error: any) {
-      console.error('チーム作成エラー:', error);
-      setError(`チームの作成に失敗しました: ${error.message || '不明なエラー'}`);
+      }
+    } catch (_error: unknown) {
+      let msg: string = ERROR_MESSAGES.UNKNOWN_ERROR;
+      if (_error instanceof Error) msg = _error.message;
+      setError(`チームの作成に失敗しました: ${msg}`);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleCreateTeam} className="max-w-sm mx-auto p-4 border rounded mb-4 border-[#333] w-2/3">
-      <h2 className="text-xl font-bold mb-4 text-[#333]">新しいチームを作成</h2>
-      {error && <div className="bg-red-100 border border-red-600 text-red-700 px-4 py-3 rounded relative mb-4">{error}</div>}
-      {successMessage && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">{successMessage}</div>}
-      <div className="mb-4">
-        <label htmlFor="teamName" className="block text-[#333] text-sm font-bold mb-2">チーム名</label>
-        <input
-          type="text"
-          id="teamName"
-          value={teamName}
-          onChange={(e) => setTeamName(e.target.value)}
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-[#333] leading-tight focus:outline-none focus:shadow-outline"
-          required
-          disabled={loading} 
-        />
-      </div>
-      <div className="mb-4">
-        <label htmlFor="teamPassword" className="block text-[#333] text-sm font-bold mb-2">パスワード</label>
-        <input
-          type="password"
-          id="teamPassword"
-          value={teamPassword}
-          onChange={(e) => setTeamPassword(e.target.value)}
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-[#333] leading-tight focus:outline-none focus:shadow-outline"
-          required
-          disabled={loading} 
-        />
+    <form className='space-y-6' onSubmit={handleCreateTeam}>
+      <h1 className='text-3xl font-bold mb-6 text-black text-center'>
+        新しいチームを作成
+      </h1>
+      {error && (
+        <div className='bg-red-200 border text-black px-4 py-3 relative mb-4 rounded-md'>
+          {error}
+        </div>
+      )}
+      {successMessage && (
+        <div className='bg-green-200 border text-black px-4 py-3 relative mb-4 rounded-md'>
+          {successMessage}
+        </div>
+      )}
+      <div className='space-y-4'>
+        <div>
+          <label
+            className='block text-black text-sm font-medium mb-2'
+            htmlFor='teamName'
+          >
+            チーム名
+          </label>
+          <input
+            required
+            className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black text-gray-900'
+            disabled={loading}
+            id='teamName'
+            placeholder='チーム名を決めてください'
+            type='text'
+            value={teamName}
+            onChange={e => setTeamName(e.target.value)}
+          />
+        </div>
+        <div>
+          <label
+            className='block text-black text-sm font-medium mb-2'
+            htmlFor='teamPassword'
+          >
+            パスワード
+          </label>
+          <input
+            required
+            className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black text-gray-900'
+            disabled={loading}
+            id='teamPassword'
+            placeholder='パスワードを入力'
+            type='password'
+            value={teamPassword}
+            onChange={e => setTeamPassword(e.target.value)}
+          />
+        </div>
+        <div>
+          <label
+            className='block text-black text-sm font-medium mb-2'
+            htmlFor='confirmPassword'
+          >
+            パスワードを再入力
+          </label>
+          <input
+            required
+            className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black text-gray-900'
+            disabled={loading}
+            id='confirmPassword'
+            placeholder='パスワードを再入力'
+            type='password'
+            value={confirmPassword}
+            onChange={e => setConfirmPassword(e.target.value)}
+          />
+        </div>
       </div>
       <button
-        type="submit"
-        className="bg-[#333333] text-white hover:bg-[#332b1e] font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+        className='w-full bg-black text-white font-semibold py-3 px-6 rounded-md hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2'
+        type='submit'
       >
         {loading ? '作成中...' : '作成'}
       </button>
