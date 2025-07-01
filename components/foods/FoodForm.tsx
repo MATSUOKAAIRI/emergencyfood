@@ -47,7 +47,6 @@ export default function FoodForm({
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  // 編集モードの場合、初期データを設定
   useEffect(() => {
     if (mode === 'edit' && initialData) {
       setFormData(initialData);
@@ -97,7 +96,6 @@ export default function FoodForm({
 
     try {
       if (mode === 'add') {
-        // 新規追加
         const data = {
           name,
           quantity: Number(quantity),
@@ -125,7 +123,6 @@ export default function FoodForm({
         });
         setSuccessMessage(SUCCESS_MESSAGES.FOOD_CREATED);
       } else {
-        // 編集更新
         if (!foodId) {
           setErrorMessage('食品IDが見つかりません。');
           setSubmitting(false);
@@ -147,7 +144,6 @@ export default function FoodForm({
         await updateDoc(foodRef, updates);
         setSuccessMessage('食品情報が正常に更新されました！');
 
-        // 少し待ってからリダイレクト
         setTimeout(() => {
           router.push('/foods/list');
         }, 1500);

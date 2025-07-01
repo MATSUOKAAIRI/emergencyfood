@@ -1,6 +1,6 @@
 // app/api/actions/unlink-line-account/route.ts
 import * as admin from 'firebase-admin';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 import { adminAuth, adminDb } from '@/utils/firebase/admin';
 

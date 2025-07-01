@@ -109,7 +109,7 @@ export async function POST(req: Request) {
         let messageText = `【SonaBase通知】賞味期限が近い非常食があります！\n\n`;
         userFoods.forEach(f => {
           const urgency =
-            f.remainingDays <= 3 ? '!' : f.remainingDays <= 7 ? '!' : '!';
+            f.remainingDays <= 3 ? '' : f.remainingDays <= 7 ? '' : '';
           messageText += `${urgency} ${f.foodName}: ${f.expiryDate} (残り ${f.remainingDays} 日)\n`;
 
           foodsToUpdateNotifiedAt.push({

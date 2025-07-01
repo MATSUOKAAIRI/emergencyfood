@@ -1,4 +1,3 @@
-import * as admin from 'firebase-admin';
 import { NextResponse } from 'next/server';
 
 import { adminAuth, adminDb } from '@/utils/firebase/admin';
@@ -84,25 +83,6 @@ export async function POST(req: Request) {
       transaction.update(userDocRef, { teamId: foundTeamId });
       transaction.update(teamDocRef, { members: [...currentTeamMembers, uid] });
     });
-    //
-    // const setClaimsApiUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/set-custom-claims`;
-
-    // const currentCustomTeamIds = decodedToken.teamIds || [];
-    // const newCustomTeamIds = [...new Set([...currentCustomTeamIds, foundTeamId])];
-
-    // const setClaimsResponse = await fetch(setClaimsApiUrl, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'Authorization': `Bearer ${process.env.ADMIN_SECRET}`,
-    //   },
-    //   body: JSON.stringify({ uid, teamIds: newCustomTeamIds }),
-    // });
-
-    // if (!setClaimsResponse.ok) {
-    //   const errorData = await setClaimsResponse.json();
-    //   throw new Error(`Failed to set custom claims: ${errorData.error}`);
-    // }
 
     await adminAuth.setCustomUserClaims(uid, { teamId: foundTeamId });
     console.log(`Custom claim 'teamId' set for user ${uid}: ${foundTeamId}`);

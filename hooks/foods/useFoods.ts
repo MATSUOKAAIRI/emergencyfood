@@ -2,6 +2,7 @@ import type { AppUser, Food, UseFoodsReturn } from '@/types';
 import { ERROR_MESSAGES, UI_CONSTANTS } from '@/utils/constants';
 import { db } from '@/utils/firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export const useFoods = (
@@ -9,6 +10,7 @@ export const useFoods = (
   teamId: string | null,
   isArchived: boolean = false
 ): UseFoodsReturn => {
+  const router = useRouter();
   const [foods, setFoods] = useState<Food[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +30,6 @@ export const useFoods = (
         const q = query(
           collection(db, 'foods'),
           where('teamId', '==', teamId),
-          where('uid', '==', user.uid),
           where('isArchived', '==', isArchived)
         );
 
@@ -60,10 +61,27 @@ export const useFoods = (
     }
 
     try {
+      const idToken = await user.getIdToken();
+      const response = await fetch('/api/actions/archive-food', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ foodId: foodIdToArchive }),
+      });
+
+      if (!response.ok) {
+        const result = await response.json();
+        throw new Error(result.error || '食品のアーカイブに失敗しました');
+      }
+
       setFoods(prevFoods =>
         prevFoods.filter(food => food.id !== foodIdToArchive)
       );
+
       console.log(`Food item ${foodIdToArchive} archived successfully.`);
+      router.push('/foods/archived');
     } catch (e: any) {
       console.error('Error archiving food: ', e);
       setError(

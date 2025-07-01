@@ -60,7 +60,6 @@ export default function FoodEditPage() {
 
           setFoodData(food);
 
-          // FoodFormDataの形式に変換
           const formData: FoodFormData = {
             name: food.name,
             quantity: food.quantity,
