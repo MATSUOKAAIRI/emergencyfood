@@ -5,7 +5,7 @@ import { adminAuth, adminDb } from '@/utils/firebase/admin';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { teamId: string } }
+  { params }: { params: Promise<{ teamId: string }> }
 ) {
   try {
     const authHeader = request.headers.get('authorization');
@@ -17,7 +17,7 @@ export async function GET(
     const decodedToken = await adminAuth.verifyIdToken(idToken);
     const userId = decodedToken.uid;
 
-    const teamId = params.teamId;
+    const { teamId } = await params;
 
     const teamDoc = await adminDb.collection('teams').doc(teamId).get();
     if (!teamDoc.exists) {
