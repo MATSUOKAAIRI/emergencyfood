@@ -7,11 +7,11 @@ export default function Footer() {
         <div className='flex flex-col items-center space-y-6'>
           <div className='flex items-center space-x-6'>
             <Link
-              href='https://x.com/rii_3112'
-              target='_blank'
-              rel='noopener noreferrer'
-              className='group relative p-3 bg-gray-200/60 backdrop-blur-sm rounded-xl hover:bg-gray-300/80 transition-all duration-300 hover:scale-110 hover:shadow-lg'
               aria-label='Follow us on X'
+              className='group relative p-3 bg-gray-200/60 backdrop-blur-sm rounded-xl hover:bg-gray-300/80 transition-all duration-300 hover:scale-110 hover:shadow-lg'
+              href='https://x.com/rii_3112'
+              rel='noopener noreferrer'
+              target='_blank'
             >
               <svg
                 className='w-6 h-6 text-gray-700 group-hover:text-black transition-colors'

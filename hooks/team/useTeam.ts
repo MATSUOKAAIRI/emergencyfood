@@ -54,7 +54,6 @@ export const useTeam = (user: AppUser | null): UseTeamReturn => {
           (idTokenResult.claims.teamId as string | null) || null;
         setTeamId(teamIdFromClaims);
       } catch (e) {
-        console.error('Error getting teamId from claims:', e);
         setError('チームIDの取得に失敗しました');
         setTeamId(null);
       } finally {
@@ -88,7 +87,6 @@ export const useTeam = (user: AppUser | null): UseTeamReturn => {
       setTeam(teamData.team);
       setTeamMembers(teamData.members);
     } catch (e) {
-      console.error('Error fetching team info:', e);
       setError(ERROR_MESSAGES.TEAM_FETCH_FAILED);
     }
   };
@@ -111,18 +109,14 @@ export const useTeam = (user: AppUser | null): UseTeamReturn => {
 
       if (!response.ok) {
         const result = await response.json();
-        console.error('Migration failed:', result.error);
         return;
       }
 
       const result = await response.json();
       if (result.migrated) {
-        console.log('Team data migrated successfully');
         await fetchTeamInfo();
       }
-    } catch (e) {
-      console.error('Error migrating team data:', e);
-    }
+    } catch (e) {}
   };
 
   useEffect(() => {

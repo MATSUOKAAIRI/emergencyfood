@@ -1,5 +1,5 @@
 // app/api/actions/create-team/route.ts
-import type * as admin from 'firebase-admin';
+import type { Transaction } from 'firebase-admin/firestore';
 import { NextResponse } from 'next/server';
 
 import { adminAuth, adminDb } from '@/utils/firebase/admin';
@@ -17,8 +17,7 @@ export async function POST(req: Request) {
     let decodedToken;
     try {
       decodedToken = await adminAuth.verifyIdToken(idToken);
-    } catch (error) {
-      console.error('ID Token verification failed:', error);
+    } catch (_error) {
       return NextResponse.json(
         { error: 'Invalid or expired ID token' },
         { status: 403 }
@@ -49,7 +48,7 @@ export async function POST(req: Request) {
     const hashedPassword = teamPassword;
 
     const newTeamId = await adminDb.runTransaction(
-      async (transaction: admin.firestore.Transaction) => {
+      async (transaction: Transaction) => {
         const userDocRef = adminDb.collection('users').doc(uid);
         const userDoc = await transaction.get(userDocRef);
 
@@ -84,23 +83,20 @@ export async function POST(req: Request) {
     );
 
     await adminAuth.setCustomUserClaims(uid, { teamId: newTeamId });
-    console.log(`Custom claim 'teamId' set for user ${uid}: ${newTeamId}`);
 
     return NextResponse.json({
       message: `Team "${teamName}" created and you joined.`,
       teamId: newTeamId,
     });
-  } catch (error: any) {
-    console.error('API Error in create-team:', error);
-    if (error.message.includes('You are already a member of another team')) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+  } catch (_error: unknown) {
+    const errorMessage =
+      _error instanceof Error ? _error.message : 'Internal Server Error';
+    if (errorMessage.includes('You are already a member of another team')) {
+      return NextResponse.json({ error: errorMessage }, { status: 400 });
     }
-    if (error.message.includes('Team name already exists')) {
-      return NextResponse.json({ error: error.message }, { status: 409 });
+    if (errorMessage.includes('Team name already exists')) {
+      return NextResponse.json({ error: errorMessage }, { status: 409 });
     }
-    return NextResponse.json(
-      { error: error.message || 'Internal Server Error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

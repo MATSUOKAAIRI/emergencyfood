@@ -17,7 +17,7 @@ export default function RootLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<unknown>(null);
   const [teamId, setTeamId] = useState<string | null>(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState<boolean>(true);
 
@@ -51,8 +51,7 @@ export default function RootLayout({
         try {
           const idTokenResult = await currentUser.getIdTokenResult(true);
           userTeamId = (idTokenResult.claims.teamId as string | null) || null;
-        } catch (error) {
-          console.error('Error fetching ID token result in layout:', error);
+        } catch (_error) {
           userTeamId = null;
         }
 
@@ -73,16 +72,9 @@ export default function RootLayout({
         }
       }
       if (targetPath && targetPath !== currentPath) {
-        console.log(
-          `DEBUG: Attempting redirect from ${currentPath} to ${targetPath}`
-        );
         router.replace(targetPath);
       } else {
-        console.log(
-          `DEBUG: No redirect needed. Current path: ${currentPath}, Target path: ${targetPath}`
-        );
       }
-      console.log('--- LAYOUT DEBUG: onAuthStateChanged End ---');
     },
     [router, pathname]
   );
@@ -126,8 +118,8 @@ export default function RootLayout({
         <div className='min-h-screen'>
           <Header
             isLoggedIn={!!user}
-            onLogoClick={handleLogoClick}
             teamId={teamId}
+            onLogoClick={handleLogoClick}
           />
           <main>{children}</main>
           <Footer />

@@ -1,5 +1,6 @@
-import { UI_CONSTANTS } from '@/utils/constants';
 import Link from 'next/link';
+
+import { UI_CONSTANTS } from '@/utils/constants';
 
 export default function Home() {
   return (

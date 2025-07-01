@@ -1,5 +1,5 @@
 // app/api/actions/unlink-line-account/route.ts
-import * as admin from 'firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
 import { NextResponse } from 'next/server';
 
 import { adminAuth, adminDb } from '@/utils/firebase/admin';
@@ -17,8 +17,7 @@ export async function POST(req: Request) {
     let decodedToken;
     try {
       decodedToken = await adminAuth.verifyIdToken(idToken);
-    } catch (error) {
-      console.error('ID Token verification failed:', error);
+    } catch (_error) {
       return NextResponse.json(
         { error: 'Invalid or expired ID token' },
         { status: 403 }
@@ -38,8 +37,8 @@ export async function POST(req: Request) {
     }
 
     await userDocRef.update({
-      lineUserId: admin.firestore.FieldValue.delete(),
-      lineLinkedAt: admin.firestore.FieldValue.delete(),
+      lineUserId: FieldValue.delete(),
+      lineLinkedAt: FieldValue.delete(),
     });
 
     const newClaims = { ...decodedToken.claims };
@@ -49,11 +48,9 @@ export async function POST(req: Request) {
     return NextResponse.json({
       message: 'LINE account unlinked successfully!',
     });
-  } catch (error: any) {
-    console.error('LINE account unlinking API Error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Internal Server Error' },
-      { status: 500 }
-    );
+  } catch (_error: unknown) {
+    const errorMessage =
+      _error instanceof Error ? _error.message : 'Internal Server Error';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

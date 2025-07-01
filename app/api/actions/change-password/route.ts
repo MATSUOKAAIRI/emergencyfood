@@ -1,5 +1,4 @@
-import type { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 
 import { adminAuth } from '@/utils/firebase/admin';
 
@@ -31,8 +30,7 @@ export async function POST(request: NextRequest) {
       success: true,
       message: 'パスワードを変更しました',
     });
-  } catch (error) {
-    console.error('Error changing password:', error);
+  } catch (_error) {
     return NextResponse.json(
       { error: 'パスワードの変更に失敗しました' },
       { status: 500 }

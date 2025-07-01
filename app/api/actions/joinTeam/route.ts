@@ -15,8 +15,7 @@ export async function POST(req: Request) {
     let decodedToken;
     try {
       decodedToken = await adminAuth.verifyIdToken(idToken);
-    } catch (error) {
-      console.error('ID Token verification failed:', error);
+    } catch (_error) {
       return NextResponse.json(
         { error: 'Invalid or expired ID token' },
         { status: 403 }
@@ -85,19 +84,16 @@ export async function POST(req: Request) {
     });
 
     await adminAuth.setCustomUserClaims(uid, { teamId: foundTeamId });
-    console.log(`Custom claim 'teamId' set for user ${uid}: ${foundTeamId}`);
     return NextResponse.json({
       message: `Successfully joined team "${teamName}" and updated claims.`,
       teamId: foundTeamId,
     });
-  } catch (error: any) {
-    console.error('API Error in join-team:', error);
-    if (error.message.includes('You are already a member of another team')) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+  } catch (_error: unknown) {
+    const errorMessage =
+      _error instanceof Error ? _error.message : 'Internal Server Error';
+    if (errorMessage.includes('You are already a member of another team')) {
+      return NextResponse.json({ error: errorMessage }, { status: 400 });
     }
-    return NextResponse.json(
-      { error: error.message || 'Internal Server Error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

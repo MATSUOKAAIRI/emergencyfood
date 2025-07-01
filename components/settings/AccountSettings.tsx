@@ -46,7 +46,7 @@ export default function AccountSettings({ user }: AccountSettingsProps) {
       await updateUserName(displayName.trim());
       setIsEditingName(false);
       setMessage({ type: 'success', text: SUCCESS_MESSAGES.NAME_UPDATED });
-    } catch (error) {
+    } catch (_error) {
       setMessage({ type: 'error', text: ERROR_MESSAGES.NAME_UPDATE_FAILED });
     } finally {
       setLoading(false);
@@ -74,7 +74,7 @@ export default function AccountSettings({ user }: AccountSettingsProps) {
       setNewPassword('');
       setConfirmPassword('');
       setMessage({ type: 'success', text: SUCCESS_MESSAGES.PASSWORD_CHANGED });
-    } catch (error) {
+    } catch (_error) {
       setMessage({
         type: 'error',
         text: ERROR_MESSAGES.PASSWORD_CHANGE_FAILED,
@@ -109,25 +109,25 @@ export default function AccountSettings({ user }: AccountSettingsProps) {
         {isEditingName ? (
           <div className='flex gap-2'>
             <input
+              className='flex-1 px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-black'
+              placeholder='アカウント名を入力'
               type='text'
               value={displayName}
               onChange={e => setDisplayName(e.target.value)}
-              className='flex-1 px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-black'
-              placeholder='アカウント名を入力'
             />
             <button
-              onClick={handleNameSave}
-              disabled={loading}
               className='px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 disabled:opacity-50 transition-colors'
+              disabled={loading}
+              onClick={handleNameSave}
             >
               {loading ? UI_CONSTANTS.PROCESSING : UI_CONSTANTS.SAVE}
             </button>
             <button
+              className='px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors'
               onClick={() => {
                 setIsEditingName(false);
                 setDisplayName(getEditDisplayName());
               }}
-              className='px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors'
             >
               {UI_CONSTANTS.CANCEL}
             </button>
@@ -136,8 +136,8 @@ export default function AccountSettings({ user }: AccountSettingsProps) {
           <div className='flex items-center justify-between p-3 bg-gray-100 rounded-md border border-gray-300'>
             <span className='text-gray-900'>{getDisplayName()}</span>
             <button
-              onClick={() => setIsEditingName(true)}
               className='text-black hover:text-gray-600 text-sm font-medium transition-colors'
+              onClick={() => setIsEditingName(true)}
             >
               {UI_CONSTANTS.EDIT}
             </button>
@@ -161,34 +161,34 @@ export default function AccountSettings({ user }: AccountSettingsProps) {
         {isChangingPassword ? (
           <div className='space-y-3'>
             <input
+              className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-black'
+              placeholder='新しいパスワード（6文字以上）'
               type='password'
               value={newPassword}
               onChange={e => setNewPassword(e.target.value)}
-              className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-black'
-              placeholder='新しいパスワード（6文字以上）'
             />
             <input
+              className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-black'
+              placeholder='新しいパスワード（確認）'
               type='password'
               value={confirmPassword}
               onChange={e => setConfirmPassword(e.target.value)}
-              className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-black'
-              placeholder='新しいパスワード（確認）'
             />
             <div className='flex gap-2'>
               <button
-                onClick={handlePasswordChange}
-                disabled={loading}
                 className='px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 disabled:opacity-50 transition-colors'
+                disabled={loading}
+                onClick={handlePasswordChange}
               >
                 {loading ? UI_CONSTANTS.PROCESSING : UI_CONSTANTS.SAVE}
               </button>
               <button
+                className='px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors'
                 onClick={() => {
                   setIsChangingPassword(false);
                   setNewPassword('');
                   setConfirmPassword('');
                 }}
-                className='px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors'
               >
                 {UI_CONSTANTS.CANCEL}
               </button>
@@ -196,8 +196,8 @@ export default function AccountSettings({ user }: AccountSettingsProps) {
           </div>
         ) : (
           <button
-            onClick={() => setIsChangingPassword(true)}
             className='px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors'
+            onClick={() => setIsChangingPassword(true)}
           >
             {UI_CONSTANTS.CHANGE_PASSWORD}
           </button>

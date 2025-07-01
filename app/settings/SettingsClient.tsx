@@ -61,12 +61,12 @@ export default function SettingsClient() {
         {tabs.map(tab => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
             className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
               activeTab === tab.id
                 ? 'bg-black text-white border-b-2 border-black'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
+            onClick={() => setActiveTab(tab.id)}
           >
             {tab.label}
           </button>

@@ -1,5 +1,4 @@
-import type { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 
 import { adminAuth, adminDb } from '@/utils/firebase/admin';
 
@@ -80,8 +79,7 @@ export async function POST(request: NextRequest) {
       success: true,
       message: '食品を削除しました',
     });
-  } catch (error) {
-    console.error('Error deleting food:', error);
+  } catch (_error) {
     return NextResponse.json(
       { error: '食品の削除に失敗しました' },
       { status: 500 }

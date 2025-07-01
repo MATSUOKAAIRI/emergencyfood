@@ -1,5 +1,4 @@
-import type { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 
 import { adminAuth, adminDb } from '@/utils/firebase/admin';
 
@@ -73,8 +72,7 @@ export async function POST(request: NextRequest) {
       success: true,
       message: '管理者を追加しました',
     });
-  } catch (error) {
-    console.error('Error adding admin:', error);
+  } catch (_error) {
     return NextResponse.json(
       { error: '管理者の追加に失敗しました' },
       { status: 500 }

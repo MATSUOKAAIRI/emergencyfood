@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 
 import { adminAuth, adminDb } from '@/utils/firebase/admin';
 
@@ -75,8 +75,7 @@ export async function POST(request: NextRequest) {
       success: true,
       message: '管理者を削除しました',
     });
-  } catch (error) {
-    console.error('Error removing admin:', error);
+  } catch (_error) {
     return NextResponse.json(
       { error: '管理者の削除に失敗しました' },
       { status: 500 }

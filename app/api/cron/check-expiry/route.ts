@@ -1,13 +1,13 @@
 // app/api/cron/check-expiry/route.ts
 import { Client } from '@line/bot-sdk';
-import * as admin from 'firebase-admin';
+import { FieldValue, type Timestamp } from 'firebase-admin/firestore';
 import { NextResponse } from 'next/server';
 
 import { adminDb } from '@/utils/firebase/admin';
 
 const lineConfig = {
   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN || '',
-  channelSecret: process.env.LINE_CHANNEL_CHANNEL_SECRET || '',
+  channelSecret: process.env.LINE_CHANNEL_SECRET || '',
 };
 const lineClient = new Client(lineConfig);
 
@@ -15,11 +15,8 @@ export async function POST(req: Request) {
   try {
     const cronSecret = req.headers.get('x-cron-secret');
     if (!cronSecret || cronSecret !== process.env.CRON_JOB_SECRET) {
-      console.warn('Unauthorized cron job access attempt!');
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
-
-    console.log('Cron job started: Checking for expiring foods...');
 
     const now = new Date();
     const thirtyDaysLater = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
@@ -34,7 +31,6 @@ export async function POST(req: Request) {
     const querySnapshot = await q.get();
 
     if (querySnapshot.empty) {
-      console.log('No expiring foods found.');
       return NextResponse.json(
         { message: 'No expiring foods found.' },
         { status: 200 }
@@ -50,7 +46,7 @@ export async function POST(req: Request) {
           expiryDate: string;
           remainingDays: number;
           teamId: string;
-          lastNotifiedAt?: admin.firestore.Timestamp;
+          lastNotifiedAt?: Timestamp;
         }[];
       };
     } = {};
@@ -97,7 +93,7 @@ export async function POST(req: Request) {
 
     const foodsToUpdateNotifiedAt: {
       foodId: string;
-      lastNotifiedAt: admin.firestore.FieldValue;
+      lastNotifiedAt: FieldValue;
     }[] = [];
 
     for (const uid in notifications) {
@@ -114,7 +110,7 @@ export async function POST(req: Request) {
 
           foodsToUpdateNotifiedAt.push({
             foodId: f.foodId,
-            lastNotifiedAt: admin.firestore.FieldValue.serverTimestamp(),
+            lastNotifiedAt: FieldValue.serverTimestamp(),
           });
         });
         messageText += `\nSonaBaseで確認しましょう！`;
@@ -124,17 +120,25 @@ export async function POST(req: Request) {
             type: 'text',
             text: messageText,
           });
-          console.log(
-            `LINE notification sent to user ${uid} (LINE ID: ${lineUserId}) for ${userFoods.length} foods.`
-          );
-        } catch (lineError: any) {
+        } catch (lineError: unknown) {
           console.error(
             `Failed to send LINE notification to user ${uid} (LINE ID: ${lineUserId}):`,
             lineError
           );
           if (
-            lineError.originalError?.response?.data?.message ===
-            'User has not agreed to receive messages.'
+            lineError instanceof Error &&
+            'originalError' in lineError &&
+            lineError.originalError &&
+            typeof lineError.originalError === 'object' &&
+            'response' in lineError.originalError &&
+            lineError.originalError.response &&
+            typeof lineError.originalError.response === 'object' &&
+            'data' in lineError.originalError.response &&
+            lineError.originalError.response.data &&
+            typeof lineError.originalError.response.data === 'object' &&
+            'message' in lineError.originalError.response.data &&
+            lineError.originalError.response.data.message ===
+              'User has not agreed to receive messages.'
           ) {
             console.warn(
               `User ${uid} has not agreed to receive messages from your LINE official account.`
@@ -151,19 +155,18 @@ export async function POST(req: Request) {
         batch.update(foodDocRef, { lastNotifiedAt: update.lastNotifiedAt });
       });
       await batch.commit();
-      console.log(
-        `Updated lastNotifiedAt for ${foodsToUpdateNotifiedAt.length} notified foods.`
-      );
     }
 
     return NextResponse.json(
       { message: 'Expiry check completed and notifications sent.' },
       { status: 200 }
     );
-  } catch (error: any) {
-    console.error('Cron API Error:', error);
+  } catch (error) {
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
     return NextResponse.json(
-      { error: error.message || 'Internal Server Error' },
+      { error: 'Internal Server Error' },
       { status: 500 }
     );
   }

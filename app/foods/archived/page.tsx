@@ -26,7 +26,6 @@ function ArchivedFoodsPageClient() {
 
   const handleUpdateFood = (foodIdToUpdate: string) => {
     router.push(`/foods/edit/${foodIdToUpdate}`);
-    console.log(`Navigating to edit page for food ID: ${foodIdToUpdate}`);
   };
 
   const handleDeleteFood = async (foodId: string) => {
@@ -49,10 +48,7 @@ function ArchivedFoodsPageClient() {
       }
 
       router.refresh();
-    } catch (error) {
-      console.error('Error deleting food:', error);
-      alert('食品の削除に失敗しました');
-    }
+    } catch (_error) {}
   };
 
   if (teamLoading || foodsLoading) {
@@ -91,11 +87,11 @@ function ArchivedFoodsPageClient() {
               {foods.map((food: Food) => (
                 <FoodItem
                   key={food.id}
+                  canDelete={canDelete}
                   food={food}
                   onArchiveFood={archiveFood}
-                  onUpdateFood={handleUpdateFood}
                   onDeleteFood={handleDeleteFood}
-                  canDelete={canDelete}
+                  onUpdateFood={handleUpdateFood}
                 />
               ))}
             </div>

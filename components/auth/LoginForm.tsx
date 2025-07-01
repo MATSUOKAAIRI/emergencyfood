@@ -52,8 +52,7 @@ export default function LoginForm() {
 
           if (!res.ok) {
             setError('クレームの同期に失敗しました');
-            const errorText = await res.text();
-            console.error('クレーム同期APIエラー:', errorText);
+            const _errorText = await res.text();
             return;
           }
           await user.getIdToken(true);
@@ -70,31 +69,34 @@ export default function LoginForm() {
           router.push('/teams/select');
         }
       }
-    } catch (error: any) {
-      console.error(error);
-      switch (error.code) {
-        case 'auth/invalid-email':
-          setError(ERROR_MESSAGES.INVALID_EMAIL);
-          break;
-        case 'auth/user-disabled':
-          setError(ERROR_MESSAGES.USER_DISABLED);
-          break;
-        case 'auth/user-not-found':
-        case 'auth/wrong-password':
-          setError(ERROR_MESSAGES.INVALID_CREDENTIALS);
-          break;
-        case 'auth/too-many-requests':
-          setError(ERROR_MESSAGES.TOO_MANY_REQUESTS);
-          break;
-        default:
-          setError(ERROR_MESSAGES.LOGIN_FAILED);
-          break;
+    } catch (_error: unknown) {
+      if (_error instanceof Error && 'code' in _error) {
+        switch (_error.code) {
+          case 'auth/invalid-email':
+            setError(ERROR_MESSAGES.INVALID_EMAIL);
+            break;
+          case 'auth/user-disabled':
+            setError(ERROR_MESSAGES.USER_DISABLED);
+            break;
+          case 'auth/user-not-found':
+          case 'auth/wrong-password':
+            setError(ERROR_MESSAGES.INVALID_CREDENTIALS);
+            break;
+          case 'auth/too-many-requests':
+            setError(ERROR_MESSAGES.TOO_MANY_REQUESTS);
+            break;
+          default:
+            setError(ERROR_MESSAGES.LOGIN_FAILED);
+            break;
+        }
+      } else {
+        setError(ERROR_MESSAGES.LOGIN_FAILED);
       }
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className='space-y-6'>
+    <form className='space-y-6' onSubmit={handleSubmit}>
       <h2 className='text-4xl font-bold pb-4 text-gray-900 text-center mb-6'>
         ログイン
       </h2>
@@ -115,10 +117,10 @@ export default function LoginForm() {
             required
             className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black text-gray-900'
             id='email'
+            placeholder='example@email.com'
             type='email'
             value={email}
             onChange={e => setEmail(e.target.value)}
-            placeholder='example@email.com'
           />
         </div>
 
@@ -133,10 +135,10 @@ export default function LoginForm() {
             required
             className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black text-gray-900'
             id='password'
+            placeholder='パスワードを入力'
             type='password'
             value={password}
             onChange={e => setPassword(e.target.value)}
-            placeholder='パスワードを入力'
           />
         </div>
       </div>

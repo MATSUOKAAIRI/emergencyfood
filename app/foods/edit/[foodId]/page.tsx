@@ -52,7 +52,7 @@ export default function FoodEditPage() {
 
         if (docSnap.exists()) {
           const rawData = docSnap.data();
-          const { id, ...dataWithoutId } = rawData;
+          const { id: _id, ...dataWithoutId } = rawData;
           const food: Food = {
             id: docSnap.id,
             ...(dataWithoutId as FoodDocumentData),
@@ -74,8 +74,7 @@ export default function FoodEditPage() {
         } else {
           setError('指定された食品が見つかりません。');
         }
-      } catch (e: any) {
-        console.error('Error fetching food for edit:', e);
+      } catch (_e: unknown) {
         setError('食品データの取得に失敗しました。');
       } finally {
         setLoading(false);
@@ -135,11 +134,11 @@ export default function FoodEditPage() {
   return (
     <div className='max-w-2xl mx-auto p-6'>
       <FoodForm
-        mode='edit'
-        uid={user?.uid || null}
-        teamId={currentTeamId}
         foodId={foodId as string}
         initialData={formData}
+        mode='edit'
+        teamId={currentTeamId}
+        uid={user?.uid || null}
       />
     </div>
   );

@@ -7,9 +7,9 @@ import { useAuth, useTeam } from '@/hooks';
 import { ERROR_MESSAGES, UI_CONSTANTS } from '@/utils/constants';
 
 export default function FoodAddClient() {
-  const router = useRouter();
+  const _router = useRouter();
 
-  const { user } = useAuth(true);
+  const { user } = useAuth();
   const { currentTeamId, loading: teamLoading } = useTeam(user);
 
   if (teamLoading) {

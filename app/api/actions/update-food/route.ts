@@ -1,5 +1,5 @@
 // app/api/actions/update-food/route.ts
-import * as admin from 'firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
 import { NextResponse } from 'next/server';
 
 import { adminAuth, adminDb } from '@/utils/firebase/admin';
@@ -17,8 +17,7 @@ export async function POST(req: Request) {
     let decodedToken;
     try {
       decodedToken = await adminAuth.verifyIdToken(idToken);
-    } catch (error) {
-      console.error('ID Token verification failed:', error);
+    } catch (_error) {
       return NextResponse.json(
         { error: 'Invalid or expired ID token' },
         { status: 403 }
@@ -61,20 +60,18 @@ export async function POST(req: Request) {
 
     await foodDocRef.update({
       ...updates,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
     });
 
     return NextResponse.json({
       message: `Food item ${foodId} updated successfully.`,
     });
-  } catch (error: any) {
-    console.error('API Error in update-food:', error);
-    if (error.message.includes('Unauthorized')) {
-      return NextResponse.json({ error: error.message }, { status: 403 });
+  } catch (_error: unknown) {
+    const errorMessage =
+      _error instanceof Error ? _error.message : 'Failed to update food item.';
+    if (errorMessage.includes('Unauthorized')) {
+      return NextResponse.json({ error: errorMessage }, { status: 403 });
     }
-    return NextResponse.json(
-      { error: error.message || 'Failed to update food item.' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

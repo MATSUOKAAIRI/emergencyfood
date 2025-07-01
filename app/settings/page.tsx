@@ -1,6 +1,8 @@
 // app/settings/page.tsx
-import { ERROR_MESSAGES, UI_CONSTANTS } from '@/utils/constants';
 import { Suspense } from 'react';
+
+import { ERROR_MESSAGES, UI_CONSTANTS } from '@/utils/constants';
+
 import SettingsClient from './SettingsClient';
 
 export default function SettingsPage() {

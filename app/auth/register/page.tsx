@@ -1,7 +1,9 @@
 // app/auth/register/page.tsx
-import { ERROR_MESSAGES, UI_CONSTANTS } from '@/utils/constants';
 import Link from 'next/link';
 import { Suspense } from 'react';
+
+import { ERROR_MESSAGES, UI_CONSTANTS } from '@/utils/constants';
+
 import RegisterClient from './RegisterClient';
 
 export default function Register() {

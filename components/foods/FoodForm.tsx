@@ -1,12 +1,5 @@
 // components/foods/FoodForm.tsx
 'use client';
-import type { FoodFormData } from '@/types';
-import {
-  ERROR_MESSAGES,
-  FOOD_CATEGORIES,
-  SUCCESS_MESSAGES,
-} from '@/utils/constants';
-import { db } from '@/utils/firebase';
 import {
   addDoc,
   collection,
@@ -16,6 +9,14 @@ import {
 } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
+
+import type { FoodFormData } from '@/types';
+import {
+  ERROR_MESSAGES,
+  FOOD_CATEGORIES,
+  SUCCESS_MESSAGES,
+} from '@/utils/constants';
+import { db } from '@/utils/firebase';
 
 type FoodFormProps = {
   uid: string | null;
@@ -148,13 +149,16 @@ export default function FoodForm({
           router.push('/foods/list');
         }, 1500);
       }
-    } catch (error: any) {
-      console.error('Error saving document: ', error);
-      setErrorMessage(
-        mode === 'add'
-          ? ERROR_MESSAGES.FOOD_CREATE_FAILED
-          : '食品情報の更新に失敗しました。'
-      );
+    } catch (_error: unknown) {
+      if (_error instanceof Error) {
+        setErrorMessage(
+          mode === 'add'
+            ? ERROR_MESSAGES.FOOD_CREATE_FAILED
+            : '食品情報の更新に失敗しました。'
+        );
+      } else {
+        setErrorMessage('不明なエラーが発生しました');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -320,17 +324,17 @@ export default function FoodForm({
             className='w-full px-3 py-2 border border-gray-300 rounded text-gray-900 bg-white'
             id='storageLocation'
             name='storageLocation'
+            placeholder='例: 冷蔵庫、棚、地下室など'
             type='text'
             value={formData.storageLocation || ''}
             onChange={handleChange}
-            placeholder='例: 冷蔵庫、棚、地下室など'
           />
         </div>
       </div>
 
       <button
-        disabled={submitting}
         className='w-full bg-gray-800 text-white font-semibold py-3 px-4 rounded mt-6 disabled:opacity-50 disabled:cursor-not-allowed'
+        disabled={submitting}
         type='submit'
       >
         {submitting

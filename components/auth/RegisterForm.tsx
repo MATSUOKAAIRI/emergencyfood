@@ -14,7 +14,7 @@ export default function RegisterForm() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
+  const _router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +47,6 @@ export default function RegisterForm() {
           teamId: null,
         });
 
-        console.log('登録成功');
         const idToken = await userCredential.user.getIdToken();
         const res = await fetch(API_ENDPOINTS.SET_CUSTOM_CLAIMS, {
           method: 'POST',
@@ -64,13 +63,17 @@ export default function RegisterForm() {
         }
         await userCredential.user.getIdToken(true);
       }
-    } catch (error: any) {
-      if (error.code === 'auth/email-already-in-use') {
-        setError(ERROR_MESSAGES.EMAIL_ALREADY_IN_USE);
-      } else if (error.code === 'auth/invalid-email') {
-        setError(ERROR_MESSAGES.INVALID_EMAIL);
-      } else if (error.code === 'auth/weak-password') {
-        setError(ERROR_MESSAGES.WEAK_PASSWORD);
+    } catch (_error: unknown) {
+      if (_error instanceof Error && 'code' in _error) {
+        if (_error.code === 'auth/email-already-in-use') {
+          setError(ERROR_MESSAGES.EMAIL_ALREADY_IN_USE);
+        } else if (_error.code === 'auth/invalid-email') {
+          setError(ERROR_MESSAGES.INVALID_EMAIL);
+        } else if (_error.code === 'auth/weak-password') {
+          setError(ERROR_MESSAGES.WEAK_PASSWORD);
+        } else {
+          setError(ERROR_MESSAGES.REGISTRATION_FAILED);
+        }
       } else {
         setError(ERROR_MESSAGES.REGISTRATION_FAILED);
       }
@@ -78,7 +81,7 @@ export default function RegisterForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className='space-y-6'>
+    <form className='space-y-6' onSubmit={handleSubmit}>
       <h1 className='text-4xl font-bold text-gray-900 text-center mb-6'>
         ユーザー登録
       </h1>
@@ -101,10 +104,10 @@ export default function RegisterForm() {
             required
             className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black text-gray-900'
             id='name'
+            placeholder='表示名を入力'
             type='text'
             value={name}
             onChange={e => setName(e.target.value)}
-            placeholder='表示名を入力'
           />
         </div>
 
@@ -119,10 +122,10 @@ export default function RegisterForm() {
             required
             className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black text-gray-900'
             id='email'
+            placeholder='example@email.com'
             type='email'
             value={email}
             onChange={e => setEmail(e.target.value)}
-            placeholder='example@email.com'
           />
         </div>
 
@@ -137,10 +140,10 @@ export default function RegisterForm() {
             required
             className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black text-gray-900'
             id='password'
+            placeholder='6文字以上のパスワード'
             type='password'
             value={password}
             onChange={e => setPassword(e.target.value)}
-            placeholder='6文字以上のパスワード'
           />
         </div>
 
@@ -155,10 +158,10 @@ export default function RegisterForm() {
             required
             className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black text-gray-900'
             id='confirmPassword'
+            placeholder='パスワードを再入力'
             type='password'
             value={confirmPassword}
             onChange={e => setConfirmPassword(e.target.value)}
-            placeholder='パスワードを再入力'
           />
         </div>
       </div>

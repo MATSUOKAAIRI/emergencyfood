@@ -1,8 +1,9 @@
 'use client';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+
 import { useAuth, useTeam } from '@/hooks';
 import { ERROR_MESSAGES } from '@/utils/constants';
-import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
 
 export default function JoinTeamForm() {
   const [teamNameInput, setTeamNameInput] = useState('');
@@ -29,20 +30,13 @@ export default function JoinTeamForm() {
 
       if (result.teamId) {
         router.replace(`/foods/list?teamId=${result.teamId}`);
-        console.log(
-          `EMERGENCY REDIRECT: Navigating to /foods/list?teamId=${result.teamId}`
-        );
       } else {
         router.replace('/foods/list');
-        console.log(
-          'EMERGENCY REDIRECT: Navigating to /foods/list (teamId not returned).'
-        );
       }
-    } catch (error: any) {
-      console.error('Error joining team:', error);
-      setError(
-        `チームへの参加に失敗しました: ${error.message || ERROR_MESSAGES.UNKNOWN_ERROR}`
-      );
+    } catch (_error: unknown) {
+      let msg: string = ERROR_MESSAGES.UNKNOWN_ERROR;
+      if (_error instanceof Error) msg = _error.message;
+      setError(`チームへの参加に失敗しました: ${msg}`);
     }
   };
 
@@ -72,10 +66,10 @@ export default function JoinTeamForm() {
           required
           className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black text-gray-900'
           id='teamNameInput'
+          placeholder='チーム名を入力'
           type='text'
           value={teamNameInput}
           onChange={e => setTeamNameInput(e.target.value)}
-          placeholder='チーム名を入力'
         />
       </div>
       <div className='mb-4'>
@@ -89,10 +83,10 @@ export default function JoinTeamForm() {
           required
           className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black text-gray-900'
           id='teamPasswordInput'
+          placeholder='パスワードを入力'
           type='password'
           value={teamPasswordInput}
           onChange={e => setTeamPasswordInput(e.target.value)}
-          placeholder='パスワードを入力'
         />
       </div>
       <button

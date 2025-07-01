@@ -1,9 +1,10 @@
 // components/teams/CreateTeamForm.tsx
 'use client';
+import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
+
 import { useAuth, useTeam } from '@/hooks';
 import { ERROR_MESSAGES } from '@/utils/constants';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 
 export default function CreateTeamForm() {
   const [teamName, setTeamName] = useState('');
@@ -42,20 +43,13 @@ export default function CreateTeamForm() {
 
       if (result.teamId) {
         router.replace(`/foods/list?teamId=${result.teamId}`);
-        console.log(
-          `EMERGENCY REDIRECT: Navigating to /foods/list?teamId=${result.teamId}`
-        );
       } else {
         router.replace('/foods/list');
-        console.log(
-          'EMERGENCY REDIRECT: Navigating to /foods/list (teamId not returned).'
-        );
       }
-    } catch (error: any) {
-      console.error('チーム作成エラー:', error);
-      setError(
-        `チームの作成に失敗しました: ${error.message || ERROR_MESSAGES.UNKNOWN_ERROR}`
-      );
+    } catch (_error: unknown) {
+      let msg: string = ERROR_MESSAGES.UNKNOWN_ERROR;
+      if (_error instanceof Error) msg = _error.message;
+      setError(`チームの作成に失敗しました: ${msg}`);
     } finally {
       setLoading(false);
     }
@@ -89,10 +83,10 @@ export default function CreateTeamForm() {
             className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black text-gray-900'
             disabled={loading}
             id='teamName'
+            placeholder='チーム名を決めてください'
             type='text'
             value={teamName}
             onChange={e => setTeamName(e.target.value)}
-            placeholder='チーム名を決めてください'
           />
         </div>
         <div>
@@ -107,10 +101,10 @@ export default function CreateTeamForm() {
             className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black text-gray-900'
             disabled={loading}
             id='teamPassword'
+            placeholder='パスワードを入力'
             type='password'
             value={teamPassword}
             onChange={e => setTeamPassword(e.target.value)}
-            placeholder='パスワードを入力'
           />
         </div>
         <div>
@@ -125,10 +119,10 @@ export default function CreateTeamForm() {
             className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black text-gray-900'
             disabled={loading}
             id='confirmPassword'
+            placeholder='パスワードを再入力'
             type='password'
             value={confirmPassword}
             onChange={e => setConfirmPassword(e.target.value)}
-            placeholder='パスワードを再入力'
           />
         </div>
       </div>

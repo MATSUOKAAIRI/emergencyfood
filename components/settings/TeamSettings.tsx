@@ -27,8 +27,8 @@ export default function TeamSettings({ user }: TeamSettingsProps) {
     type: 'success' | 'error';
     text: string;
   } | null>(null);
-  const [showDebug, setShowDebug] = useState(false);
-  const [migrating, setMigrating] = useState(false);
+  const [_showDebug, _setShowDebug] = useState(false);
+  const [_migrating, setMigrating] = useState(false);
 
   if (loading) {
     return <div className='text-center py-8'>{ERROR_MESSAGES.LOADING}</div>;
@@ -63,12 +63,12 @@ export default function TeamSettings({ user }: TeamSettingsProps) {
         await addAdmin(memberId);
         setMessage({ type: 'success', text: SUCCESS_MESSAGES.ADMIN_ADDED });
       }
-    } catch (error) {
+    } catch (_error) {
       setMessage({ type: 'error', text: ERROR_MESSAGES.ADMIN_UPDATE_FAILED });
     }
   };
 
-  const handleMigration = async () => {
+  const _handleMigration = async () => {
     setMigrating(true);
     try {
       await migrateTeamData();
@@ -76,7 +76,7 @@ export default function TeamSettings({ user }: TeamSettingsProps) {
         type: 'success',
         text: 'チームデータを最新の形式に移行しました',
       });
-    } catch (error) {
+    } catch (_error) {
       setMessage({ type: 'error', text: 'チームデータの移行に失敗しました' });
     } finally {
       setMigrating(false);
@@ -176,17 +176,17 @@ export default function TeamSettings({ user }: TeamSettingsProps) {
                   member.uid !== team.ownerId &&
                   member.uid !== user.uid && (
                     <button
+                      className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                        team.admins.includes(member.uid)
+                          ? 'bg-red-100 text-red-800 hover:bg-red-200'
+                          : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                      }`}
                       onClick={() =>
                         handleAdminToggle(
                           member.uid,
                           team.admins.includes(member.uid)
                         )
                       }
-                      className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-                        team.admins.includes(member.uid)
-                          ? 'bg-red-100 text-red-800 hover:bg-red-200'
-                          : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-                      }`}
                     >
                       {team.admins.includes(member.uid)
                         ? UI_CONSTANTS.REMOVE_ADMIN
@@ -198,8 +198,8 @@ export default function TeamSettings({ user }: TeamSettingsProps) {
                   member.uid === user.uid &&
                   currentUserRole === 'admin' && (
                     <button
-                      onClick={() => handleAdminToggle(member.uid, true)}
                       className='px-3 py-1 text-xs font-medium rounded-md bg-red-100 text-black hover:bg-red-200 transition-colors'
+                      onClick={() => handleAdminToggle(member.uid, true)}
                     >
                       {UI_CONSTANTS.REMOVE_ADMIN}
                     </button>

@@ -1,5 +1,5 @@
 // app/api/actions/archive-food/route.ts
-import * as admin from 'firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
 import { NextResponse } from 'next/server';
 
 import { adminAuth, adminDb } from '@/utils/firebase/admin';
@@ -14,18 +14,15 @@ export async function POST(req: Request) {
       );
     }
     const idToken = authHeader.split('Bearer ')[1];
-    let decodedToken;
     try {
-      decodedToken = await adminAuth.verifyIdToken(idToken);
-    } catch (error) {
-      console.error('ID Token verification failed:', error);
+      await adminAuth.verifyIdToken(idToken);
+    } catch (_error) {
       return NextResponse.json(
         { error: 'Invalid or expired ID token' },
         { status: 403 }
       );
     }
 
-    const uid = decodedToken.uid;
     const { foodId } = await req.json();
 
     if (!foodId) {
@@ -39,17 +36,17 @@ export async function POST(req: Request) {
 
     await foodDocRef.update({
       isArchived: true,
-      archivedAt: admin.firestore.FieldValue.serverTimestamp(), // アーカイブ日時も記録すると便利
+      archivedAt: FieldValue.serverTimestamp(),
     });
 
     return NextResponse.json({
       message: `Food item ${foodId} archived successfully.`,
     });
-  } catch (error: any) {
-    console.error('API Error in archive-food:', error);
-    return NextResponse.json(
-      { error: error.message || 'Failed to archive food item.' },
-      { status: 500 }
-    );
+  } catch (_error: unknown) {
+    const errorMessage =
+      _error instanceof Error
+        ? _error?.message
+        : 'Failed to archive food item.';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

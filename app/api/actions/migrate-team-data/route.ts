@@ -1,5 +1,4 @@
-import type { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 
 import { adminAuth, adminDb } from '@/utils/firebase/admin';
 
@@ -64,11 +63,6 @@ export async function POST(request: NextRequest) {
       admins: admins,
     });
 
-    console.log(`Migrated team ${teamId}:`, {
-      ownerId,
-      admins,
-    });
-
     return NextResponse.json({
       success: true,
       message: 'チームデータを最新の形式に移行しました',
@@ -78,8 +72,7 @@ export async function POST(request: NextRequest) {
         admins,
       },
     });
-  } catch (error) {
-    console.error('Error migrating team data:', error);
+  } catch (_error) {
     return NextResponse.json(
       { error: 'チームデータの移行に失敗しました' },
       { status: 500 }

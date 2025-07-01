@@ -1,5 +1,4 @@
-import type { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 
 import { adminAuth, adminDb } from '@/utils/firebase/admin';
 
@@ -35,22 +34,8 @@ export async function GET(
       );
     }
 
-    console.log('Team data from database:', {
-      id: teamDoc.id,
-      name: teamData.name,
-      ownerId: teamData.ownerId,
-      createdBy: teamData.createdBy,
-      admins: teamData.admins,
-      members: teamData.members,
-    });
-
     const ownerId = teamData.ownerId || teamData.createdBy;
     const admins = teamData.admins || [ownerId];
-
-    console.log('Processed team data:', {
-      ownerId,
-      admins,
-    });
 
     if (!teamData.members.includes(userId)) {
       return NextResponse.json(
@@ -88,8 +73,6 @@ export async function GET(
       })
       .filter(Boolean);
 
-    console.log('Team members:', members);
-
     const team = {
       id: teamDoc.id,
       name: teamData.name,
@@ -104,8 +87,7 @@ export async function GET(
       team,
       members,
     });
-  } catch (error) {
-    console.error('Error fetching team info:', error);
+  } catch (_error) {
     return NextResponse.json(
       { error: 'チーム情報の取得に失敗しました' },
       { status: 500 }

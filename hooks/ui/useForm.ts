@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 export const useForm = <T extends Record<string, any>>(
   initialValues: T,
@@ -35,8 +35,12 @@ export const useForm = <T extends Record<string, any>>(
       try {
         await onSubmit(values);
         setSuccessMessage('操作が完了しました');
-      } catch (error: any) {
-        setErrors({ submit: error.message || 'エラーが発生しました' });
+      } catch (_error: unknown) {
+        if (_error instanceof Error) {
+          setErrors({ submit: _error?.message || 'エラーが発生しました' });
+        } else {
+          // ... fallback ...
+        }
       } finally {
         setIsSubmitting(false);
       }

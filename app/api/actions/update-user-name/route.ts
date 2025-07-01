@@ -1,5 +1,4 @@
-import type { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 
 import { adminAuth, adminDb } from '@/utils/firebase/admin';
 
@@ -32,8 +31,7 @@ export async function POST(request: NextRequest) {
       success: true,
       message: 'ユーザー名を更新しました',
     });
-  } catch (error) {
-    console.error('Error updating user name:', error);
+  } catch (_error) {
     return NextResponse.json(
       { error: 'ユーザー名の更新に失敗しました' },
       { status: 500 }

@@ -39,9 +39,12 @@ export const useFoods = (
           foodList.push({ id: doc.id, ...doc.data() } as Food);
         });
         setFoods(foodList);
-      } catch (e: any) {
-        console.error('Error fetching foods: ', e);
-        setError(ERROR_MESSAGES.FOOD_FETCH_FAILED);
+      } catch (e: unknown) {
+        if (e instanceof Error) {
+          setError(ERROR_MESSAGES.FOOD_FETCH_FAILED);
+        } else {
+          setError(ERROR_MESSAGES.UNKNOWN_ERROR);
+        }
       } finally {
         setLoading(false);
       }
@@ -80,19 +83,19 @@ export const useFoods = (
         prevFoods.filter(food => food.id !== foodIdToArchive)
       );
 
-      console.log(`Food item ${foodIdToArchive} archived successfully.`);
       router.push('/foods/archived');
-    } catch (e: any) {
-      console.error('Error archiving food: ', e);
-      setError(
-        `${ERROR_MESSAGES.FOOD_ARCHIVE_FAILED}: ${e.message || ERROR_MESSAGES.UNKNOWN_ERROR}`
-      );
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        setError(
+          `${ERROR_MESSAGES.FOOD_ARCHIVE_FAILED}: ${e.message || ERROR_MESSAGES.UNKNOWN_ERROR}`
+        );
+      } else {
+        setError(ERROR_MESSAGES.UNKNOWN_ERROR);
+      }
     }
   };
 
-  const updateFood = (foodIdToUpdate: string) => {
-    console.log(`Update food with ID: ${foodIdToUpdate}`);
-  };
+  const updateFood = (foodIdToUpdate: string) => {};
 
   return {
     foods,

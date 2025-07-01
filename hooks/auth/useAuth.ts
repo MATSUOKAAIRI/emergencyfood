@@ -43,7 +43,6 @@ export const useAuth = (requireAuth = false): UseAuthReturn => {
         setLoading(false);
       },
       error => {
-        console.error('Auth state change error:', error);
         setError(ERROR_MESSAGES.LOGIN_FAILED);
         setLoading(false);
       }
@@ -57,7 +56,6 @@ export const useAuth = (requireAuth = false): UseAuthReturn => {
       await signOut(auth);
       setUser(null);
     } catch (error) {
-      console.error('Logout error:', error);
       setError('ログアウトに失敗しました');
     }
   };
@@ -94,7 +92,6 @@ export const useAuth = (requireAuth = false): UseAuthReturn => {
         throw new Error(result.error || ERROR_MESSAGES.NAME_UPDATE_FAILED);
       }
     } catch (error) {
-      console.error('Update user name error:', error);
       throw new Error(ERROR_MESSAGES.NAME_UPDATE_FAILED);
     }
   };
@@ -122,7 +119,6 @@ export const useAuth = (requireAuth = false): UseAuthReturn => {
         throw new Error(result.error || ERROR_MESSAGES.PASSWORD_CHANGE_FAILED);
       }
     } catch (error) {
-      console.error('Change password error:', error);
       throw new Error(ERROR_MESSAGES.PASSWORD_CHANGE_FAILED);
     }
   };

@@ -8,7 +8,7 @@ import {
   serverTimestamp,
   where,
 } from 'firebase/firestore';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
 import { useAuth } from '@/hooks';
@@ -17,7 +17,6 @@ import { ERROR_MESSAGES, UI_CONSTANTS } from '@/utils/constants';
 import { db } from '@/utils/firebase';
 
 export default function ReviewsClient() {
-  const router = useRouter();
   const { foodId } = useParams();
   const { user, loading } = useAuth(true);
   const [reviewText, setReviewText] = useState('');
@@ -25,7 +24,6 @@ export default function ReviewsClient() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  // Fetch reviews
   useEffect(() => {
     if (foodId) {
       const reviewsRef = collection(db, 'foodReviews');
@@ -62,19 +60,18 @@ export default function ReviewsClient() {
         createdAt: serverTimestamp(),
       });
       setReviewText('');
-    } catch (error: any) {
-      console.error('Error adding review: ', error);
+    } catch (_error: any) {
+      // console.error removed
       setError('感想の投稿に失敗しました。');
     } finally {
       setSubmitting(false);
     }
   };
 
-  // Show loading state
   if (loading) {
     return (
       <div className='flex items-center justify-center min-h-[400px]'>
-        <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-gray-800'></div>
+        <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-gray-800' />
       </div>
     );
   }
@@ -107,22 +104,22 @@ export default function ReviewsClient() {
             </h3>
           </div>
 
-          <form onSubmit={handleSubmit} className='space-y-4'>
+          <form className='space-y-4' onSubmit={handleSubmit}>
             <div>
               <textarea
                 required
                 className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all duration-200 resize-none'
                 id='reviewText'
+                placeholder='この非常食についての感想を書いてください...'
                 rows={4}
                 value={reviewText}
                 onChange={e => setReviewText(e.target.value)}
-                placeholder='この非常食についての感想を書いてください...'
               />
             </div>
             <div className='flex justify-end'>
               <button
-                disabled={submitting}
                 className='bg-gray-800 text-white font-semibold py-3 px-6 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg'
+                disabled={submitting}
                 type='submit'
               >
                 {submitting ? '投稿中...' : '感想を投稿'}

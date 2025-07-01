@@ -16,8 +16,7 @@ export default function LogoutSection() {
     try {
       await logout();
       router.push('/');
-    } catch (error) {
-      console.error('Logout error:', error);
+    } catch (_error) {
       setLoading(false);
     }
   };
@@ -48,16 +47,16 @@ export default function LogoutSection() {
 
           <div className='flex space-x-3'>
             <button
-              onClick={handleLogout}
-              disabled={loading}
               className='px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 disabled:opacity-50 transition-colors'
+              disabled={loading}
+              onClick={handleLogout}
             >
               {loading ? UI_CONSTANTS.PROCESSING : 'ログアウトする'}
             </button>
             <button
-              onClick={() => setShowConfirm(false)}
-              disabled={loading}
               className='px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 disabled:opacity-50 transition-colors'
+              disabled={loading}
+              onClick={() => setShowConfirm(false)}
             >
               {UI_CONSTANTS.CANCEL}
             </button>
@@ -65,8 +64,8 @@ export default function LogoutSection() {
         </div>
       ) : (
         <button
-          onClick={() => setShowConfirm(true)}
           className='px-6 py-3 bg-black text-white rounded-md hover:bg-gray-800 transition-colors font-medium'
+          onClick={() => setShowConfirm(true)}
         >
           {UI_CONSTANTS.LOGOUT}
         </button>

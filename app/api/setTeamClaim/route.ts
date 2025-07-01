@@ -1,5 +1,6 @@
-import { adminAuth, adminDb } from '@/utils/firebase/admin';
 import { NextResponse } from 'next/server';
+
+import { adminAuth, adminDb } from '@/utils/firebase/admin';
 
 export async function POST(req: Request) {
   const { idToken } = await req.json();
@@ -23,11 +24,11 @@ export async function POST(req: Request) {
     await adminAuth.setCustomUserClaims(uid, { teamId });
 
     return NextResponse.json({ message: 'カスタムクレームが設定されました' });
-  } catch (error: any) {
-    console.error('Error setting team claim:', error);
-    return NextResponse.json(
-      { error: error.message || 'カスタムクレームの設定に失敗しました' },
-      { status: 500 }
-    );
+  } catch (_error: unknown) {
+    const errorMessage =
+      _error instanceof Error
+        ? _error.message
+        : 'カスタムクレームの設定に失敗しました';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

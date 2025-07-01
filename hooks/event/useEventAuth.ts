@@ -37,7 +37,6 @@ export const useEventAuth = (): UseEventAuthReturn => {
           }
         }
       } catch (error) {
-        console.error('Event session check error:', error);
         setError('セッションの確認に失敗しました');
       } finally {
         setLoading(false);
@@ -51,9 +50,7 @@ export const useEventAuth = (): UseEventAuthReturn => {
     try {
       await fetch('/api/event/logout', { method: 'POST' });
       setEventUser(null);
-    } catch (error) {
-      console.error('Event logout error:', error);
-    }
+    } catch (error) {}
   };
 
   return {

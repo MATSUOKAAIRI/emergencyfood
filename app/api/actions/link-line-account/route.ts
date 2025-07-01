@@ -1,14 +1,8 @@
 // app/api/actions/link-line-account/route.ts
-import { Client } from '@line/bot-sdk';
-import * as admin from 'firebase-admin';
-import { NextRequest, NextResponse } from 'next/server';
+import { FieldValue, type Timestamp } from 'firebase-admin/firestore';
+import { NextResponse } from 'next/server';
 
 import { adminAuth, adminDb } from '@/utils/firebase/admin';
-
-const lineConfig = {
-  channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN || '',
-};
-const lineClient = new Client(lineConfig); // MessagingApiClient
 
 export async function POST(req: Request) {
   try {
@@ -23,8 +17,7 @@ export async function POST(req: Request) {
     let decodedToken;
     try {
       decodedToken = await adminAuth.verifyIdToken(idToken);
-    } catch (error) {
-      console.error('ID Token verification failed:', error);
+    } catch (_error) {
       return NextResponse.json(
         { error: 'Invalid or expired ID token' },
         { status: 403 }
@@ -58,7 +51,7 @@ export async function POST(req: Request) {
     const authCodeData = authCodeDoc.data();
     const lineUserId = authCodeDoc.id;
 
-    const expireAt = authCodeData.expireAt as admin.firestore.Timestamp;
+    const expireAt = authCodeData.expireAt as Timestamp;
     if (expireAt && expireAt.toDate().getTime() < Date.now()) {
       await authCodeDoc.ref.delete();
       return NextResponse.json(
@@ -70,7 +63,7 @@ export async function POST(req: Request) {
     const userDocRef = adminDb.collection('users').doc(firebaseUid);
     await userDocRef.update({
       lineUserId: lineUserId,
-      lineLinkedAt: admin.firestore.FieldValue.serverTimestamp(),
+      lineLinkedAt: FieldValue.serverTimestamp(),
     });
 
     await authCodeDoc.ref.delete();
@@ -84,11 +77,9 @@ export async function POST(req: Request) {
       message: 'LINE account linked successfully!',
       lineUserId: lineUserId,
     });
-  } catch (error: any) {
-    console.error('LINE account linking API Error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Internal Server Error' },
-      { status: 500 }
-    );
+  } catch (_error: unknown) {
+    const errorMessage =
+      _error instanceof Error ? _error?.message : 'Internal Server Error';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

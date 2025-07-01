@@ -21,7 +21,7 @@ export default function LineAccountLinker({
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const firebaseAuth = getAuth();
+  const _firebaseAuth = getAuth();
 
   // Fetch LINE user ID from Firestore
   useEffect(() => {
@@ -34,8 +34,7 @@ export default function LineAccountLinker({
         if (userDocSnap.exists()) {
           setLineUserIdFromFirestore(userDocSnap.data()?.lineUserId || null);
         }
-      } catch (e) {
-        console.error('Error fetching lineUserId from Firestore:', e);
+      } catch (_e) {
         setError('ユーザー情報の取得に失敗しました。');
       } finally {
         setLoading(false);
@@ -86,7 +85,6 @@ export default function LineAccountLinker({
 
       await currentUser.getIdToken(true);
     } catch (e: any) {
-      console.error('LINE連携エラー:', e);
       setError(
         `LINEアカウントの連携に失敗しました: ${e.message || '不明なエラー'}`
       );
@@ -130,7 +128,6 @@ export default function LineAccountLinker({
 
       await currentUser.getIdToken(true);
     } catch (e: any) {
-      console.error('LINE連携解除エラー:', e);
       setError(
         `LINEアカウントの連携解除に失敗しました: ${e.message || '不明なエラー'}`
       );
@@ -164,14 +161,14 @@ export default function LineAccountLinker({
               <svg
                 className='h-6 w-6 text-gray-600'
                 fill='none'
-                viewBox='0 0 24 24'
                 stroke='currentColor'
+                viewBox='0 0 24 24'
               >
                 <path
+                  d='M5 13l4 4L19 7'
                   strokeLinecap='round'
                   strokeLinejoin='round'
                   strokeWidth={2}
-                  d='M5 13l4 4L19 7'
                 />
               </svg>
             </div>
@@ -202,14 +199,14 @@ export default function LineAccountLinker({
                 <svg
                   className='h-6 w-6 text-gray-600'
                   fill='none'
-                  viewBox='0 0 24 24'
                   stroke='currentColor'
+                  viewBox='0 0 24 24'
                 >
                   <path
+                    d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
                     strokeLinecap='round'
                     strokeLinejoin='round'
                     strokeWidth={2}
-                    d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
                   />
                 </svg>
               </div>
@@ -229,28 +226,28 @@ export default function LineAccountLinker({
             </div>
           </div>
 
-          <form onSubmit={handleLinkLineAccount} className='space-y-4'>
+          <form className='space-y-4' onSubmit={handleLinkLineAccount}>
             <div>
               <label
-                htmlFor='lineAuthCode'
                 className='block text-sm font-medium text-gray-900 mb-2'
+                htmlFor='lineAuthCode'
               >
                 LINE認証コード
               </label>
               <input
-                type='text'
+                required
+                className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-black'
                 id='lineAuthCode'
+                placeholder='認証コードを入力してください'
+                type='text'
                 value={lineAuthCode}
                 onChange={e => setLineAuthCode(e.target.value)}
-                className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-black'
-                placeholder='認証コードを入力してください'
-                required
               />
             </div>
 
             <button
-              type='submit'
               className='px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors'
+              type='submit'
             >
               連携する
             </button>
