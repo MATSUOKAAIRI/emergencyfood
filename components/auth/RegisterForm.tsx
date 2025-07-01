@@ -1,12 +1,15 @@
 // components/auth/RegisterForm.tsx
 'use client';
-import React, { useState } from 'react';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import { db, auth } from '@/utils/firebase';
 import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
+
+import { API_ENDPOINTS, ERROR_MESSAGES } from '@/utils/constants';
+import { auth, db } from '@/utils/firebase';
 
 export default function RegisterForm() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -17,26 +20,42 @@ export default function RegisterForm() {
     e.preventDefault();
     setError(null);
 
+    if (!name.trim()) {
+      setError('名前を入力してください');
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError('パスワードが一致しません');
       return;
     }
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       if (userCredential.user) {
-        await setDoc(doc(db, 'users', userCredential.user.uid), {
-          teamId: null, 
+        await updateProfile(userCredential.user, {
+          displayName: name.trim(),
         });
+
+        await setDoc(doc(db, 'users', userCredential.user.uid), {
+          email: email,
+          displayName: name.trim(),
+          teamId: null,
+        });
+
         console.log('登録成功');
         const idToken = await userCredential.user.getIdToken();
-        const res = await fetch('/api/setCustomClaims', {
+        const res = await fetch(API_ENDPOINTS.SET_CUSTOM_CLAIMS, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             uid: userCredential.user.uid,
             teamId: null,
-            idToken: idToken
+            idToken: idToken,
           }),
         });
         if (!res.ok) {
@@ -47,57 +66,106 @@ export default function RegisterForm() {
       }
     } catch (error: any) {
       if (error.code === 'auth/email-already-in-use') {
-        setError('このメールアドレスはすでに使われています。');
+        setError(ERROR_MESSAGES.EMAIL_ALREADY_IN_USE);
       } else if (error.code === 'auth/invalid-email') {
-        setError('メールアドレスの形式が正しくありません。');
+        setError(ERROR_MESSAGES.INVALID_EMAIL);
       } else if (error.code === 'auth/weak-password') {
-        setError('パスワードは6文字以上にしてください。');
+        setError(ERROR_MESSAGES.WEAK_PASSWORD);
       } else {
-        setError('登録に失敗しました。');
+        setError(ERROR_MESSAGES.REGISTRATION_FAILED);
       }
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-sm mx-auto p-4 border rounded mb-4 border-[#333] w-2/3">
-      <h2 className="text-xl font-bold mb-4 text-[#333]">ユーザー登録</h2>
-      {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">{error}</div>}
-      <div className="mb-4">
-        <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">メールアドレス</label>
-        <input
-          type="email"
-          id="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-[#333] leading-tight focus:outline-none focus:shadow-outline"
-          required
-        />
+    <form onSubmit={handleSubmit} className='space-y-6'>
+      <h1 className='text-4xl font-bold text-gray-900 text-center mb-6'>
+        ユーザー登録
+      </h1>
+
+      {error && (
+        <div className='bg-red-200 border text-black px-4 py-3 rounded-md'>
+          {error}
+        </div>
+      )}
+
+      <div className='space-y-4'>
+        <div>
+          <label
+            className='block text-gray-900 text-sm font-medium mb-2'
+            htmlFor='name'
+          >
+            名前
+          </label>
+          <input
+            required
+            className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black text-gray-900'
+            id='name'
+            type='text'
+            value={name}
+            onChange={e => setName(e.target.value)}
+            placeholder='表示名を入力'
+          />
+        </div>
+
+        <div>
+          <label
+            className='block text-gray-900 text-sm font-medium mb-2'
+            htmlFor='email'
+          >
+            メールアドレス
+          </label>
+          <input
+            required
+            className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black text-gray-900'
+            id='email'
+            type='email'
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            placeholder='example@email.com'
+          />
+        </div>
+
+        <div>
+          <label
+            className='block text-gray-900 text-sm font-medium mb-2'
+            htmlFor='password'
+          >
+            パスワード
+          </label>
+          <input
+            required
+            className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black text-gray-900'
+            id='password'
+            type='password'
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            placeholder='6文字以上のパスワード'
+          />
+        </div>
+
+        <div>
+          <label
+            className='block text-gray-900 text-sm font-medium mb-2'
+            htmlFor='confirmPassword'
+          >
+            パスワードを再入力
+          </label>
+          <input
+            required
+            className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black text-gray-900'
+            id='confirmPassword'
+            type='password'
+            value={confirmPassword}
+            onChange={e => setConfirmPassword(e.target.value)}
+            placeholder='パスワードを再入力'
+          />
+        </div>
       </div>
-      <div className="mb-4">
-        <label htmlFor="password" className="block text-[#333] text-sm font-bold mb-2">パスワード</label>
-        <input
-          type="password"
-          id="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-[#333] leading-tight focus:outline-none focus:shadow-outline"
-          required
-        />
-      </div>
-      <div className="mb-4">
-        <label htmlFor="confirmPassword" className="block text-[#333] text-sm font-bold mb-2">パスワードを再入力</label>
-        <input
-          type="password"
-          id="confirmPassword"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          required
-        />
-      </div>
+
       <button
-        type="submit"
-        className="bg-[#333333] text-white hover:bg-[#332b1e] over:text-gray-500 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline items-center justify-center flex flex-col bottom-0 " 
+        className='w-full bg-black text-white font-semibold py-3 px-6 rounded-md hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2'
+        type='submit'
       >
         登録
       </button>

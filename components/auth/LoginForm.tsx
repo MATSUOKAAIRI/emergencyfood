@@ -1,10 +1,12 @@
 // components/auth/LoginForm.tsx
 'use client';
-import React, { useState } from 'react';
-import { signInWithEmailAndPassword,  getAuth } from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/utils/firebase'; 
 import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
+
+import { ERROR_MESSAGES } from '@/utils/constants';
+import { auth, db } from '@/utils/firebase';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
@@ -17,21 +19,28 @@ export default function LoginForm() {
     setError(null);
 
     try {
-      const auth = getAuth();
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       const user = userCredential.user;
 
       if (user) {
         const userDocRef = doc(db, 'users', user.uid);
         const userDocSnap = await getDoc(userDocRef);
-        const firestoreTeamId: string | null = userDocSnap.exists() ? userDocSnap.data().teamId : null;
+        const firestoreTeamId: string | null = userDocSnap.exists()
+          ? userDocSnap.data().teamId
+          : null;
 
         let idTokenResult = await user.getIdTokenResult(true);
-        const claimTeamId: string | null = idTokenResult.claims.teamId as string | null;
+        const claimTeamId: string | null = idTokenResult.claims.teamId as
+          | string
+          | null;
 
         if (firestoreTeamId && firestoreTeamId !== claimTeamId) {
           const idToken = await user.getIdToken();
-          const res = await fetch('/api/setCustomClaims',{
+          const res = await fetch('/api/setCustomClaims', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -51,7 +60,9 @@ export default function LoginForm() {
         }
 
         idTokenResult = await user.getIdTokenResult();
-        const finalTeamId: string | null = idTokenResult.claims.teamId as string | null;
+        const finalTeamId: string | null = idTokenResult.claims.teamId as
+          | string
+          | null;
 
         if (finalTeamId) {
           router.push(`/foods/list?teamId=${finalTeamId}`);
@@ -63,54 +74,76 @@ export default function LoginForm() {
       console.error(error);
       switch (error.code) {
         case 'auth/invalid-email':
-          setError('無効なメールアドレス形式です。');
+          setError(ERROR_MESSAGES.INVALID_EMAIL);
           break;
         case 'auth/user-disabled':
-          setError('このアカウントは無効化されています。');
+          setError(ERROR_MESSAGES.USER_DISABLED);
           break;
         case 'auth/user-not-found':
         case 'auth/wrong-password':
-          setError('メールアドレスまたはパスワードが間違っています。');
+          setError(ERROR_MESSAGES.INVALID_CREDENTIALS);
           break;
         case 'auth/too-many-requests':
-          setError('何度もログインに失敗しました。しばらく待ってから再度お試しください。');
+          setError(ERROR_MESSAGES.TOO_MANY_REQUESTS);
           break;
         default:
-          setError('ログインに失敗しました。時間をおいて再度お試しください。');
+          setError(ERROR_MESSAGES.LOGIN_FAILED);
           break;
       }
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-sm mx-auto p-4 border rounded mb-4 border-[#333] w-2/3 z-10">
-      <h2 className="text-xl font-bold pb-4 text-[#333]">ログイン</h2>
-      {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">{error}</div>}
-      <div className="mb-4">
-        <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">メールアドレス</label>
-        <input
-          type="email"
-          id="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          required
-        />
+    <form onSubmit={handleSubmit} className='space-y-6'>
+      <h2 className='text-4xl font-bold pb-4 text-gray-900 text-center mb-6'>
+        ログイン
+      </h2>
+
+      {error && (
+        <div className='bg-red-200 border text-black px-4 py-3'>{error}</div>
+      )}
+
+      <div className='space-y-4'>
+        <div>
+          <label
+            className='block text-gray-900 text-sm font-medium mb-2'
+            htmlFor='email'
+          >
+            メールアドレス
+          </label>
+          <input
+            required
+            className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black text-gray-900'
+            id='email'
+            type='email'
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            placeholder='example@email.com'
+          />
+        </div>
+
+        <div>
+          <label
+            className='block text-gray-900 text-sm font-medium mb-2'
+            htmlFor='password'
+          >
+            パスワード
+          </label>
+          <input
+            required
+            className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black text-gray-900'
+            id='password'
+            type='password'
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            placeholder='パスワードを入力'
+          />
+        </div>
       </div>
-      <div className="mb-4">
-        <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">パスワード</label>
-        <input
-          type="password"
-          id="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          required
-        />
-      </div>
+
       <button
-        type="submit"
-        className="bg-[#333333] text-white hover:bg-[#332b1e] hover:text-gray-500  font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+        className='w-full bg-black text-white font-semibold py-3 px-6 rounded-md hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2'
+        type='submit'
       >
         ログイン
       </button>
