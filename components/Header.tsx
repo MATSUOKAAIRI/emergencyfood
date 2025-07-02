@@ -7,12 +7,16 @@ interface HeaderProps {
   onLogoClick: () => void;
   isLoggedIn: boolean;
   teamId?: string | null;
+  customNavLinks?: { href: string; label: string }[];
+  customTitle?: string;
 }
 
 export default function Header({
   onLogoClick,
   isLoggedIn,
   teamId,
+  customNavLinks,
+  customTitle,
 }: HeaderProps) {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,12 +24,12 @@ export default function Header({
   const shouldHideNavLinks =
     pathname.startsWith('/auth/') ||
     pathname === '/' ||
-    pathname.startsWith('/event') ||
     pathname.startsWith('/teams');
 
   const shouldShowNavLinks =
     (isLoggedIn && !shouldHideNavLinks && pathname.startsWith('/foods')) ||
-    pathname.startsWith('/settings');
+    pathname.startsWith('/settings') ||
+    pathname.startsWith('/event');
 
   const getUrlWithTeamId = (basePath: string) => {
     return teamId ? `${basePath}?teamId=${teamId}` : basePath;
@@ -39,12 +43,15 @@ export default function Header({
     setIsMenuOpen(false);
   };
 
-  const navLinks = [
+  const defaultNavLinks = [
     { href: getUrlWithTeamId('/foods/list'), label: '非常食リスト' },
     { href: getUrlWithTeamId('/foods/add'), label: '非常食登録' },
     { href: getUrlWithTeamId('/foods/archived'), label: '過去の非常食' },
     { href: getUrlWithTeamId('/settings'), label: '設定' },
   ];
+
+  const navLinks = customNavLinks || defaultNavLinks;
+  const title = customTitle || 'SonaBase';
 
   return (
     <header className='bg-white shadow-sm border-b border-gray-300 py-4 z-50 sticky top-0 w-full relative'>
@@ -53,7 +60,7 @@ export default function Header({
           className='text-xl font-bold cursor-pointer text-black hover:text-gray-700 transition-colors'
           onClick={onLogoClick}
         >
-          SonaBase
+          {title}
         </button>
 
         {shouldShowNavLinks && (
@@ -71,9 +78,9 @@ export default function Header({
             </nav>
 
             <button
+              aria-label='メニューを開く'
               className='md:hidden p-2 rounded-md text-gray-700 hover:text-black hover:bg-gray-100 transition-colors'
               onClick={toggleMenu}
-              aria-label='メニューを開く'
             >
               <svg
                 className='w-6 h-6'
@@ -83,17 +90,17 @@ export default function Header({
               >
                 {isMenuOpen ? (
                   <path
+                    d='M6 18L18 6M6 6l12 12'
                     strokeLinecap='round'
                     strokeLinejoin='round'
                     strokeWidth={2}
-                    d='M6 18L18 6M6 6l12 12'
                   />
                 ) : (
                   <path
+                    d='M4 6h16M4 12h16M4 18h16'
                     strokeLinecap='round'
                     strokeLinejoin='round'
                     strokeWidth={2}
-                    d='M4 6h16M4 12h16M4 18h16'
                   />
                 )}
               </svg>

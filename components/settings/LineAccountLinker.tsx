@@ -4,6 +4,7 @@ import { getAuth } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import type { AppUser } from '@/types';
 import { db } from '@/utils/firebase';
 
@@ -21,6 +22,7 @@ export default function LineAccountLinker({
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showUnlinkConfirm, setShowUnlinkConfirm] = useState(false);
   const _firebaseAuth = getAuth();
 
   // Fetch LINE user ID from Firestore
@@ -84,17 +86,17 @@ export default function LineAccountLinker({
       setLineUserIdFromFirestore(result.lineUserId);
 
       await currentUser.getIdToken(true);
-    } catch (e: any) {
-      setError(
-        `LINEアカウントの連携に失敗しました: ${e.message || '不明なエラー'}`
-      );
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : '不明なエラー';
+      setError(`LINEアカウントの連携に失敗しました: ${errorMessage}`);
     }
   };
 
   const handleUnlinkLineAccount = async () => {
-    if (!window.confirm('LINEアカウントの連携を解除しますか？')) {
-      return;
-    }
+    setShowUnlinkConfirm(true);
+  };
+
+  const confirmUnlink = async () => {
     setError(null);
     setSuccessMessage(null);
 
@@ -127,10 +129,11 @@ export default function LineAccountLinker({
       setLineUserIdFromFirestore(null);
 
       await currentUser.getIdToken(true);
-    } catch (e: any) {
-      setError(
-        `LINEアカウントの連携解除に失敗しました: ${e.message || '不明なエラー'}`
-      );
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : '不明なエラー';
+      setError(`LINEアカウントの連携解除に失敗しました: ${errorMessage}`);
+    } finally {
+      setShowUnlinkConfirm(false);
     }
   };
 
@@ -254,6 +257,17 @@ export default function LineAccountLinker({
           </form>
         </div>
       )}
+
+      <ConfirmDialog
+        cancelText='キャンセル'
+        confirmText='連携解除'
+        confirmVariant='danger'
+        isOpen={showUnlinkConfirm}
+        message='LINEアカウントの連携を解除しますか？'
+        title='連携解除の確認'
+        onClose={() => setShowUnlinkConfirm(false)}
+        onConfirm={confirmUnlink}
+      />
     </div>
   );
 }

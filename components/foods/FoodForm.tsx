@@ -165,7 +165,7 @@ export default function FoodForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className='max-w-2xl mx-auto'>
+    <form className='max-w-2xl mx-auto' onSubmit={handleSubmit}>
       {errorMessage && (
         <div className='bg-red-200 border text-black px-3 sm:px-4 py-3 rounded mb-4 text-sm'>
           {errorMessage}
