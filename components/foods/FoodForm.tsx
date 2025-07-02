@@ -165,19 +165,19 @@ export default function FoodForm({
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className='max-w-2xl mx-auto'>
       {errorMessage && (
-        <div className='bg-red-200 border text-black px-4 py-3 rounded mb-4'>
+        <div className='bg-red-200 border text-black px-3 sm:px-4 py-3 rounded mb-4 text-sm'>
           {errorMessage}
         </div>
       )}
       {successMessage && (
-        <div className='bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4'>
+        <div className='bg-green-50 border border-green-200 text-green-700 px-3 sm:px-4 py-3 rounded mb-4 text-sm'>
           {successMessage}
         </div>
       )}
 
-      <div className='space-y-4'>
+      <div className='space-y-4 sm:space-y-6'>
         <div>
           <label
             className='block text-sm font-medium text-gray-700 mb-1'
@@ -187,7 +187,7 @@ export default function FoodForm({
           </label>
           <input
             required
-            className='w-full px-3 py-2 border border-gray-300 rounded'
+            className='w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-gray-500 focus:border-transparent'
             id='name'
             name='name'
             type='text'
@@ -196,42 +196,44 @@ export default function FoodForm({
           />
         </div>
 
-        <div>
-          <label
-            className='block text-sm font-medium text-gray-700 mb-1'
-            htmlFor='quantity'
-          >
-            数量 *
-          </label>
-          <input
-            required
-            className='w-full px-3 py-2 border border-gray-300 rounded'
-            id='quantity'
-            min='1'
-            name='quantity'
-            type='number'
-            value={formData.quantity}
-            onChange={handleChange}
-          />
-        </div>
+        <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+          <div>
+            <label
+              className='block text-sm font-medium text-gray-700 mb-1'
+              htmlFor='quantity'
+            >
+              数量 *
+            </label>
+            <input
+              required
+              className='w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-gray-500 focus:border-transparent'
+              id='quantity'
+              min='1'
+              name='quantity'
+              type='number'
+              value={formData.quantity}
+              onChange={handleChange}
+            />
+          </div>
 
-        <div>
-          <label
-            className='block text-sm font-medium text-gray-700 mb-1'
-            htmlFor='expiryDate'
-          >
-            賞味期限 *
-          </label>
-          <input
-            required
-            className='w-full px-3 py-2 border border-gray-300 rounded'
-            id='expiryDate'
-            min={new Date().toISOString().split('T')[0]}
-            name='expiryDate'
-            type='date'
-            value={formData.expiryDate}
-            onChange={handleChange}
-          />
+          <div>
+            <label
+              className='block text-sm font-medium text-gray-700 mb-1'
+              htmlFor='expiryDate'
+            >
+              賞味期限 *
+            </label>
+            <input
+              required
+              className='w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-gray-500 focus:border-transparent'
+              id='expiryDate'
+              min={new Date().toISOString().split('T')[0]}
+              name='expiryDate'
+              type='date'
+              value={formData.expiryDate}
+              onChange={handleChange}
+            />
+          </div>
         </div>
 
         <div>
@@ -243,7 +245,7 @@ export default function FoodForm({
           </label>
           <select
             required
-            className='w-full px-3 py-2 border border-gray-300 rounded'
+            className='w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-gray-500 focus:border-transparent'
             id='category'
             name='category'
             value={formData.category}
@@ -258,82 +260,86 @@ export default function FoodForm({
           </select>
         </div>
 
-        <div>
-          <label
-            className='block text-sm font-medium text-gray-700 mb-1'
-            htmlFor='amount'
-          >
-            金額 (円)
-          </label>
-          <input
-            className='w-full px-3 py-2 border border-gray-300 rounded'
-            id='amount'
-            min='0'
-            name='amount'
-            placeholder='任意'
-            type='number'
-            value={formData.amount || ''}
-            onChange={handleChange}
-          />
+        <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+          <div>
+            <label
+              className='block text-sm font-medium text-gray-700 mb-1'
+              htmlFor='amount'
+            >
+              金額 (円)
+            </label>
+            <input
+              className='w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-gray-500 focus:border-transparent'
+              id='amount'
+              min='0'
+              name='amount'
+              placeholder='任意'
+              type='number'
+              value={formData.amount || ''}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div>
+            <label
+              className='block text-sm font-medium text-gray-700 mb-1'
+              htmlFor='purchaseLocation'
+            >
+              購入場所
+            </label>
+            <input
+              className='w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-gray-500 focus:border-transparent'
+              id='purchaseLocation'
+              name='purchaseLocation'
+              placeholder='任意'
+              type='text'
+              value={formData.purchaseLocation || ''}
+              onChange={handleChange}
+            />
+          </div>
         </div>
 
-        <div>
-          <label
-            className='block text-sm font-medium text-gray-700 mb-1'
-            htmlFor='purchaseLocation'
-          >
-            購入場所
-          </label>
-          <input
-            className='w-full px-3 py-2 border border-gray-300 rounded'
-            id='purchaseLocation'
-            name='purchaseLocation'
-            placeholder='任意'
-            type='text'
-            value={formData.purchaseLocation || ''}
-            onChange={handleChange}
-          />
-        </div>
+        <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+          <div>
+            <label
+              className='block text-sm font-medium text-gray-700 mb-1'
+              htmlFor='label'
+            >
+              ラベル
+            </label>
+            <input
+              className='w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-gray-500 focus:border-transparent'
+              id='label'
+              name='label'
+              placeholder='任意'
+              type='text'
+              value={formData.label || ''}
+              onChange={handleChange}
+            />
+          </div>
 
-        <div>
-          <label
-            className='block text-sm font-medium text-gray-700 mb-1'
-            htmlFor='label'
-          >
-            ラベル
-          </label>
-          <input
-            className='w-full px-3 py-2 border border-gray-300 rounded'
-            id='label'
-            name='label'
-            placeholder='任意'
-            type='text'
-            value={formData.label || ''}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div>
-          <label
-            className='block text-sm font-medium text-gray-700 mb-1'
-            htmlFor='storageLocation'
-          >
-            保存場所
-          </label>
-          <input
-            className='w-full px-3 py-2 border border-gray-300 rounded text-gray-900 bg-white'
-            id='storageLocation'
-            name='storageLocation'
-            placeholder='例: 冷蔵庫、棚、地下室など'
-            type='text'
-            value={formData.storageLocation || ''}
-            onChange={handleChange}
-          />
+          <div>
+            <label
+              className='block text-sm font-medium text-gray-700 mb-1'
+              htmlFor='storageLocation'
+            >
+              保存場所
+            </label>
+            <input
+              className='w-full px-3 py-2 border border-gray-300 rounded text-gray-900 bg-white focus:ring-2 focus:ring-gray-500 focus:border-transparent'
+              id='storageLocation'
+              name='storageLocation'
+              placeholder='例: 冷蔵庫、棚、地下室など'
+              type='text'
+              value={formData.storageLocation || ''}
+              onChange={handleChange}
+            />
+          </div>
         </div>
       </div>
 
       <button
-        className='w-full bg-gray-800 text-white font-semibold py-3 px-4 rounded mt-6 disabled:opacity-50 disabled:cursor-not-allowed'
+        className='w-full bg-gray-800 text-white font-semibold py-3 px-4 rounded mt-6 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-700 transition-colors'
         disabled={submitting}
         type='submit'
       >

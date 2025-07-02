@@ -7,9 +7,9 @@ import CreateTeamClient from './CreateTeamClient';
 
 export default function CreateTeamPage() {
   return (
-    <div className='min-h-screen flex items-center justify-center p-6'>
+    <div className='min-h-screen flex items-center justify-center p-4 sm:p-6'>
       <div className='max-w-md w-full'>
-        <div className='bg-white rounded-xl shadow-lg border border-gray-200 p-8'>
+        <div className='bg-white rounded-xl shadow-lg border border-gray-200 p-4 sm:p-8'>
           <Suspense
             fallback={
               <p className='text-center py-8 text-gray-600'>
@@ -21,9 +21,9 @@ export default function CreateTeamPage() {
           </Suspense>
         </div>
 
-        <div className='text-center mt-6'>
+        <div className='text-center mt-4 sm:mt-6'>
           <Link
-            className='text-black font-medium hover:text-gray-600 transition-colors focus:underline rounded'
+            className='text-black font-medium hover:text-gray-600 transition-colors focus:underline rounded text-sm sm:text-base'
             href='/teams/select'
           >
             {UI_CONSTANTS.BACK_TO_TEAM_SELECTION}

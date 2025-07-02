@@ -2,19 +2,19 @@ import Link from 'next/link';
 
 export default function Footer() {
   return (
-    <footer className='bg-transparent py-12 text-center text-black border-t border-gray-300/50'>
-      <div className='max-w-6xl mx-auto px-6'>
-        <div className='flex flex-col items-center space-y-6'>
-          <div className='flex items-center space-x-6'>
+    <footer className='bg-transparent py-8 sm:py-12 text-center text-black border-t border-gray-300/50 mt-auto'>
+      <div className='max-w-6xl mx-auto px-4 sm:px-6'>
+        <div className='flex flex-col items-center space-y-4 sm:space-y-6'>
+          <div className='flex items-center space-x-4 sm:space-x-6'>
             <Link
               aria-label='Follow us on X'
-              className='group relative p-3 bg-gray-200/60 backdrop-blur-sm rounded-xl hover:bg-gray-300/80 transition-all duration-300 hover:scale-110 hover:shadow-lg'
+              className='group relative p-2 sm:p-3 bg-gray-200/60 backdrop-blur-sm rounded-xl hover:bg-gray-300/80 transition-all duration-300 hover:scale-110 hover:shadow-lg'
               href='https://x.com/rii_3112'
               rel='noopener noreferrer'
               target='_blank'
             >
               <svg
-                className='w-6 h-6 text-gray-700 group-hover:text-black transition-colors'
+                className='w-5 h-5 sm:w-6 sm:h-6 text-gray-700 group-hover:text-black transition-colors'
                 fill='currentColor'
                 viewBox='0 0 24 24'
               >
@@ -23,12 +23,9 @@ export default function Footer() {
             </Link>
           </div>
 
-          <div className='border-t border-gray-300/50 pt-6 w-full max-w-md'>
-            <p className='text-sm text-gray-600 font-light'>
+          <div className='border-t border-gray-300/50 pt-4 sm:pt-6 w-full max-w-md'>
+            <p className='text-xs sm:text-sm text-gray-600 font-light'>
               &copy; {new Date().getFullYear()} SonaBase. All rights reserved.
-            </p>
-            <p className='text-xs text-gray-500 mt-2'>
-              Emergency food management system
             </p>
           </div>
         </div>

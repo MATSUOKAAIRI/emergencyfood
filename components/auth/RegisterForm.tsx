@@ -81,28 +81,31 @@ export default function RegisterForm() {
   };
 
   return (
-    <form className='space-y-6' onSubmit={handleSubmit}>
-      <h1 className='text-4xl font-bold text-gray-900 text-center mb-6'>
+    <form
+      className='space-y-4 sm:space-y-6 max-w-md mx-auto w-full px-4 sm:px-0'
+      onSubmit={handleSubmit}
+    >
+      <h1 className='text-2xl sm:text-4xl font-bold text-gray-900 text-center mb-4 sm:mb-6'>
         ユーザー登録
       </h1>
 
       {error && (
-        <div className='bg-red-200 border text-black px-4 py-3 rounded-md'>
+        <div className='bg-red-200 border text-black px-3 sm:px-4 py-3 rounded-md text-sm'>
           {error}
         </div>
       )}
 
-      <div className='space-y-4'>
+      <div className='space-y-3 sm:space-y-4'>
         <div>
           <label
-            className='block text-gray-900 text-sm font-medium mb-2'
+            className='block text-gray-900 text-sm font-medium mb-1 sm:mb-2'
             htmlFor='name'
           >
             名前
           </label>
           <input
             required
-            className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black text-gray-900'
+            className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent text-gray-900 text-base'
             id='name'
             placeholder='表示名を入力'
             type='text'
@@ -113,14 +116,14 @@ export default function RegisterForm() {
 
         <div>
           <label
-            className='block text-gray-900 text-sm font-medium mb-2'
+            className='block text-gray-900 text-sm font-medium mb-1 sm:mb-2'
             htmlFor='email'
           >
             メールアドレス
           </label>
           <input
             required
-            className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black text-gray-900'
+            className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent text-gray-900 text-base'
             id='email'
             placeholder='example@email.com'
             type='email'
@@ -131,14 +134,14 @@ export default function RegisterForm() {
 
         <div>
           <label
-            className='block text-gray-900 text-sm font-medium mb-2'
+            className='block text-gray-900 text-sm font-medium mb-1 sm:mb-2'
             htmlFor='password'
           >
             パスワード
           </label>
           <input
             required
-            className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black text-gray-900'
+            className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent text-gray-900 text-base'
             id='password'
             placeholder='6文字以上のパスワード'
             type='password'
@@ -149,14 +152,14 @@ export default function RegisterForm() {
 
         <div>
           <label
-            className='block text-gray-900 text-sm font-medium mb-2'
+            className='block text-gray-900 text-sm font-medium mb-1 sm:mb-2'
             htmlFor='confirmPassword'
           >
             パスワードを再入力
           </label>
           <input
             required
-            className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black text-gray-900'
+            className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent text-gray-900 text-base'
             id='confirmPassword'
             placeholder='パスワードを再入力'
             type='password'
@@ -167,7 +170,7 @@ export default function RegisterForm() {
       </div>
 
       <button
-        className='w-full bg-black text-white font-semibold py-3 px-6 rounded-md hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2'
+        className='w-full bg-black text-white font-semibold py-3 px-6 rounded-md hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 text-base'
         type='submit'
       >
         登録
