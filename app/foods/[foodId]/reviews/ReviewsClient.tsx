@@ -60,7 +60,7 @@ export default function ReviewsClient() {
         createdAt: serverTimestamp(),
       });
       setReviewText('');
-    } catch (_error: any) {
+    } catch (_error: unknown) {
       // console.error removed
       setError('感想の投稿に失敗しました。');
     } finally {
@@ -76,9 +76,16 @@ export default function ReviewsClient() {
     );
   }
 
-  const formatDate = (timestamp: any) => {
-    if (!timestamp?.seconds) return '日時情報がありません';
-    const date = new Date(timestamp.seconds * 1000);
+  const formatDate = (timestamp: unknown) => {
+    if (
+      !timestamp ||
+      typeof timestamp !== 'object' ||
+      !('seconds' in timestamp) ||
+      typeof (timestamp as { seconds: unknown }).seconds !== 'number'
+    ) {
+      return '日時情報がありません';
+    }
+    const date = new Date((timestamp as { seconds: number }).seconds * 1000);
     return date.toLocaleString('ja-JP', {
       year: 'numeric',
       month: 'long',

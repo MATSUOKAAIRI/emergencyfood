@@ -56,31 +56,34 @@ export default function CreateTeamForm() {
   };
 
   return (
-    <form className='space-y-6' onSubmit={handleCreateTeam}>
-      <h1 className='text-3xl font-bold mb-6 text-black text-center'>
+    <form
+      className='space-y-4 sm:space-y-6 max-w-md mx-auto w-full px-4 sm:px-0'
+      onSubmit={handleCreateTeam}
+    >
+      <h1 className='text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-black text-center'>
         新しいチームを作成
       </h1>
       {error && (
-        <div className='bg-red-200 border text-black px-4 py-3 relative mb-4 rounded-md'>
+        <div className='bg-red-200 border text-black px-3 sm:px-4 py-3 relative mb-4 rounded-md text-sm'>
           {error}
         </div>
       )}
       {successMessage && (
-        <div className='bg-green-200 border text-black px-4 py-3 relative mb-4 rounded-md'>
+        <div className='bg-green-200 border text-black px-3 sm:px-4 py-3 relative mb-4 rounded-md text-sm'>
           {successMessage}
         </div>
       )}
-      <div className='space-y-4'>
+      <div className='space-y-3 sm:space-y-4'>
         <div>
           <label
-            className='block text-black text-sm font-medium mb-2'
+            className='block text-black text-sm font-medium mb-1 sm:mb-2'
             htmlFor='teamName'
           >
             チーム名
           </label>
           <input
             required
-            className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black text-gray-900'
+            className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent text-gray-900 text-base'
             disabled={loading}
             id='teamName'
             placeholder='チーム名を決めてください'
@@ -91,14 +94,14 @@ export default function CreateTeamForm() {
         </div>
         <div>
           <label
-            className='block text-black text-sm font-medium mb-2'
+            className='block text-black text-sm font-medium mb-1 sm:mb-2'
             htmlFor='teamPassword'
           >
             パスワード
           </label>
           <input
             required
-            className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black text-gray-900'
+            className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent text-gray-900 text-base'
             disabled={loading}
             id='teamPassword'
             placeholder='パスワードを入力'
@@ -109,14 +112,14 @@ export default function CreateTeamForm() {
         </div>
         <div>
           <label
-            className='block text-black text-sm font-medium mb-2'
+            className='block text-black text-sm font-medium mb-1 sm:mb-2'
             htmlFor='confirmPassword'
           >
             パスワードを再入力
           </label>
           <input
             required
-            className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black text-gray-900'
+            className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent text-gray-900 text-base'
             disabled={loading}
             id='confirmPassword'
             placeholder='パスワードを再入力'
@@ -127,7 +130,7 @@ export default function CreateTeamForm() {
         </div>
       </div>
       <button
-        className='w-full bg-black text-white font-semibold py-3 px-6 rounded-md hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2'
+        className='w-full bg-black text-white font-semibold py-3 px-6 rounded-md hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 text-base'
         type='submit'
       >
         {loading ? '作成中...' : '作成'}

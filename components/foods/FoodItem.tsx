@@ -78,28 +78,33 @@ export default function FoodItem({
 
   return (
     <>
-      <div className={`border rounded-lg p-4 ${getExpiryStyle()}`}>
-        <div className='flex items-center justify-between mb-3'>
-          <div>
-            <h3 className='text-lg font-semibold text-gray-900'>{food.name}</h3>
-            <p className='text-sm text-gray-600'>カテゴリ: {food.category}</p>
+      <div className={`border rounded-lg p-3 sm:p-4 ${getExpiryStyle()}`}>
+        <div className='flex items-start justify-between mb-3 gap-3'>
+          <div className='flex-1 min-w-0'>
+            <h3 className='text-base sm:text-lg font-semibold text-gray-900 truncate'>
+              {food.name}
+            </h3>
+            <p className='text-xs sm:text-sm text-gray-600'>
+              カテゴリ: {food.category}
+            </p>
           </div>
 
-          <div ref={menuRef} className='relative'>
+          <div ref={menuRef} className='relative flex-shrink-0'>
             <button
-              className='p-1 text-gray-500 hover:text-gray-700'
+              aria-label='メニューを開く'
+              className='p-1 text-gray-500 hover:text-gray-700 transition-colors'
               onClick={handleMenuToggle}
             >
-              <span className='text-xl'>⋮</span>
+              <span className='text-lg sm:text-xl'>⋮</span>
             </button>
 
             {showMenu && (
-              <div className='absolute right-0 mt-1 w-32 bg-white border border-gray-200 rounded shadow-lg z-10'>
+              <div className='absolute right-0 mt-1 w-28 sm:w-32 bg-white border border-gray-200 rounded shadow-lg z-10'>
                 {food.isArchived ? (
                   <>
                     {onRestoreFood && (
                       <button
-                        className='block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100'
+                        className='block w-full text-left px-3 py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-100 transition-colors'
                         onClick={handleRestoreClick}
                       >
                         リストに戻す
@@ -107,7 +112,7 @@ export default function FoodItem({
                     )}
                     {canDelete && onDeleteFood && (
                       <button
-                        className='block w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50'
+                        className='block w-full text-left px-3 py-2 text-xs sm:text-sm text-red-600 hover:bg-red-50 transition-colors'
                         onClick={handleDeleteClick}
                       >
                         {UI_CONSTANTS.DELETE}
@@ -117,20 +122,20 @@ export default function FoodItem({
                 ) : (
                   <>
                     <button
-                      className='block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100'
+                      className='block w-full text-left px-3 py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-100 transition-colors'
                       onClick={handleArchiveClick}
                     >
                       アーカイブ
                     </button>
                     <button
-                      className='block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100'
+                      className='block w-full text-left px-3 py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-100 transition-colors'
                       onClick={handleUpdateClick}
                     >
                       編集
                     </button>
                     {canDelete && onDeleteFood && (
                       <button
-                        className='block w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50'
+                        className='block w-full text-left px-3 py-2 text-xs sm:text-sm text-red-600 hover:bg-red-50 transition-colors'
                         onClick={handleDeleteClick}
                       >
                         {UI_CONSTANTS.DELETE}
@@ -143,30 +148,36 @@ export default function FoodItem({
           </div>
         </div>
 
-        <div className='space-y-2 mb-3'>
-          <p className='text-sm text-gray-700'>数量: {food.quantity}</p>
-          <p className='text-sm text-gray-700'>
+        <div className='space-y-1 sm:space-y-2 mb-3'>
+          <p className='text-xs sm:text-sm text-gray-700'>
+            数量: {food.quantity}
+          </p>
+          <p className='text-xs sm:text-sm text-gray-700'>
             賞味期限: {food.expiryDate} ({daysUntilExpiry})
           </p>
           {food.amount !== undefined &&
             food.amount !== null &&
             food.amount !== 0 && (
-              <p className='text-sm text-gray-700'>金額: {food.amount} 円</p>
+              <p className='text-xs sm:text-sm text-gray-700'>
+                金額: {food.amount} 円
+              </p>
             )}
           {food.storageLocation &&
             food.storageLocation.trim() !== '' &&
             food.storageLocation !== '未設定' && (
-              <p className='text-sm text-gray-700'>
+              <p className='text-xs sm:text-sm text-gray-700'>
                 保存場所: {food.storageLocation}
               </p>
             )}
           {food.purchaseLocation && food.purchaseLocation.trim() !== '' && (
-            <p className='text-sm text-gray-700'>
+            <p className='text-xs sm:text-sm text-gray-700'>
               購入場所: {food.purchaseLocation}
             </p>
           )}
           {food.label && food.label.trim() !== '' && (
-            <p className='text-sm text-gray-700'>ラベル: {food.label}</p>
+            <p className='text-xs sm:text-sm text-gray-700'>
+              ラベル: {food.label}
+            </p>
           )}
         </div>
 
@@ -178,7 +189,7 @@ export default function FoodItem({
                 : 'bg-yellow-100 text-yellow-700'
             }`}
           >
-            <p className='text-sm font-medium'>
+            <p className='text-xs sm:text-sm font-medium'>
               {isOverExpiry
                 ? '賞味期限が切れています！'
                 : '賞味期限が近づいています！'}
@@ -188,7 +199,7 @@ export default function FoodItem({
 
         <div>
           <Link
-            className='inline-block bg-gray-800 text-white text-sm font-medium py-2 px-4 rounded hover:bg-gray-700'
+            className='inline-block bg-gray-800 text-white text-xs sm:text-sm font-medium py-2 px-3 sm:px-4 rounded hover:bg-gray-700 transition-colors'
             href={`/foods/${food.id}/reviews`}
           >
             感想を見る・書く

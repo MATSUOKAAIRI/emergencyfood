@@ -22,7 +22,7 @@ export default function RootLayout({
   const [isCheckingAuth, setIsCheckingAuth] = useState<boolean>(true);
 
   const handleRedirect = useCallback(
-    async (currentUser: any, currentPath: string) => {
+    async (currentUser: unknown, currentPath: string) => {
       const isAuthPage = currentPath.startsWith('/auth/');
       const isHomepage = currentPath === '/';
       const isEventPage = currentPath.startsWith('/event');
@@ -49,8 +49,22 @@ export default function RootLayout({
         let userTeamId: string | null = null;
 
         try {
-          const idTokenResult = await currentUser.getIdTokenResult(true);
-          userTeamId = (idTokenResult.claims.teamId as string | null) || null;
+          if (
+            currentUser &&
+            typeof currentUser === 'object' &&
+            'getIdTokenResult' in currentUser &&
+            typeof (currentUser as { getIdTokenResult: unknown })
+              .getIdTokenResult === 'function'
+          ) {
+            const idTokenResult = await (
+              currentUser as {
+                getIdTokenResult: (forceRefresh?: boolean) => Promise<{
+                  claims: { teamId?: string };
+                }>;
+              }
+            ).getIdTokenResult(true);
+            userTeamId = (idTokenResult.claims.teamId as string | null) || null;
+          }
         } catch (_error) {
           userTeamId = null;
         }
@@ -115,13 +129,13 @@ export default function RootLayout({
   return (
     <html lang='ja'>
       <body className={inter.className}>
-        <div className='min-h-screen'>
+        <div className='min-h-screen flex flex-col'>
           <Header
             isLoggedIn={!!user}
             teamId={teamId}
             onLogoClick={handleLogoClick}
           />
-          <main>{children}</main>
+          <main className='flex-1 px-4 sm:px-6 py-4 sm:py-6'>{children}</main>
           <Footer />
         </div>
       </body>
