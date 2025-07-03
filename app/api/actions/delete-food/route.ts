@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
 
     const idToken = authHeader.split('Bearer ')[1];
     const decodedToken = await adminAuth.verifyIdToken(idToken);
-    const userId = decodedToken.uid;
+    const _userId = decodedToken.uid;
 
     const { foodId } = await request.json();
 
@@ -50,19 +50,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'チームデータが見つかりません' },
         { status: 404 }
-      );
-    }
-
-    const ownerId = teamData.ownerId || teamData.createdBy;
-    const admins = teamData.admins || [ownerId];
-
-    const isOwner = ownerId === userId;
-    const isAdmin = admins.includes(userId);
-
-    if (!isOwner && !isAdmin) {
-      return NextResponse.json(
-        { error: '管理者権限が必要です' },
-        { status: 403 }
       );
     }
 

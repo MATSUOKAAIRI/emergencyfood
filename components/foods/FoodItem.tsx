@@ -3,6 +3,7 @@
 import { formatDistanceToNow } from 'date-fns';
 import { ja } from 'date-fns/locale/ja';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
 import { ConfirmDialog } from '@/components/ui';
@@ -27,6 +28,7 @@ export default function FoodItem({
   onDeleteFood,
   canDelete = false,
 }: FoodItemProps) {
+  const pathname = usePathname();
   const expiryDate = new Date(food.expiryDate);
   const daysUntilExpiry = formatDistanceToNow(expiryDate, { locale: ja });
   const isNearExpiry =
@@ -38,6 +40,11 @@ export default function FoodItem({
   const [showMenu, setShowMenu] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const menuRef = useClickOutside(() => setShowMenu(false));
+
+  const isEventPage = pathname.startsWith('/event');
+  const reviewsLink = isEventPage
+    ? `/event/foods/${food.id}/reviews`
+    : `/foods/${food.id}/reviews`;
 
   const handleMenuToggle = () => {
     setShowMenu(prev => !prev);
@@ -200,7 +207,7 @@ export default function FoodItem({
         <div>
           <Link
             className='inline-block bg-gray-800 text-white text-xs sm:text-sm font-medium py-2 px-3 sm:px-4 rounded hover:bg-gray-700 transition-colors'
-            href={`/foods/${food.id}/reviews`}
+            href={reviewsLink}
           >
             感想を見る・書く
           </Link>

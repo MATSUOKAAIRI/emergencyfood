@@ -130,11 +130,13 @@ export default function RootLayout({
     <html lang='ja'>
       <body className={inter.className}>
         <div className='min-h-screen flex flex-col'>
-          <Header
-            isLoggedIn={!!user}
-            teamId={teamId}
-            onLogoClick={handleLogoClick}
-          />
+          {!pathname.startsWith('/event') && (
+            <Header
+              isLoggedIn={!!user}
+              teamId={teamId}
+              onLogoClick={handleLogoClick}
+            />
+          )}
           <main className='flex-1 px-4 sm:px-6 py-4 sm:py-6'>{children}</main>
           <Footer />
         </div>
