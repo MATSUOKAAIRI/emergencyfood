@@ -105,17 +105,17 @@ function EventLineAccountLinker() {
             LINE認証コード
           </label>
           <input
+            disabled
             className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-black'
             id='lineAuthCode'
             placeholder='認証コードを入力してください'
             type='text'
-            disabled
           />
         </div>
 
         <button
-          className='px-4 py-2 bg-gray-400 text-white rounded-md cursor-not-allowed'
           disabled
+          className='px-4 py-2 bg-gray-400 text-white rounded-md cursor-not-allowed'
           type='button'
         >
           連携する（イベントモードでは無効）
@@ -139,8 +139,8 @@ function EventAccountSettings() {
         <div className='flex items-center justify-between p-3 bg-gray-100 rounded-md border border-gray-300'>
           <span className='text-gray-900'>イベント参加者</span>
           <button
-            className='text-gray-400 cursor-not-allowed text-sm font-medium'
             disabled
+            className='text-gray-400 cursor-not-allowed text-sm font-medium'
           >
             {UI_CONSTANTS.EDIT}
           </button>
@@ -161,8 +161,8 @@ function EventAccountSettings() {
           {UI_CONSTANTS.CHANGE_PASSWORD}
         </label>
         <button
-          className='px-4 py-2 bg-gray-400 text-white rounded-md cursor-not-allowed'
           disabled
+          className='px-4 py-2 bg-gray-400 text-white rounded-md cursor-not-allowed'
         >
           {UI_CONSTANTS.CHANGE_PASSWORD}（イベントモードでは無効）
         </button>
@@ -282,8 +282,8 @@ function EventLogoutSection() {
       </div>
 
       <button
-        className='px-6 py-3 bg-gray-400 text-white rounded-md cursor-not-allowed font-medium'
         disabled
+        className='px-6 py-3 bg-gray-400 text-white rounded-md cursor-not-allowed font-medium'
       >
         {UI_CONSTANTS.LOGOUT}（イベントモードでは無効）
       </button>
