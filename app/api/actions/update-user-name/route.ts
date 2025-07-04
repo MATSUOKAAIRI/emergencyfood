@@ -27,6 +27,13 @@ export async function POST(request: NextRequest) {
       displayName: displayName.trim(),
     });
 
+    const userRecord = await adminAuth.getUser(userId);
+    const currentClaims = userRecord.customClaims || {};
+    await adminAuth.setCustomUserClaims(userId, {
+      ...currentClaims,
+      displayName: displayName.trim(),
+    });
+
     return NextResponse.json({
       success: true,
       message: 'ユーザー名を更新しました',

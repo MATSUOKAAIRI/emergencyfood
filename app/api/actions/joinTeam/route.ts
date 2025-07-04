@@ -83,7 +83,12 @@ export async function POST(req: Request) {
       transaction.update(teamDocRef, { members: [...currentTeamMembers, uid] });
     });
 
-    await adminAuth.setCustomUserClaims(uid, { teamId: foundTeamId });
+    const userRecord = await adminAuth.getUser(uid);
+    await adminAuth.setCustomUserClaims(uid, {
+      teamId: foundTeamId,
+      email: userRecord.email,
+      displayName: userRecord.displayName || null,
+    });
     return NextResponse.json({
       message: `Successfully joined team "${teamName}" and updated claims.`,
       teamId: foundTeamId,

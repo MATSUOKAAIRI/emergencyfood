@@ -35,21 +35,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const teamId = foodData.teamId;
+    const foodTeamId = foodData.teamId;
+    const userTeamId = decodedToken.teamId;
 
-    const teamDoc = await adminDb.collection('teams').doc(teamId).get();
-    if (!teamDoc.exists) {
+    if (foodTeamId !== userTeamId) {
       return NextResponse.json(
-        { error: 'チームが見つかりません' },
-        { status: 404 }
-      );
-    }
-
-    const teamData = teamDoc.data();
-    if (!teamData) {
-      return NextResponse.json(
-        { error: 'チームデータが見つかりません' },
-        { status: 404 }
+        { error: 'この食品を削除する権限がありません' },
+        { status: 403 }
       );
     }
 

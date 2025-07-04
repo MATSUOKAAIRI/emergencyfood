@@ -2,6 +2,28 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 import { adminDb } from '@/utils/firebase/admin';
 
+interface FoodData {
+  id: string;
+  name: string;
+  quantity: number;
+  expiryDate: string;
+  isArchived: boolean;
+  category: string;
+  registeredAt: { seconds: number; nanoseconds: number };
+  teamId: string;
+  uid: string;
+  userName?: string;
+  amount?: number | null;
+  purchaseLocation?: string | null;
+  label?: string | null;
+  storageLocation?: string;
+}
+
+const eventCache = {
+  foods: null as FoodData[] | null,
+  lastUpdated: 0,
+};
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -62,6 +84,9 @@ export async function POST(request: NextRequest) {
         updatedAt: new Date(),
         updatedBy: updatedBy || 'イベント参加者',
       });
+
+    eventCache.foods = null;
+    eventCache.lastUpdated = 0;
 
     return NextResponse.json({
       success: true,

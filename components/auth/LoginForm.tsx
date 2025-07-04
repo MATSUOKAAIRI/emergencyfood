@@ -27,44 +27,40 @@ export default function LoginForm() {
       const user = userCredential.user;
 
       if (user) {
-        const userDocRef = doc(db, 'users', user.uid);
-        const userDocSnap = await getDoc(userDocRef);
-        const firestoreTeamId: string | null = userDocSnap.exists()
-          ? userDocSnap.data().teamId
-          : null;
-
         let idTokenResult = await user.getIdTokenResult(true);
-        const claimTeamId: string | null = idTokenResult.claims.teamId as
+        let claimTeamId: string | null = idTokenResult.claims.teamId as
           | string
           | null;
 
-        if (firestoreTeamId && firestoreTeamId !== claimTeamId) {
-          const idToken = await user.getIdToken();
-          const res = await fetch('/api/setCustomClaims', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              uid: user.uid,
-              teamId: firestoreTeamId,
-              idToken,
-            }),
-          });
+        if (!claimTeamId) {
+          const userDocRef = doc(db, 'users', user.uid);
+          const userDocSnap = await getDoc(userDocRef);
+          const firestoreTeamId: string | null = userDocSnap.exists()
+            ? userDocSnap.data().teamId
+            : null;
 
-          if (!res.ok) {
-            setError('クレームの同期に失敗しました');
-            const _errorText = await res.text();
-            return;
+          if (firestoreTeamId) {
+            const idToken = await user.getIdToken();
+            const res = await fetch('/api/setCustomClaims', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                uid: user.uid,
+                teamId: firestoreTeamId,
+                idToken,
+              }),
+            });
+
+            if (res.ok) {
+              await user.getIdToken(true);
+              idTokenResult = await user.getIdTokenResult();
+              claimTeamId = idTokenResult.claims.teamId as string | null;
+            }
           }
-          await user.getIdToken(true);
         }
 
-        idTokenResult = await user.getIdTokenResult();
-        const finalTeamId: string | null = idTokenResult.claims.teamId as
-          | string
-          | null;
-
-        if (finalTeamId) {
-          router.push(`/foods/list?teamId=${finalTeamId}`);
+        if (claimTeamId) {
+          router.push(`/foods/list?teamId=${claimTeamId}`);
         } else {
           router.push('/teams/select');
         }
