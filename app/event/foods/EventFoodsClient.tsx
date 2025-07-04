@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import FoodItem from '@/components/foods/FoodItem';
 import { useEventAuth } from '@/hooks/event/useEventAuth';
@@ -13,10 +13,18 @@ export default function EventFoodsClient() {
   const [foods, setFoods] = useState<Food[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lastFetch, setLastFetch] = useState(0);
 
-  useEffect(() => {
-    const fetchFoods = async () => {
+  const fetchFoods = useCallback(
+    async (forceRefresh = false) => {
       try {
+        const now = Date.now();
+        const timeSinceLastFetch = now - lastFetch;
+
+        if (!forceRefresh && lastFetch > 0 && timeSinceLastFetch < 5000) {
+          return;
+        }
+
         const response = await fetch('/api/event/foods?teamId=giikuHaku-2025');
         const data = await response.json();
 
@@ -25,6 +33,7 @@ export default function EventFoodsClient() {
         }
 
         setFoods(data.foods);
+        setLastFetch(now);
       } catch (_error: unknown) {
         const errorMessage =
           _error instanceof Error
@@ -34,10 +43,13 @@ export default function EventFoodsClient() {
       } finally {
         setLoading(false);
       }
-    };
+    },
+    [lastFetch]
+  );
 
+  useEffect(() => {
     fetchFoods();
-  }, []);
+  }, [fetchFoods]);
 
   const handleUpdateFood = (foodId: string) => {
     router.push(`/event/foods/edit/${foodId}`);
@@ -62,7 +74,11 @@ export default function EventFoodsClient() {
       }
 
       setFoods(prev => prev.filter(food => food.id !== foodId));
-    } catch (_error: unknown) {}
+
+      setTimeout(() => fetchFoods(true), 1000);
+    } catch (_error: unknown) {
+      fetchFoods(true);
+    }
   };
 
   const handleArchiveFood = async (foodId: string) => {
@@ -84,8 +100,20 @@ export default function EventFoodsClient() {
       }
 
       setFoods(prev => prev.filter(food => food.id !== foodId));
-    } catch (_error: unknown) {}
+
+      setTimeout(() => fetchFoods(true), 1000);
+    } catch (_error: unknown) {
+      fetchFoods(true);
+    }
   };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchFoods();
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [fetchFoods]);
 
   if (loading) {
     return (
@@ -101,7 +129,7 @@ export default function EventFoodsClient() {
         <p className='text-red-600 mb-4'>{error}</p>
         <button
           className='bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700'
-          onClick={() => window.location.reload()}
+          onClick={() => fetchFoods(true)}
         >
           再読み込み
         </button>

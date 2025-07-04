@@ -19,16 +19,36 @@ interface FoodData {
   storageLocation?: string;
 }
 
+const eventCache = {
+  foods: null as FoodData[] | null,
+  lastUpdated: 0,
+  cacheDuration: 0, // キャッシュ無効化（リアルタイム性を最優先）
+};
+
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const teamId = searchParams.get('teamId');
+    const forceRefresh = searchParams.get('refresh') === 'true';
 
     if (teamId !== 'giikuHaku-2025') {
       return NextResponse.json(
         { error: 'イベント用のチームIDではありません' },
         { status: 400 }
       );
+    }
+
+    const now = Date.now();
+    if (
+      !forceRefresh &&
+      eventCache.foods &&
+      now - eventCache.lastUpdated < eventCache.cacheDuration
+    ) {
+      return NextResponse.json({
+        foods: eventCache.foods,
+        cached: true,
+        lastUpdated: eventCache.lastUpdated,
+      });
     }
 
     const foodsSnapshot = await adminDb
@@ -48,7 +68,14 @@ export async function GET(req: Request) {
       return bTime - aTime;
     });
 
-    return NextResponse.json({ foods });
+    eventCache.foods = foods;
+    eventCache.lastUpdated = now;
+
+    return NextResponse.json({
+      foods,
+      cached: false,
+      lastUpdated: now,
+    });
   } catch (_error: unknown) {
     if (_error instanceof Error) {
       return NextResponse.json(
@@ -56,6 +83,10 @@ export async function GET(req: Request) {
         { status: 500 }
       );
     } else {
+      return NextResponse.json(
+        { error: '不明なエラーが発生しました' },
+        { status: 500 }
+      );
     }
   }
 }
@@ -89,6 +120,9 @@ export async function POST(req: Request) {
       storageLocation: foodData.location || '未設定',
     });
 
+    eventCache.foods = null;
+    eventCache.lastUpdated = 0;
+
     return NextResponse.json({
       success: true,
       foodId: foodRef.id,
@@ -101,6 +135,10 @@ export async function POST(req: Request) {
         { status: 500 }
       );
     } else {
+      return NextResponse.json(
+        { error: '不明なエラーが発生しました' },
+        { status: 500 }
+      );
     }
   }
 }

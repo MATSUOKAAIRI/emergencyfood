@@ -82,7 +82,11 @@ export async function POST(req: Request) {
       }
     );
 
-    await adminAuth.setCustomUserClaims(uid, { teamId: newTeamId });
+    await adminAuth.setCustomUserClaims(uid, {
+      teamId: newTeamId,
+      email: decodedToken.email,
+      displayName: decodedToken.name || null,
+    });
 
     return NextResponse.json({
       message: `Team "${teamName}" created and you joined.`,

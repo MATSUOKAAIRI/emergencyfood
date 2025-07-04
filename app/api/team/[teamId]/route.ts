@@ -45,17 +45,15 @@ export async function GET(
     }
 
     const memberIds = [...new Set([...teamData.members, ownerId])];
-    const userDocs = await Promise.all(
-      memberIds.map(id => adminDb.collection('users').doc(id).get())
+
+    const userRecords = await Promise.all(
+      memberIds.map(id => adminAuth.getUser(id))
     );
 
-    const members = userDocs
-      .filter(doc => doc.exists)
-      .map(doc => {
-        const userData = doc.data();
-        if (!userData) return null;
-
-        const uid = doc.id;
+    const members = userRecords
+      .filter(userRecord => userRecord)
+      .map(userRecord => {
+        const uid = userRecord.uid;
         let role: 'owner' | 'admin' | 'member' = 'member';
 
         if (uid === ownerId) {
@@ -66,8 +64,8 @@ export async function GET(
 
         return {
           uid,
-          email: userData.email,
-          displayName: userData.displayName || null,
+          email: userRecord.email,
+          displayName: userRecord.displayName || null,
           role,
         };
       })

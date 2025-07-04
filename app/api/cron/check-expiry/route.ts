@@ -3,7 +3,7 @@ import { Client } from '@line/bot-sdk';
 import { FieldValue, type Timestamp } from 'firebase-admin/firestore';
 import { NextResponse } from 'next/server';
 
-import { adminDb } from '@/utils/firebase/admin';
+import { adminAuth, adminDb } from '@/utils/firebase/admin';
 
 const lineConfig = {
   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN || '',
@@ -70,13 +70,15 @@ export async function POST(req: Request) {
         continue;
       }
 
-      const userDoc = await adminDb.collection('users').doc(food.uid).get();
-      const userData = userDoc.data();
+      const userRecord = await adminAuth.getUser(food.uid);
+      const lineUserId = userRecord.customClaims?.lineUserId as
+        | string
+        | undefined;
 
-      if (userData && userData.lineUserId) {
+      if (lineUserId) {
         if (!notifications[food.uid]) {
           notifications[food.uid] = {
-            lineUserId: userData.lineUserId,
+            lineUserId: lineUserId,
             foods: [],
           };
         }
