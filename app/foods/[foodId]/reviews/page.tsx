@@ -4,7 +4,6 @@ import { ERROR_MESSAGES } from '@/utils/constants';
 
 import ReviewsClient from './ReviewsClient';
 
-// Server Component - SEO, metadata, layout
 export default function FoodReviewsPage() {
   return (
     <div>

@@ -12,7 +12,6 @@ export const useForm = <T extends Record<string, any>>(
   const handleChange = useCallback(
     (name: keyof T, value: any) => {
       setValues(prev => ({ ...prev, [name]: value }));
-      // Clear error when user starts typing
       if (errors[name as string]) {
         const newErrors = { ...errors };
         delete newErrors[name as string];

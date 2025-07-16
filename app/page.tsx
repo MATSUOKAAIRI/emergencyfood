@@ -41,7 +41,7 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className='bg-gray-100 rounded-lg p-8 border border-gray-300'>
+          {/* <div className='bg-gray-100 rounded-lg p-8 border border-gray-300'>
             <h2 className='text-xl font-semibold mb-3 text-gray-900'>
               期間限定表示
             </h2>
@@ -54,7 +54,7 @@ export default function Home() {
             >
               技育博で参加
             </Link>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
