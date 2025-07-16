@@ -4,7 +4,6 @@ import { ERROR_MESSAGES } from '@/utils/constants';
 
 import FoodListClient from './FoodListClient';
 
-// Server Component - SEO, metadata, layout
 export default function FoodListPage() {
   return (
     <div className='container mx-auto py-8 mix-h-screen'>
