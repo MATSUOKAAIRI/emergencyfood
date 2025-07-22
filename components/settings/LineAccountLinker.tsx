@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import type { AppUser } from '@/types';
 import { db } from '@/utils/firebase';
+import { setTeamIdClaim } from '@/utils/firebase/team-claims';
 
 interface LineAccountLinkerProps {
   currentUser: AppUser;
@@ -128,6 +129,8 @@ export default function LineAccountLinker({
       );
       setLineUserIdFromFirestore(null);
 
+      await currentUser.getIdToken(true);
+      await setTeamIdClaim();
       await currentUser.getIdToken(true);
     } catch (e: unknown) {
       const errorMessage = e instanceof Error ? e.message : '不明なエラー';
