@@ -59,7 +59,6 @@ export async function POST(req: Request) {
       const remainingDays = Math.ceil(remainingTime / (1000 * 60 * 60 * 24));
 
       const lastNotifiedAt = food.lastNotifiedAt;
-      // 修正版：2週間前から、7日に1回通知
       const shouldNotifyToday = remainingDays <= 14;
       const notifiedRecently =
         lastNotifiedAt &&
