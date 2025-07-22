@@ -58,13 +58,13 @@ export async function POST(req: Request) {
       const remainingTime = foodExpiryDate.getTime() - now.getTime();
       const remainingDays = Math.ceil(remainingTime / (1000 * 60 * 60 * 24));
 
-      const shouldNotifyToday = remainingDays <= 7;
-
       const lastNotifiedAt = food.lastNotifiedAt;
+      // 修正版：2週間前から、7日に1回通知
+      const shouldNotifyToday = remainingDays <= 14;
       const notifiedRecently =
         lastNotifiedAt &&
         now.getTime() - lastNotifiedAt.toDate().getTime() <
-          2 * 24 * 60 * 60 * 1000;
+          7 * 24 * 60 * 60 * 1000;
 
       if (!shouldNotifyToday || notifiedRecently) {
         continue;
