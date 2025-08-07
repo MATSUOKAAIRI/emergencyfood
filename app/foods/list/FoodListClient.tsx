@@ -1,14 +1,22 @@
 'use client';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 import FoodItem from '@/components/foods/FoodItem';
+import FoodSort, {
+  type SortOption,
+  type SortOrder,
+} from '@/components/foods/FoodSort';
 import { useAuth, useFoods, useTeam } from '@/hooks';
 import type { Food } from '@/types';
 import { ERROR_MESSAGES } from '@/utils/constants';
+import { sortFoods } from '@/utils/sortFoods';
 
 export default function FoodListClient() {
   const router = useRouter();
+  const [sortBy, setSortBy] = useState<SortOption>('registeredAt');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
 
   const { user } = useAuth(true);
   const { currentTeamId, team, loading: teamLoading } = useTeam(user);
@@ -21,6 +29,13 @@ export default function FoodListClient() {
   const canDelete = team
     ? team.ownerId === user?.uid || team.admins?.includes(user?.uid || '')
     : false;
+
+  const handleSortChange = (option: SortOption, order: SortOrder) => {
+    setSortBy(option);
+    setSortOrder(order);
+  };
+
+  const sortedFoods = sortFoods(foods, sortBy, sortOrder);
 
   const handleUpdateFood = (foodIdToUpdate: string) => {
     router.push(`/foods/edit/${foodIdToUpdate}`);
@@ -70,18 +85,27 @@ export default function FoodListClient() {
                     : '登録された非常食はありません'}
                 </p>
               </div>
-              <Link
-                className='inline-block bg-gray-800 text-white font-semibold py-2 px-4 rounded hover:bg-gray-700'
-                href={`/foods/add?teamId=${currentTeamId}`}
-              >
-                新しい非常食を登録する
-              </Link>
+              <div className='flex items-center gap-4'>
+                {foods.length > 0 && (
+                  <FoodSort
+                    currentOrder={sortOrder}
+                    currentSort={sortBy}
+                    onSortChange={handleSortChange}
+                  />
+                )}
+                <Link
+                  className='inline-block bg-gray-800 text-white font-semibold py-2 px-4 rounded hover:bg-gray-700'
+                  href={`/foods/add?teamId=${currentTeamId}`}
+                >
+                  新しい非常食を登録する
+                </Link>
+              </div>
             </div>
           </div>
 
           {foods.length > 0 ? (
             <div className='space-y-4'>
-              {foods.map((food: Food) => (
+              {sortedFoods.map((food: Food) => (
                 <FoodItem
                   key={food.id}
                   canDelete={canDelete}

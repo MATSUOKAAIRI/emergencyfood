@@ -4,8 +4,13 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import FoodItem from '@/components/foods/FoodItem';
+import FoodSort, {
+  type SortOption,
+  type SortOrder,
+} from '@/components/foods/FoodSort';
 import { useEventAuth } from '@/hooks/event/useEventAuth';
 import type { Food } from '@/types';
+import { sortFoods } from '@/utils/sortFoods';
 
 export default function EventArchivedFoodsClient() {
   const _router = useRouter();
@@ -13,6 +18,8 @@ export default function EventArchivedFoodsClient() {
   const [foods, setFoods] = useState<Food[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<SortOption>('registeredAt');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
 
   useEffect(() => {
     const fetchArchivedFoods = async () => {
@@ -42,6 +49,13 @@ export default function EventArchivedFoodsClient() {
 
     fetchArchivedFoods();
   }, []);
+
+  const handleSortChange = (option: SortOption, order: SortOrder) => {
+    setSortBy(option);
+    setSortOrder(order);
+  };
+
+  const sortedFoods = sortFoods(foods, sortBy, sortOrder);
 
   const handleRestoreFood = async (foodId: string) => {
     try {
@@ -112,17 +126,26 @@ export default function EventArchivedFoodsClient() {
   return (
     <div className='space-y-4'>
       {foods.length > 0 ? (
-        foods.map((food: Food) => (
-          <FoodItem
-            key={food.id}
-            canDelete={true}
-            food={food}
-            onArchiveFood={() => {}}
-            onDeleteFood={handleDeleteFood}
-            onRestoreFood={handleRestoreFood}
-            onUpdateFood={() => {}}
-          />
-        ))
+        <>
+          <div className='flex justify-end mb-4'>
+            <FoodSort
+              currentOrder={sortOrder}
+              currentSort={sortBy}
+              onSortChange={handleSortChange}
+            />
+          </div>
+          {sortedFoods.map((food: Food) => (
+            <FoodItem
+              key={food.id}
+              canDelete={true}
+              food={food}
+              onArchiveFood={() => {}}
+              onDeleteFood={handleDeleteFood}
+              onRestoreFood={handleRestoreFood}
+              onUpdateFood={() => {}}
+            />
+          ))}
+        </>
       ) : (
         <div className='text-center py-8'>
           <p className='text-gray-600 mb-4'>
