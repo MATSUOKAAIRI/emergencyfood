@@ -5,15 +5,15 @@ export type SortOption = 'name' | 'expiryDate' | 'registeredAt' | 'category';
 export type SortOrder = 'asc' | 'desc';
 
 interface FoodSortProps {
-  onSortChange: (option: SortOption, order: SortOrder) => void;
-  currentSort: SortOption;
   currentOrder: SortOrder;
+  currentSort: SortOption;
+  onSortChange: (option: SortOption, order: SortOrder) => void;
 }
 
 export default function FoodSort({
-  onSortChange,
-  currentSort,
   currentOrder,
+  currentSort,
+  onSortChange,
 }: FoodSortProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -39,8 +39,8 @@ export default function FoodSort({
   return (
     <div className='relative'>
       <button
+        className='flex items-center space-x-2 px-3 py-2 border border-gray-300 rounded-md bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-black focus:border-black'
         onClick={() => setIsOpen(!isOpen)}
-        className='flex items-center space-x-2 px-3 py-2 border border-gray-300 rounded-md bg-white hover:bg-gray-50 focus:outline-none focus:ring-0 focus:ring-black focus:border-black'
       >
         <span className='text-sm text-gray-700'>
           並び替え: {getCurrentSortLabel()}
@@ -57,10 +57,10 @@ export default function FoodSort({
           viewBox='0 0 24 24'
         >
           <path
+            d='M19 9l-7 7-7-7'
             strokeLinecap='round'
             strokeLinejoin='round'
             strokeWidth={2}
-            d='M19 9l-7 7-7-7'
           />
         </svg>
       </button>
@@ -70,12 +70,12 @@ export default function FoodSort({
           {sortOptions.map(option => (
             <button
               key={option.value}
-              onClick={() => handleSortChange(option.value)}
               className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
                 currentSort === option.value
                   ? 'bg-gray-100 text-black font-medium'
                   : 'text-gray-700'
               }`}
+              onClick={() => handleSortChange(option.value)}
             >
               {option.label}
               {currentSort === option.value && (

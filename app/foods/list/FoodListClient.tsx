@@ -88,8 +88,8 @@ export default function FoodListClient() {
               <div className='flex items-center gap-4'>
                 {foods.length > 0 && (
                   <FoodSort
-                    currentSort={sortBy}
                     currentOrder={sortOrder}
+                    currentSort={sortBy}
                     onSortChange={handleSortChange}
                   />
                 )}

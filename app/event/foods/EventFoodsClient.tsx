@@ -157,8 +157,8 @@ export default function EventFoodsClient() {
         <>
           <div className='flex justify-end mb-4'>
             <FoodSort
-              currentSort={sortBy}
               currentOrder={sortOrder}
+              currentSort={sortBy}
               onSortChange={handleSortChange}
             />
           </div>
