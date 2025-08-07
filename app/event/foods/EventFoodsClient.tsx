@@ -4,8 +4,13 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 
 import FoodItem from '@/components/foods/FoodItem';
+import FoodSort, {
+  type SortOption,
+  type SortOrder,
+} from '@/components/foods/FoodSort';
 import { useEventAuth } from '@/hooks/event/useEventAuth';
 import type { Food } from '@/types';
+import { sortFoods } from '@/utils/sortFoods';
 
 export default function EventFoodsClient() {
   const router = useRouter();
@@ -14,6 +19,8 @@ export default function EventFoodsClient() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastFetch, setLastFetch] = useState(0);
+  const [sortBy, setSortBy] = useState<SortOption>('registeredAt');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
 
   const fetchFoods = useCallback(
     async (forceRefresh = false) => {
@@ -50,6 +57,13 @@ export default function EventFoodsClient() {
   useEffect(() => {
     fetchFoods();
   }, [fetchFoods]);
+
+  const handleSortChange = (option: SortOption, order: SortOrder) => {
+    setSortBy(option);
+    setSortOrder(order);
+  };
+
+  const sortedFoods = sortFoods(foods, sortBy, sortOrder);
 
   const handleUpdateFood = (foodId: string) => {
     router.push(`/event/foods/edit/${foodId}`);
@@ -140,16 +154,25 @@ export default function EventFoodsClient() {
   return (
     <div className='space-y-4'>
       {foods.length > 0 ? (
-        foods.map((food: Food) => (
-          <FoodItem
-            key={food.id}
-            canDelete={true}
-            food={food}
-            onArchiveFood={handleArchiveFood}
-            onDeleteFood={handleDeleteFood}
-            onUpdateFood={handleUpdateFood}
-          />
-        ))
+        <>
+          <div className='flex justify-end mb-4'>
+            <FoodSort
+              currentSort={sortBy}
+              currentOrder={sortOrder}
+              onSortChange={handleSortChange}
+            />
+          </div>
+          {sortedFoods.map((food: Food) => (
+            <FoodItem
+              key={food.id}
+              canDelete={true}
+              food={food}
+              onArchiveFood={handleArchiveFood}
+              onDeleteFood={handleDeleteFood}
+              onUpdateFood={handleUpdateFood}
+            />
+          ))}
+        </>
       ) : (
         <div className='text-center py-8'>
           <p className='text-gray-600 mb-4'>登録された非常食はありません</p>
