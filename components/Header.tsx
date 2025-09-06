@@ -29,7 +29,9 @@ export default function Header({
   const shouldShowNavLinks =
     (isLoggedIn && !shouldHideNavLinks && pathname.startsWith('/supplies')) ||
     pathname.startsWith('/settings') ||
-    pathname.startsWith('/event');
+    pathname.startsWith('/event') ||
+    pathname.startsWith('/disaster-board') ||
+    pathname.startsWith('/evacuation-items');
 
   const getUrlWithTeamId = (basePath: string) => {
     return teamId ? `${basePath}?teamId=${teamId}` : basePath;
@@ -47,6 +49,8 @@ export default function Header({
     { href: getUrlWithTeamId('/supplies/list'), label: '備蓄品リスト' },
     { href: getUrlWithTeamId('/supplies/add'), label: '備蓄品登録' },
     { href: getUrlWithTeamId('/supplies/archived'), label: '過去の備蓄品' },
+    { href: getUrlWithTeamId('/disaster-board'), label: '災害用伝言板' },
+    { href: getUrlWithTeamId('/evacuation-items'), label: '避難用持ち物' },
     { href: getUrlWithTeamId('/settings'), label: '設定' },
   ];
 

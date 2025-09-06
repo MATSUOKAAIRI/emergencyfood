@@ -51,6 +51,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
       const isAllowedForTeamUsersPage =
         currentPath.startsWith('/supplies/') ||
+        currentPath.startsWith('/disaster-board') ||
+        currentPath.startsWith('/evacuation-items') ||
         currentPath.startsWith('/settings');
 
       const isSettingsPage = currentPath.startsWith('/settings');

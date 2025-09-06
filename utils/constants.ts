@@ -181,6 +181,17 @@ export const EVACUATION_LEVELS = [
   'その他',
 ] as const;
 
+export const CONTAINER_TYPES = [
+  '非常持出袋',
+  'リュックサック',
+  'キャリーケース',
+  '防水バッグ',
+  'プラスチックケース',
+  '段ボール箱',
+  '布袋',
+  'その他',
+] as const;
+
 export const EXPIRY_WARNING_DAYS = {
   NEAR_EXPIRY: 30,
   CRITICAL_EXPIRY: 7,

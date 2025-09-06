@@ -17,6 +17,8 @@ export type { SuccessMessageProps } from './feedback/SuccessMessage';
 // Layout Components
 export { Card } from './layout/Card';
 export type { CardProps } from './layout/Card';
+export { Tabs } from './Tabs';
+export type { TabItem } from './Tabs';
 
 // Accessibility Components
 export { FocusTrap } from './accessibility/FocusTrap';
