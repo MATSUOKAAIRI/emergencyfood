@@ -27,7 +27,7 @@ export default function Header({
     pathname.startsWith('/teams');
 
   const shouldShowNavLinks =
-    (isLoggedIn && !shouldHideNavLinks && pathname.startsWith('/foods')) ||
+    (isLoggedIn && !shouldHideNavLinks && pathname.startsWith('/supplies')) ||
     pathname.startsWith('/settings') ||
     pathname.startsWith('/event');
 
@@ -44,9 +44,9 @@ export default function Header({
   };
 
   const defaultNavLinks = [
-    { href: getUrlWithTeamId('/foods/list'), label: '非常食リスト' },
-    { href: getUrlWithTeamId('/foods/add'), label: '非常食登録' },
-    { href: getUrlWithTeamId('/foods/archived'), label: '過去の非常食' },
+    { href: getUrlWithTeamId('/supplies/list'), label: '備蓄品リスト' },
+    { href: getUrlWithTeamId('/supplies/add'), label: '備蓄品登録' },
+    { href: getUrlWithTeamId('/supplies/archived'), label: '過去の備蓄品' },
     { href: getUrlWithTeamId('/settings'), label: '設定' },
   ];
 

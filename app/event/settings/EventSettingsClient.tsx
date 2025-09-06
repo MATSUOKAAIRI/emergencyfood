@@ -14,7 +14,7 @@ export default function EventSettingsClient() {
       label: UI_CONSTANTS.LINE_NOTIFICATION_SETTINGS,
     },
     { id: 'account' as SettingsTab, label: UI_CONSTANTS.ACCOUNT_SETTINGS },
-    { id: 'team' as SettingsTab, label: UI_CONSTANTS.TEAM_SETTINGS },
+    { id: 'team' as SettingsTab, label: UI_CONSTANTS.FAMILY_GROUP_SETTINGS },
     { id: 'logout' as SettingsTab, label: UI_CONSTANTS.LOGOUT },
   ];
 
@@ -176,14 +176,14 @@ function EventTeamSettings() {
     <div className='space-y-4 sm:space-y-6'>
       <div className='flex items-center justify-between'>
         <h2 className='text-lg sm:text-xl font-semibold text-gray-900'>
-          {UI_CONSTANTS.TEAM_SETTINGS}
+          {UI_CONSTANTS.FAMILY_GROUP_SETTINGS}
         </h2>
       </div>
 
       <div className='grid grid-cols-1 gap-4 sm:gap-6'>
         <div className='space-y-2'>
           <label className='block text-sm font-medium text-gray-900'>
-            {UI_CONSTANTS.TEAM_NAME}
+            {UI_CONSTANTS.FAMILY_GROUP_NAME}
           </label>
           <div className='p-3 bg-gray-100 rounded-md border border-gray-300'>
             <span className='text-gray-900 text-sm sm:text-base'>
@@ -194,7 +194,7 @@ function EventTeamSettings() {
 
         <div className='space-y-2'>
           <label className='block text-sm font-medium text-gray-900'>
-            {UI_CONSTANTS.TEAM_OWNER}
+            {UI_CONSTANTS.FAMILY_GROUP_OWNER}
           </label>
           <div className='p-3 bg-gray-100 rounded-md border border-gray-300'>
             <span className='text-gray-900 text-sm sm:text-base'>
@@ -206,7 +206,7 @@ function EventTeamSettings() {
 
       <div className='space-y-3 sm:space-y-4'>
         <h3 className='text-base sm:text-lg font-medium text-gray-900'>
-          {UI_CONSTANTS.TEAM_MEMBERS}
+          {UI_CONSTANTS.FAMILY_GROUP_MEMBERS}
         </h3>
 
         <div className='space-y-3'>
@@ -253,7 +253,7 @@ function EventTeamSettings() {
               メンバー :
             </span>
             <span>
-              非常食の管理（登録・編集・削除・アーカイブ）ができます。
+              備蓄品の管理（登録・編集・削除・アーカイブ）ができます。
             </span>
           </div>
         </div>

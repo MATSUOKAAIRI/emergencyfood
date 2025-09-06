@@ -11,21 +11,23 @@ export const ERROR_MESSAGES = {
   PASSWORD_CHANGE_FAILED: 'パスワードの変更に失敗しました。',
   NAME_UPDATE_FAILED: '名前の更新に失敗しました。',
 
-  TEAM_NAME_EXISTS: 'チーム名は既に存在します。',
-  TEAM_NOT_FOUND: 'チームが見つかりません。',
-  INCORRECT_TEAM_CREDENTIALS: 'チーム名またはパスワードが間違っています。',
-  ALREADY_IN_TEAM: '既に他のチームに所属しています。先に脱退してください。',
-  TEAM_ID_MISSING:
-    'チームIDが設定されていません。チームに参加または作成してください。',
+  FAMILY_GROUP_NAME_EXISTS: '家族グループ名は既に存在します。',
+  FAMILY_GROUP_NOT_FOUND: '家族グループが見つかりません。',
+  INCORRECT_FAMILY_GROUP_CREDENTIALS:
+    '家族グループ名またはパスワードが間違っています。',
+  ALREADY_IN_FAMILY_GROUP:
+    '既に他の家族グループに所属しています。先に脱退してください。',
+  FAMILY_GROUP_ID_MISSING:
+    '家族グループIDが設定されていません。家族グループに参加または作成してください。',
   ADMIN_UPDATE_FAILED: '管理者の更新に失敗しました。',
-  TEAM_FETCH_FAILED: 'チーム情報の取得に失敗しました。',
+  FAMILY_GROUP_FETCH_FAILED: '家族グループ情報の取得に失敗しました。',
 
   FOOD_FETCH_FAILED: 'データの取得に失敗しました。',
-  FOOD_ARCHIVE_FAILED: '食品の非表示に失敗しました。',
-  FOOD_UPDATE_FAILED: '食品の更新に失敗しました。',
-  FOOD_CREATE_FAILED: '食品の登録に失敗しました。',
-  FOOD_DELETE_FAILED: '食品の削除に失敗しました。',
-  NO_FOODS_REGISTERED: '登録された非常食はありません。',
+  FOOD_ARCHIVE_FAILED: '備蓄品の非表示に失敗しました。',
+  FOOD_UPDATE_FAILED: '備蓄品の更新に失敗しました。',
+  FOOD_CREATE_FAILED: '備蓄品の登録に失敗しました。',
+  FOOD_DELETE_FAILED: '備蓄品の削除に失敗しました。',
+  NO_FOODS_REGISTERED: '登録された備蓄品はありません。',
 
   UNAUTHORIZED: '認証が必要です。',
   NETWORK_ERROR: 'ネットワークエラーが発生しました。',
@@ -35,13 +37,13 @@ export const ERROR_MESSAGES = {
 } as const;
 
 export const SUCCESS_MESSAGES = {
-  TEAM_CREATED: 'チームが作成されました。',
-  TEAM_JOINED: 'チームに参加しました。',
-  FOOD_ARCHIVED: '食品を非表示にしました。',
-  FOOD_RESTORED: '食品を復元しました。',
-  FOOD_UPDATED: '食品を更新しました。',
-  FOOD_CREATED: '食品を登録しました。',
-  FOOD_DELETED: '食品を削除しました。',
+  FAMILY_GROUP_CREATED: '家族グループが作成されました。',
+  FAMILY_GROUP_JOINED: '家族グループに参加しました。',
+  FOOD_ARCHIVED: '備蓄品を非表示にしました。',
+  FOOD_RESTORED: '備蓄品を復元しました。',
+  FOOD_UPDATED: '備蓄品を更新しました。',
+  FOOD_CREATED: '備蓄品を登録しました。',
+  FOOD_DELETED: '備蓄品を削除しました。',
   CUSTOM_CLAIMS_SET: 'カスタムクレームが設定されました。',
   LINE_ACCOUNT_LINKED: 'LINEアカウントが連携されました。',
   LINE_ACCOUNT_UNLINKED: 'LINEアカウントの連携が解除されました。',
@@ -62,34 +64,34 @@ export const UI_CONSTANTS = {
 
   SETTINGS_TITLE: '設定',
   ACCOUNT_SETTINGS: 'アカウント設定',
-  TEAM_SETTINGS: 'チーム設定',
+  FAMILY_GROUP_SETTINGS: '家族グループ設定',
   LINE_NOTIFICATION_SETTINGS: 'LINE通知設定',
   LOGOUT: 'ログアウト',
   ACCOUNT_NAME: 'アカウント名',
   EMAIL_ADDRESS: 'メールアドレス',
   CHANGE_PASSWORD: 'パスワード変更',
-  TEAM_NAME: 'チーム名',
-  TEAM_OWNER: 'オーナー',
-  TEAM_MEMBERS: 'メンバー',
-  TEAM_ADMINS: '管理者',
+  FAMILY_GROUP_NAME: '家族グループ名',
+  FAMILY_GROUP_OWNER: 'オーナー',
+  FAMILY_GROUP_MEMBERS: 'メンバー',
+  FAMILY_GROUP_ADMINS: '管理者',
   ADD_ADMIN: '管理者に追加',
   REMOVE_ADMIN: '管理者から削除',
   CONFIRM_LOGOUT: 'ログアウトしますか？',
   CONFIRM_DELETE_FOOD:
-    'この非常食を完全に削除しますか？この操作は取り消せません。',
+    'この備蓄品を完全に削除しますか？この操作は取り消せません。',
 
   CONFIRM_ARCHIVE:
-    'この非常食アイテムをリストから非表示にします。もう二度と表示されなくなりますがよろしいですか？（「過去の保存食」ページからは確認できます）',
-  TEAM_SELECTION_REQUIRED:
-    '食品リストを閲覧するには、いずれかのチームに参加してください。',
+    'この備蓄品をリストから非表示にします。もう二度と表示されなくなりますがよろしいですか？（「過去の備蓄品」ページからは確認できます）',
+  FAMILY_GROUP_SELECTION_REQUIRED:
+    '備蓄品リストを閲覧するには、いずれかの家族グループに参加してください。',
   LOGIN_REQUIRED_FOR_REVIEW: '感想を投稿するにはログインが必要です。',
 
-  CREATE_TEAM_TITLE: '新しいチームを作成',
-  JOIN_TEAM_TITLE: '既存のチームに参加',
-  TEAM_SELECTION_TITLE: 'チームへの参加または作成',
+  CREATE_FAMILY_GROUP_TITLE: '新しい家族グループを作る',
+  JOIN_FAMILY_GROUP_TITLE: '既存の家族グループに参加',
+  FAMILY_GROUP_SELECTION_TITLE: '家族グループへの参加または作成',
 
-  BACK_TO_TEAM_SELECTION: 'チーム選択画面に戻る',
-  ADD_NEW_FOOD: '新しい非常食を登録する',
+  BACK_TO_FAMILY_GROUP_SELECTION: '家族グループ選択画面に戻る',
+  ADD_NEW_FOOD: '新しい備蓄品を登録する',
   VIEW_REVIEWS: '感想を見る・書く',
 
   EDIT: '編集',
@@ -105,10 +107,10 @@ export const UI_CONSTANTS = {
 } as const;
 
 export const API_ENDPOINTS = {
-  ARCHIVE_FOOD: '/api/actions/archive-food',
-  RESTORE_FOOD: '/api/actions/restore-food',
-  UPDATE_FOOD: '/api/actions/update-food',
-  DELETE_FOOD: '/api/actions/delete-food',
+  ARCHIVE_FOOD: '/api/actions/archive-supply',
+  RESTORE_FOOD: '/api/actions/restore-supply',
+  UPDATE_FOOD: '/api/actions/update-supply',
+  DELETE_FOOD: '/api/actions/delete-supply',
 
   CREATE_TEAM: '/api/actions/createTeam',
   JOIN_TEAM: '/api/actions/joinTeam',
@@ -125,6 +127,7 @@ export const API_ENDPOINTS = {
 } as const;
 
 export const FOOD_CATEGORIES = [
+  // 備蓄品・飲料
   '米・パン',
   '麺類',
   '缶詰',
@@ -132,6 +135,49 @@ export const FOOD_CATEGORIES = [
   '調味料',
   '飲料',
   '菓子',
+  // 日用品
+  'トイレットペーパー',
+  'ティッシュペーパー',
+  '洗剤・石鹸',
+  'シャンプー・ボディソープ',
+  '歯磨き粉・歯ブラシ',
+  '生理用品',
+  'おむつ・ベビー用品',
+  'マスク・消毒液',
+  '懐中電灯・電池',
+  'その他',
+] as const;
+
+export const FOOD_UNITS = [
+  // 基本単位
+  '個',
+  '袋',
+  '缶',
+  '本',
+  'パック',
+  '箱',
+  'ロール',
+  '組',
+  'セット',
+  'ボトル',
+  'チューブ',
+  // 重量・容量
+  'kg',
+  'g',
+  'L',
+  'ml',
+  // その他
+  '杯',
+  '枚',
+  '束',
+  '房',
+  'その他',
+] as const;
+
+export const EVACUATION_LEVELS = [
+  '一次避難',
+  '二次避難',
+  '三次避難',
   'その他',
 ] as const;
 

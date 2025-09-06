@@ -36,7 +36,7 @@ export default function SettingsClient() {
       label: UI_CONSTANTS.LINE_NOTIFICATION_SETTINGS,
     },
     { id: 'account' as SettingsTab, label: UI_CONSTANTS.ACCOUNT_SETTINGS },
-    { id: 'team' as SettingsTab, label: UI_CONSTANTS.TEAM_SETTINGS },
+    { id: 'team' as SettingsTab, label: UI_CONSTANTS.FAMILY_GROUP_SETTINGS },
     { id: 'logout' as SettingsTab, label: UI_CONSTANTS.LOGOUT },
   ];
 

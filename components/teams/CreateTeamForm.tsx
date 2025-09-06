@@ -38,13 +38,13 @@ export default function CreateTeamForm() {
     try {
       const result = await createTeam(teamName, teamPassword);
       setSuccessMessage(
-        result.message || `チーム "${teamName}" を作成し、参加しました！`
+        result.message || `家族グループ "${teamName}" を作成し、参加しました！`
       );
 
       if (result.teamId) {
-        router.replace(`/foods/list?teamId=${result.teamId}`);
+        router.replace(`/supplies/list?teamId=${result.teamId}`);
       } else {
-        router.replace('/foods/list');
+        router.replace('/supplies/list');
       }
     } catch (_error: unknown) {
       let msg: string = ERROR_MESSAGES.UNKNOWN_ERROR;
@@ -61,7 +61,7 @@ export default function CreateTeamForm() {
       onSubmit={handleCreateTeam}
     >
       <h1 className='text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-black text-center'>
-        新しいチームを作成
+        新しい家族グループを作る
       </h1>
       {error && (
         <div className='bg-red-200 border text-black px-3 sm:px-4 py-3 relative mb-4 rounded-md text-sm'>
@@ -79,14 +79,14 @@ export default function CreateTeamForm() {
             className='block text-black text-sm font-medium mb-1 sm:mb-2'
             htmlFor='teamName'
           >
-            チーム名
+            家族グループ名
           </label>
           <input
             required
             className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent text-gray-900 text-base'
             disabled={loading}
             id='teamName'
-            placeholder='チーム名を決めてください'
+            placeholder='家族グループ名を決めてください'
             type='text'
             value={teamName}
             onChange={e => setTeamName(e.target.value)}

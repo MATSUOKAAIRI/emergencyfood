@@ -35,7 +35,7 @@ export default function EventJoinClient() {
         throw new Error(result.error || 'イベント参加に失敗しました');
       }
 
-      router.push('/event/foods');
+      router.push('/event/supplies');
     } catch (_error: unknown) {
       const errorMessage =
         _error instanceof Error ? _error.message : 'エラーが発生しました';

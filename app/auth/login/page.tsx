@@ -1,10 +1,16 @@
-// app/auth/login/page.tsx
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Suspense } from 'react';
 
 import { ERROR_MESSAGES, UI_CONSTANTS } from '@/utils/constants';
 
 import LoginClient from './LoginClient';
+
+export const metadata: Metadata = {
+  title: 'ログイン - SonaBase',
+  description: 'SonaBaseにログインして、家族の備蓄品管理を始めましょう。',
+  robots: 'noindex, nofollow',
+};
 
 export default function Login() {
   return (

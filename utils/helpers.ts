@@ -56,21 +56,21 @@ export const capitalizeFirst = (str: string): string => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
-export const sortFoodsByExpiry = <T extends { expiryDate: string }>(
-  foods: T[]
+export const sortSupplysByExpiry = <T extends { expiryDate: string }>(
+  supplies: T[]
 ): T[] => {
-  return [...foods].sort((a, b) => {
+  return [...supplies].sort((a, b) => {
     const dateA = new Date(a.expiryDate);
     const dateB = new Date(b.expiryDate);
     return dateA.getTime() - dateB.getTime();
   });
 };
 
-export const filterFoodsByCategory = <T extends { category: string }>(
-  foods: T[],
+export const filterSupplysByCategory = <T extends { category: string }>(
+  supplies: T[],
   category: string
 ): T[] => {
-  return foods.filter(food => food.category === category);
+  return supplies.filter(supply => supply.category === category);
 };
 
 export const getFirebaseErrorMessage = (error: any): string => {

@@ -1,10 +1,17 @@
-// app/auth/register/page.tsx
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Suspense } from 'react';
 
 import { ERROR_MESSAGES, UI_CONSTANTS } from '@/utils/constants';
 
 import RegisterClient from './RegisterClient';
+
+export const metadata: Metadata = {
+  title: 'ユーザー登録 - SonaBase',
+  description:
+    'SonaBaseのアカウントを作成して、家族の備蓄品管理を始めましょう。',
+  robots: 'noindex, nofollow',
+};
 
 export default function Register() {
   return (

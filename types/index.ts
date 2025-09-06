@@ -34,13 +34,15 @@ export interface TeamMember {
   role: TeamRole;
 }
 
-export interface Food {
+export interface Supply {
   id: string;
   name: string;
   quantity: number;
   expiryDate: string;
   isArchived: boolean;
   category: string;
+  unit: string;
+  evacuationLevel: string;
   registeredAt: { seconds: number; nanoseconds: number };
   teamId: string;
   uid: string;
@@ -52,18 +54,20 @@ export interface Food {
 
 export interface Review {
   id: string;
-  foodId: string;
+  supplyId: string;
   userId: string;
   userName: string;
   text: string;
   createdAt: { seconds: number; nanoseconds: number };
 }
 
-export interface FoodFormData {
+export interface SupplyFormData {
   name: string;
   quantity: number;
   expiryDate: string;
   category: string;
+  unit: string;
+  evacuationLevel: string;
   amount?: number | null;
   purchaseLocation?: string | null;
   label?: string | null;
@@ -91,10 +95,18 @@ export interface UseTeamReturn {
   error: string | null;
 }
 
-export interface UseFoodsReturn {
-  foods: Food[];
+export interface UseSuppliesReturn {
+  supplies: Supply[];
   loading: boolean;
   error: string | null;
-  archiveFood: (foodId: string) => Promise<void>;
-  updateFood: (foodId: string) => void;
+  archiveSupply: (supplyId: string) => Promise<void>;
+  updateSupply: (supplyId: string) => void;
+}
+
+export interface UseSuppliesReturn {
+  supplies: Supply[];
+  loading: boolean;
+  error: string | null;
+  archiveSupply: (supplyId: string) => Promise<void>;
+  updateSupply: (supplyId: string) => void;
 }

@@ -26,7 +26,7 @@ export default function CreateTeamPage() {
             className='text-black font-medium hover:text-gray-600 transition-colors focus:underline rounded text-sm sm:text-base'
             href='/teams/select'
           >
-            {UI_CONSTANTS.BACK_TO_TEAM_SELECTION}
+            {UI_CONSTANTS.BACK_TO_FAMILY_GROUP_SELECTION}
           </Link>
         </div>
       </div>

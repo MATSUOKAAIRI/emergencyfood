@@ -26,12 +26,12 @@ export default function JoinTeamForm() {
 
     try {
       const result = await joinTeam(teamNameInput, teamPasswordInput);
-      setSuccessMessage(result.message || `チームに参加しました！`);
+      setSuccessMessage(result.message || `家族グループに参加しました！`);
 
       if (result.teamId) {
-        router.replace(`/foods/list?teamId=${result.teamId}`);
+        router.replace(`/supplies/list?teamId=${result.teamId}`);
       } else {
-        router.replace('/foods/list');
+        router.replace('/supplies/list');
       }
     } catch (_error: unknown) {
       let msg: string = ERROR_MESSAGES.UNKNOWN_ERROR;
@@ -46,7 +46,7 @@ export default function JoinTeamForm() {
       onSubmit={handleSubmit}
     >
       <h1 className='text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-black text-center'>
-        既存のチームに参加
+        既存の家族グループに参加
       </h1>
       {error && (
         <div className='bg-red-200 border text-black px-3 sm:px-4 py-3 relative mb-4 rounded-md text-sm'>
@@ -64,13 +64,13 @@ export default function JoinTeamForm() {
             className='block text-black text-sm font-bold mb-1 sm:mb-2'
             htmlFor='teamNameInput'
           >
-            チーム名
+            家族グループ名
           </label>
           <input
             required
             className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent text-gray-900 text-base'
             id='teamNameInput'
-            placeholder='チーム名を入力'
+            placeholder='家族グループ名を入力'
             type='text'
             value={teamNameInput}
             onChange={e => setTeamNameInput(e.target.value)}

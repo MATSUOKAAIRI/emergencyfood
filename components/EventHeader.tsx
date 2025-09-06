@@ -6,9 +6,9 @@ export default function EventHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navLinks = [
-    { href: '/event/foods', label: '非常食リスト' },
-    { href: '/event/foods/add', label: '非常食登録' },
-    { href: '/event/foods/archived', label: '過去の非常食' },
+    { href: '/event/supplies', label: '備蓄品リスト' },
+    { href: '/event/supplies/add', label: '備蓄品登録' },
+    { href: '/event/supplies/archived', label: '過去の備蓄品' },
     { href: '/event/settings', label: '設定' },
   ];
 

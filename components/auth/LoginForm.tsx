@@ -60,7 +60,7 @@ export default function LoginForm() {
         }
 
         if (claimTeamId) {
-          router.push(`/foods/list?teamId=${claimTeamId}`);
+          router.push(`/supplies/list?teamId=${claimTeamId}`);
         } else {
           router.push('/teams/select');
         }
