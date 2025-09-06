@@ -1,3 +1,8 @@
+// Re-export organized types
+export * from './api';
+export * from './forms';
+
+// User & Auth types
 export interface AppUser {
   uid: string;
   email: string;
@@ -14,6 +19,7 @@ export interface AppUser {
   }>;
 }
 
+// Team types
 export interface Team {
   id: string;
   name: string;
@@ -34,6 +40,7 @@ export interface TeamMember {
   role: TeamRole;
 }
 
+// Supply types (keeping existing interface for compatibility)
 export interface Supply {
   id: string;
   name: string;
@@ -52,6 +59,7 @@ export interface Supply {
   storageLocation?: string | null;
 }
 
+// Review types
 export interface Review {
   id: string;
   supplyId: string;
@@ -61,26 +69,7 @@ export interface Review {
   createdAt: { seconds: number; nanoseconds: number };
 }
 
-export interface SupplyFormData {
-  name: string;
-  quantity: number;
-  expiryDate: string;
-  category: string;
-  unit: string;
-  evacuationLevel: string;
-  amount?: number | null;
-  purchaseLocation?: string | null;
-  label?: string | null;
-  storageLocation?: string | null;
-}
-
-export interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  message?: string;
-}
-
+// Hook return types
 export interface UseAuthReturn {
   user: AppUser | null;
   loading: boolean;
@@ -93,14 +82,6 @@ export interface UseTeamReturn {
   currentTeamId: string | null;
   loading: boolean;
   error: string | null;
-}
-
-export interface UseSuppliesReturn {
-  supplies: Supply[];
-  loading: boolean;
-  error: string | null;
-  archiveSupply: (supplyId: string) => Promise<void>;
-  updateSupply: (supplyId: string) => void;
 }
 
 export interface UseSuppliesReturn {

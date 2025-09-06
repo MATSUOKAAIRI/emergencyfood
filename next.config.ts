@@ -12,12 +12,10 @@ const nextConfig: NextConfig = {
   // 圧縮とキャッシュ最適化
   compress: true,
 
-  // 静的ページの生成設定
-  generateStaticParams: true,
+  // 静的ページの生成設定は削除（無効なオプション）
 
   // パフォーマンス最適化
   experimental: {
-    optimizeCss: true,
     optimizePackageImports: ['@/components', '@/utils', '@/hooks'],
   },
 

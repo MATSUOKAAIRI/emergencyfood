@@ -1,7 +1,5 @@
 import type { AppUser, Supply } from '@/types';
 import { ERROR_MESSAGES, UI_CONSTANTS } from '@/utils/constants';
-import { db } from '@/utils/firebase';
-import { collection, getDocs, query, where } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -35,18 +33,23 @@ export const useSupplies = (
     setError(null);
 
     try {
-      const q = query(
-        collection(db, 'supplies'),
-        where('teamId', '==', teamId),
-        where('isArchived', '==', isArchived)
+      const idToken = await user.getIdToken();
+      const response = await fetch(
+        `/api/supplies/list?teamId=${teamId}&isArchived=${isArchived}`,
+        {
+          headers: {
+            Authorization: `Bearer ${idToken}`,
+          },
+        }
       );
 
-      const querySnapshot = await getDocs(q);
-      const supplyList: Supply[] = [];
-      querySnapshot.forEach(doc => {
-        supplyList.push({ id: doc.id, ...doc.data() } as Supply);
-      });
-      setSupplies(supplyList);
+      if (!response.ok) {
+        const result = await response.json();
+        throw new Error(result.error || '備蓄品リストの取得に失敗しました');
+      }
+
+      const result = await response.json();
+      setSupplies(result.supplies || []);
     } catch (e: unknown) {
       if (e instanceof Error) {
         setError(ERROR_MESSAGES.FOOD_FETCH_FAILED);

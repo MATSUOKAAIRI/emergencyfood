@@ -54,7 +54,7 @@ export default function Header({
   const title = customTitle || 'SonaBase';
 
   return (
-    <header className='bg-white shadow-sm border-b border-gray-300 py-4 z-50 sticky top-0 w-full relative'>
+    <header className='bg-white shadow-sm border-b border-gray-300 py-4 z-50 sticky top-0 w-full'>
       <div className='container mx-auto px-4 flex justify-between items-center'>
         <button
           className='text-xl font-bold cursor-pointer text-black hover:text-gray-700 transition-colors'

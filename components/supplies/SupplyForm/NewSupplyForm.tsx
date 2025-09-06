@@ -1,18 +1,14 @@
-// components/supplies/SupplyForm.tsx (Legacy - Replaced by modular version)
-// This file is kept for backward compatibility
-// New modular version is at ./SupplyForm/index.tsx
-
 'use client';
 import { Card, ErrorMessage, SuccessMessage } from '@/components/ui';
 import { useSupplyForm } from '@/hooks/forms/useSupplyForm';
 import type { SupplyFormProps } from '@/types/forms';
 
-import { SupplyBasicFields } from './SupplyForm/SupplyBasicFields';
-import { SupplyCategoryFields } from './SupplyForm/SupplyCategoryFields';
-import { SupplyFormActions } from './SupplyForm/SupplyFormActions';
-import { SupplyOptionalFields } from './SupplyForm/SupplyOptionalFields';
+import { SupplyBasicFields } from './SupplyBasicFields';
+import { SupplyCategoryFields } from './SupplyCategoryFields';
+import { SupplyFormActions } from './SupplyFormActions';
+import { SupplyOptionalFields } from './SupplyOptionalFields';
 
-export default function SupplyForm({
+export function NewSupplyForm({
   uid,
   teamId,
   mode = 'add',
