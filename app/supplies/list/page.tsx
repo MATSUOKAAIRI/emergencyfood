@@ -16,10 +16,10 @@ export const metadata: Metadata = {
 export default function SupplyListPage() {
   return (
     <div className='container mx-auto py-8 min-h-screen'>
-      <header className='mb-8'>
+      <header className='mb-8 border-gray-300 border-b pb-4'>
         <h1 className='text-3xl font-bold text-gray-900 mb-2'>備蓄品リスト</h1>
         <p className='text-gray-600'>
-          登録された備蓄品を確認し、賞味期限や在庫を管理しましょう。
+          登録された備蓄品を確認し、賞味期限や在庫を管理
         </p>
       </header>
 

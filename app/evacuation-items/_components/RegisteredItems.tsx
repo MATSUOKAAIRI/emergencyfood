@@ -122,7 +122,14 @@ export default function RegisteredItems({
   // 袋・容器別にグループ化し、保管場所も集約
   const groupedByContainer = supplies.reduce(
     (acc, supply) => {
-      const container = supply.containerType || 'その他';
+      // 袋が指定されていない場合は「入っていない」カテゴリに分類
+      let container: string;
+      if (!supply.containerType || supply.containerType === 'not_assigned') {
+        container = '入っていない';
+      } else {
+        container = supply.containerType;
+      }
+
       if (!acc[container]) {
         acc[container] = {
           supplies: [],
@@ -141,6 +148,12 @@ export default function RegisteredItems({
     >
   );
 
+  // 「入っていない」アイテムと袋に入っているアイテムを分離
+  const unassignedItems = groupedByContainer['入っていない'];
+  const assignedContainers = Object.fromEntries(
+    Object.entries(groupedByContainer).filter(([key]) => key !== '入っていない')
+  );
+
   return (
     <div className='space-y-6'>
       <div className='text-center mb-6'>
@@ -153,14 +166,53 @@ export default function RegisteredItems({
         </p>
       </div>
 
+      {/* 入っていないアイテム */}
+      {unassignedItems && unassignedItems.supplies.length > 0 && (
+        <div className='bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6'>
+          <h4 className='text-lg font-semibold text-yellow-900 mb-3 flex items-center'>
+            <span className='mr-2'>📦</span>
+            袋に入っていないアイテム
+          </h4>
+          <p className='text-sm text-yellow-800 mb-4'>
+            これらのアイテムはまだ袋に割り当てられていません。備品編集から袋を指定できます。
+          </p>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
+            {unassignedItems.supplies.map(supply => (
+              <div
+                key={supply.id}
+                className='bg-white border border-yellow-300 rounded-md p-3'
+              >
+                <div className='flex items-start justify-between mb-2'>
+                  <h5 className='font-medium text-gray-900'>{supply.name}</h5>
+                  <span className='text-sm text-gray-600 font-medium'>
+                    {supply.quantity} {supply.unit}
+                  </span>
+                </div>
+                <div className='space-y-1 text-sm text-gray-600'>
+                  <p>カテゴリ: {supply.category}</p>
+                  {supply.storageLocation && (
+                    <p>保管場所: {supply.storageLocation}</p>
+                  )}
+                  {supply.label && <p>メモ: {supply.label}</p>}
+                  <p className='text-xs text-gray-500'>
+                    賞味期限:{' '}
+                    {new Date(supply.expiryDate).toLocaleDateString('ja-JP')}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* 避難時チェックリスト */}
-      {Object.keys(groupedByContainer).length > 0 && (
+      {Object.keys(assignedContainers).length > 0 && (
         <div className='bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6'>
           <h4 className='text-lg font-semibold text-gray-900 mb-3'>
             避難時の持ち出しチェックリスト
           </h4>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
-            {Object.entries(groupedByContainer).map(
+            {Object.entries(assignedContainers).map(
               ([containerType, containerData]) => {
                 const storageLocationsList = Array.from(
                   containerData.storageLocations
@@ -202,7 +254,7 @@ export default function RegisteredItems({
         </div>
       )}
 
-      {Object.entries(groupedByContainer).map(
+      {Object.entries(assignedContainers).map(
         ([containerType, containerData]) => {
           const storageLocationsList = Array.from(
             containerData.storageLocations

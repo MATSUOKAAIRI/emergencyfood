@@ -15,10 +15,10 @@ export const metadata: Metadata = {
 export default function DisasterBoardPage() {
   return (
     <div className='container mx-auto py-8 min-h-screen'>
-      <header className='mb-8'>
-        <h1 className='text-3xl font-bold text-gray-900 mb-2'>災害用伝言板</h1>
+      <header className='mb-8 flex items-center gap-3 border-gray-300 border-b pb-4'>
+        <h1 className='text-3xl font-bold text-[#333] mb-2'>災害用伝言板</h1>
         <p className='text-gray-600'>
-          災害時に備えて、避難場所や安否確認方法など、家族で事前に共有すべき情報を登録・管理しましょう。
+          災害時に備えて、家族で事前に共有すべき情報を登録・管理
         </p>
       </header>
 

@@ -76,7 +76,7 @@ function ArchivedSupplysPageClient() {
   return (
     <div className='min-h-screen mx-auto px-4 py-6 container'>
       <h1 className='text-3xl font-bold text-[#333] border-b border-gray-300 pb-4 mb-6'>
-        過去の保存食リスト
+        過去の備蓄品リスト
       </h1>
       {currentTeamId ? (
         <>
@@ -85,7 +85,7 @@ function ArchivedSupplysPageClient() {
               <div>
                 <p className='text-gray-600'>
                   {supplies.length > 0
-                    ? `${supplies.length}件の過去の備蓄品`
+                    ? `${supplies.length}件の過去の備蓄品リスト`
                     : ''}
                 </p>
               </div>

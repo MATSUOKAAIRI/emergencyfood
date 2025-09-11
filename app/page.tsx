@@ -73,7 +73,7 @@ export default function Home() {
               className='w-full inline-block bg-gray-900 hover:bg-gray-800 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 text-center'
               href='/event'
             >
-              技育博で参加
+              ボタン
             </Link>
           </div> */}
         </div>
