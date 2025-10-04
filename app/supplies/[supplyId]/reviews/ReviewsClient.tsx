@@ -1,6 +1,6 @@
 'use client';
 import { useParams } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import Modal from '@/components/ui/Modal';
 import { useAuth } from '@/hooks';
@@ -20,7 +20,7 @@ export default function ReviewsClient() {
   const [reviewToDelete, setReviewToDelete] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const fetchReviews = async () => {
+  const fetchReviews = useCallback(async () => {
     if (!supplyId || !currentTeamId || !user) return;
 
     try {
@@ -41,11 +41,11 @@ export default function ReviewsClient() {
     } catch (error) {
       console.error('Failed to fetch reviews:', error);
     }
-  };
+  }, [supplyId, currentTeamId, user]);
 
   useEffect(() => {
     fetchReviews();
-  }, [supplyId, currentTeamId, user]);
+  }, [fetchReviews]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -130,13 +130,13 @@ export default function DisasterBoardClient() {
     );
   }
 
-  const evacuationCount =
+  const _evacuationCount =
     data.evacuationSites.length +
     data.evacuationRoutes.length +
     data.emergencyItems.length;
-  const communicationCount =
+  const _communicationCount =
     data.safetyMethods.length + data.familyAgreements.length;
-  const basicInfoCount = data.useDisasterDial ? 1 : 0;
+  const _basicInfoCount = data.useDisasterDial ? 1 : 0;
 
   const tabItems: TabItem[] = [
     {

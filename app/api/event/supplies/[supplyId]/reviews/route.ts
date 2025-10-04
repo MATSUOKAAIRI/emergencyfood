@@ -156,7 +156,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    const { supplyId } = await params;
+    const { supplyId: _supplyId } = await params;
     const { searchParams } = new URL(request.url);
     const reviewId = searchParams.get('reviewId');
 

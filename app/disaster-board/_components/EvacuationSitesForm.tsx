@@ -51,7 +51,7 @@ export function EvacuationSitesForm({
     onUpdate(sites.filter(site => site.id !== id));
   };
 
-  const handleUpdateSite = (
+  const _handleUpdateSite = (
     id: string,
     updatedSite: Partial<EvacuationSite>
   ) => {

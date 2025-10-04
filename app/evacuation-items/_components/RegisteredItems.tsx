@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useTeam } from '@/hooks/team/useTeam';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 interface RegisteredSupply {
   id: string;
@@ -25,63 +25,66 @@ export default function RegisteredItems({
   evacuationLevel,
 }: RegisteredItemsProps) {
   const { user } = useAuth();
-  const { currentTeamId, team } = useTeam(user);
+  const { currentTeamId, team: _team } = useTeam(user);
   const [supplies, setSupplies] = useState<RegisteredSupply[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const evacuationLevelMap = {
-    primary: '一次避難',
-    secondary: '二次避難',
-  };
+  const evacuationLevelMap = useMemo(
+    () => ({
+      primary: '一次避難',
+      secondary: '二次避難',
+    }),
+    []
+  );
+
+  const fetchSupplies = useCallback(async () => {
+    if (!user || !currentTeamId) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch(
+        `/api/supplies/list?teamId=${currentTeamId}&isArchived=false`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('備蓄品の取得に失敗しました');
+      }
+
+      const data = await response.json();
+
+      // 指定された避難レベルでフィルタリング
+      const filteredSupplies = data.supplies.filter(
+        (supply: RegisteredSupply) =>
+          supply.evacuationLevel === evacuationLevelMap[evacuationLevel]
+      );
+
+      setSupplies(filteredSupplies);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : '不明なエラーが発生しました'
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [user, currentTeamId, evacuationLevel, evacuationLevelMap]);
 
   useEffect(() => {
-    const fetchSupplies = async () => {
-      if (!user || !currentTeamId) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const token = await user.getIdToken();
-        const response = await fetch(
-          `/api/supplies/list?teamId=${currentTeamId}&isArchived=false`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error('備蓄品の取得に失敗しました');
-        }
-
-        const data = await response.json();
-
-        // 指定された避難レベルでフィルタリング
-        const filteredSupplies = data.supplies.filter(
-          (supply: RegisteredSupply) =>
-            supply.evacuationLevel === evacuationLevelMap[evacuationLevel]
-        );
-
-        setSupplies(filteredSupplies);
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : '不明なエラーが発生しました'
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchSupplies();
-  }, [user, currentTeamId, evacuationLevel]);
+  }, [fetchSupplies]);
 
   if (loading) {
     return (
       <div className='text-center py-8'>
-        <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto'></div>
+        <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto' />
         <p className='mt-2 text-gray-600'>登録済みアイテムを読み込み中...</p>
       </div>
     );

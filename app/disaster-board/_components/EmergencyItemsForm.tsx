@@ -16,11 +16,6 @@ interface BagMemo {
   memo: string;
 }
 
-interface EmergencyItemsFormState {
-  items: EmergencyItem[];
-  bagMemos: BagMemo[];
-}
-
 const INITIAL_ITEM: Omit<EmergencyItem, 'id'> = {
   name: '',
   quantity: 1,

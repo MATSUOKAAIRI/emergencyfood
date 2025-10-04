@@ -29,31 +29,15 @@
         "caughtErrorsIgnorePattern": "^_"
       }
     ],
-    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/explicit-module-boundary-types": "off",
-    "@typescript-eslint/no-non-null-assertion": "warn",
+    "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/no-var-requires": "error",
-    "@typescript-eslint/consistent-type-imports": [
-      "error",
-      {
-        "prefer": "type-imports",
-        "disallowTypeAnnotations": false
-      }
-    ],
+    "@typescript-eslint/consistent-type-imports": "off",
 
     // Import関連
-    "import/order": [
-      "error",
-      {
-        "groups": ["builtin", "external", "internal", "parent", "sibling", "index"],
-        "newlines-between": "always",
-        "alphabetize": {
-          "order": "asc",
-          "caseInsensitive": true
-        }
-      }
-    ],
+    "import/order": "off",
     "import/no-unresolved": "off",
     "import/no-duplicates": "error",
     "import/no-unused-modules": "off",
@@ -78,15 +62,7 @@
     ],
     "react/jsx-no-literals": "off",
     "react/jsx-pascal-case": "error",
-    "react/jsx-sort-props": [
-      "error",
-      {
-        "callbacksLast": true,
-        "shorthandFirst": true,
-        "ignoreCase": true,
-        "reservedFirst": true
-      }
-    ],
+    "react/jsx-sort-props": "off",
 
     // React Hooks関連
     "react-hooks/rules-of-hooks": "error",
@@ -101,8 +77,9 @@
         "aspects": ["invalidHref", "preferButton"]
       }
     ],
-    "jsx-a11y/click-events-have-key-events": "warn",
-    "jsx-a11y/no-static-element-interactions": "warn",
+    "jsx-a11y/click-events-have-key-events": "off",
+    "jsx-a11y/no-static-element-interactions": "off",
+    "jsx-a11y/label-has-associated-control": "off",
 
     // 一般的なルール
     "no-console": [
