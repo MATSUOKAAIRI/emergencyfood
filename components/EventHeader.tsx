@@ -6,9 +6,9 @@ export default function EventHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navLinks = [
-    { href: '/event/foods', label: '非常食リスト' },
-    { href: '/event/foods/add', label: '非常食登録' },
-    { href: '/event/foods/archived', label: '過去の非常食' },
+    { href: '/event/supplies', label: '備蓄品リスト' },
+    { href: '/event/supplies/add', label: '備蓄品登録' },
+    { href: '/event/supplies/archived', label: '過去の備蓄品' },
     { href: '/event/settings', label: '設定' },
   ];
 
@@ -25,7 +25,7 @@ export default function EventHeader() {
   };
 
   return (
-    <header className='bg-white shadow-sm border-b border-gray-300 py-4 z-50 sticky top-0 w-full relative'>
+    <header className='bg-white shadow-sm border-b border-gray-300 py-4 z-50 sticky top-0 w-full'>
       <div className='container mx-auto px-4 flex justify-between items-center'>
         <button
           className='text-xl font-bold cursor-pointer text-black hover:text-gray-700 transition-colors'

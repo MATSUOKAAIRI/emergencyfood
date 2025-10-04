@@ -1,6 +1,27 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 
 import { UI_CONSTANTS } from '@/utils/constants';
+
+export const metadata: Metadata = {
+  title: 'SonaBase - 非常時備蓄品管理アプリ',
+  description:
+    '家族で非常時の備えを管理するためのアプリケーション。備蓄品の登録・管理、期限チェック、家族間での情報共有が可能です。',
+  keywords: [
+    '備蓄品',
+    '防災',
+    '家族',
+    '管理',
+    '非常時',
+    '期限管理',
+    'LINE通知',
+  ],
+  openGraph: {
+    title: 'SonaBase - 非常時備蓄品管理アプリ',
+    description: '家族で非常時の備えを管理するためのアプリケーション',
+    type: 'website',
+  },
+};
 
 export default function Home() {
   return (
@@ -52,7 +73,7 @@ export default function Home() {
               className='w-full inline-block bg-gray-900 hover:bg-gray-800 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 text-center'
               href='/event'
             >
-              技育博で参加
+              ボタン
             </Link>
           </div> */}
         </div>

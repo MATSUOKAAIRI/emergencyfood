@@ -40,7 +40,9 @@ export default function TeamSettings({ user }: TeamSettingsProps) {
 
   if (!team) {
     return (
-      <div className='text-center py-8'>{ERROR_MESSAGES.TEAM_NOT_FOUND}</div>
+      <div className='text-center py-8'>
+        {ERROR_MESSAGES.FAMILY_GROUP_NOT_FOUND}
+      </div>
     );
   }
 
@@ -99,7 +101,7 @@ export default function TeamSettings({ user }: TeamSettingsProps) {
     <div className='space-y-4 sm:space-y-6'>
       <div className='flex items-center justify-between'>
         <h2 className='text-lg sm:text-xl font-semibold text-gray-900'>
-          {UI_CONSTANTS.TEAM_SETTINGS}
+          {UI_CONSTANTS.FAMILY_GROUP_SETTINGS}
         </h2>
       </div>
 
@@ -118,7 +120,7 @@ export default function TeamSettings({ user }: TeamSettingsProps) {
       <div className='grid grid-cols-1 gap-4 sm:gap-6'>
         <div className='space-y-2'>
           <label className='block text-sm font-medium text-gray-900'>
-            {UI_CONSTANTS.TEAM_NAME}
+            {UI_CONSTANTS.FAMILY_GROUP_NAME}
           </label>
           <div className='p-3 bg-gray-100 rounded-md border border-gray-300'>
             <span className='text-gray-900 text-sm sm:text-base'>
@@ -129,7 +131,7 @@ export default function TeamSettings({ user }: TeamSettingsProps) {
 
         <div className='space-y-2'>
           <label className='block text-sm font-medium text-gray-900'>
-            {UI_CONSTANTS.TEAM_OWNER}
+            {UI_CONSTANTS.FAMILY_GROUP_OWNER}
           </label>
           <div className='p-3 bg-gray-100 rounded-md border border-gray-300'>
             <span className='text-gray-900 text-sm sm:text-base'>
@@ -149,7 +151,7 @@ export default function TeamSettings({ user }: TeamSettingsProps) {
 
       <div className='space-y-3 sm:space-y-4'>
         <h3 className='text-base sm:text-lg font-medium text-gray-900'>
-          {UI_CONSTANTS.TEAM_MEMBERS}
+          {UI_CONSTANTS.FAMILY_GROUP_MEMBERS}
         </h3>
 
         <div className='space-y-3'>
@@ -229,13 +231,13 @@ export default function TeamSettings({ user }: TeamSettingsProps) {
             <span className='px-2 py-1 text-xs font-medium text-black w-fit'>
               管理者 :
             </span>
-            <span>非常食の完全削除と管理者の追加・削除ができます。</span>
+            <span>備蓄品の完全削除と管理者の追加・削除ができます。</span>
           </div>
           <div className='flex flex-col sm:flex-row sm:items-center sm:space-x-2 space-y-1 sm:space-y-0'>
             <span className='px-2 py-1 text-xs font-medium text-black w-fit'>
               メンバー :
             </span>
-            <span>通常の非常食管理ができます。</span>
+            <span>通常の備蓄品管理ができます。</span>
           </div>
         </div>
       </div>

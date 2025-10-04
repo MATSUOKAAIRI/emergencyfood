@@ -27,9 +27,11 @@ export default function Header({
     pathname.startsWith('/teams');
 
   const shouldShowNavLinks =
-    (isLoggedIn && !shouldHideNavLinks && pathname.startsWith('/foods')) ||
+    (isLoggedIn && !shouldHideNavLinks && pathname.startsWith('/supplies')) ||
     pathname.startsWith('/settings') ||
-    pathname.startsWith('/event');
+    pathname.startsWith('/event') ||
+    pathname.startsWith('/disaster-board') ||
+    pathname.startsWith('/evacuation-items');
 
   const getUrlWithTeamId = (basePath: string) => {
     return teamId ? `${basePath}?teamId=${teamId}` : basePath;
@@ -44,9 +46,11 @@ export default function Header({
   };
 
   const defaultNavLinks = [
-    { href: getUrlWithTeamId('/foods/list'), label: '非常食リスト' },
-    { href: getUrlWithTeamId('/foods/add'), label: '非常食登録' },
-    { href: getUrlWithTeamId('/foods/archived'), label: '過去の非常食' },
+    { href: getUrlWithTeamId('/supplies/list'), label: '備蓄品リスト' },
+    { href: getUrlWithTeamId('/supplies/add'), label: '備蓄品登録' },
+    { href: getUrlWithTeamId('/supplies/archived'), label: '過去の備蓄品' },
+    { href: getUrlWithTeamId('/disaster-board'), label: '災害用伝言板' },
+    { href: getUrlWithTeamId('/evacuation-items'), label: '避難用持ち物' },
     { href: getUrlWithTeamId('/settings'), label: '設定' },
   ];
 
@@ -54,7 +58,7 @@ export default function Header({
   const title = customTitle || 'SonaBase';
 
   return (
-    <header className='bg-white shadow-sm border-b border-gray-300 py-4 z-50 sticky top-0 w-full relative'>
+    <header className='bg-white shadow-sm border-b border-gray-300 py-4 z-50 sticky top-0 w-full'>
       <div className='container mx-auto px-4 flex justify-between items-center'>
         <button
           className='text-xl font-bold cursor-pointer text-black hover:text-gray-700 transition-colors'

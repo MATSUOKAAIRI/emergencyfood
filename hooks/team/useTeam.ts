@@ -80,14 +80,14 @@ export const useTeam = (user: AppUser | null): UseTeamReturn => {
       });
 
       if (!response.ok) {
-        throw new Error(ERROR_MESSAGES.TEAM_FETCH_FAILED);
+        throw new Error(ERROR_MESSAGES.FAMILY_GROUP_FETCH_FAILED);
       }
 
       const teamData = await response.json();
       setTeam(teamData.team);
       setTeamMembers(teamData.members);
     } catch (e) {
-      setError(ERROR_MESSAGES.TEAM_FETCH_FAILED);
+      setError(ERROR_MESSAGES.FAMILY_GROUP_FETCH_FAILED);
     }
   };
 

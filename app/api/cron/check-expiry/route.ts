@@ -22,8 +22,8 @@ export async function POST(req: Request) {
     const thirtyDaysLater = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
     const thirtyDaysLaterIso = thirtyDaysLater.toISOString().split('T')[0];
 
-    const foodsRef = adminDb.collection('foods');
-    const q = foodsRef
+    const suppliesRef = adminDb.collection('supplies');
+    const q = suppliesRef
       .where('isArchived', '==', false)
       .where('expiryDate', '<=', thirtyDaysLaterIso)
       .orderBy('expiryDate');
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
 
     if (querySnapshot.empty) {
       return NextResponse.json(
-        { message: 'No expiring foods found.' },
+        { message: 'No expiring supplies found.' },
         { status: 200 }
       );
     }
@@ -40,9 +40,9 @@ export async function POST(req: Request) {
     const notifications: {
       [uid: string]: {
         lineUserId: string;
-        foods: {
-          foodId: string;
-          foodName: string;
+        supplies: {
+          supplyId: string;
+          supplyName: string;
           expiryDate: string;
           remainingDays: number;
           teamId: string;
@@ -52,13 +52,13 @@ export async function POST(req: Request) {
     } = {};
 
     for (const doc of querySnapshot.docs) {
-      const food = doc.data();
-      const foodId = doc.id;
-      const foodExpiryDate = new Date(food.expiryDate);
-      const remainingTime = foodExpiryDate.getTime() - now.getTime();
+      const supply = doc.data();
+      const supplyId = doc.id;
+      const supplyExpiryDate = new Date(supply.expiryDate);
+      const remainingTime = supplyExpiryDate.getTime() - now.getTime();
       const remainingDays = Math.ceil(remainingTime / (1000 * 60 * 60 * 24));
 
-      const lastNotifiedAt = food.lastNotifiedAt;
+      const lastNotifiedAt = supply.lastNotifiedAt;
       const shouldNotifyToday = remainingDays <= 14;
       const notifiedRecently =
         lastNotifiedAt &&
@@ -69,48 +69,48 @@ export async function POST(req: Request) {
         continue;
       }
 
-      const userRecord = await adminAuth.getUser(food.uid);
+      const userRecord = await adminAuth.getUser(supply.uid);
       const lineUserId = userRecord.customClaims?.lineUserId as
         | string
         | undefined;
 
       if (lineUserId) {
-        if (!notifications[food.uid]) {
-          notifications[food.uid] = {
+        if (!notifications[supply.uid]) {
+          notifications[supply.uid] = {
             lineUserId: lineUserId,
-            foods: [],
+            supplies: [],
           };
         }
-        notifications[food.uid].foods.push({
-          foodId: foodId,
-          foodName: food.name,
-          expiryDate: food.expiryDate,
+        notifications[supply.uid].supplies.push({
+          supplyId: supplyId,
+          supplyName: supply.name,
+          expiryDate: supply.expiryDate,
           remainingDays: remainingDays,
-          teamId: food.teamId,
-          lastNotifiedAt: food.lastNotifiedAt,
+          teamId: supply.teamId,
+          lastNotifiedAt: supply.lastNotifiedAt,
         });
       }
     }
 
-    const foodsToUpdateNotifiedAt: {
-      foodId: string;
+    const suppliesToUpdateNotifiedAt: {
+      supplyId: string;
       lastNotifiedAt: FieldValue;
     }[] = [];
 
     for (const uid in notifications) {
       const notificationData = notifications[uid];
       const lineUserId = notificationData.lineUserId;
-      const userFoods = notificationData.foods;
+      const userSupplys = notificationData.supplies;
 
-      if (lineUserId && userFoods.length > 0) {
-        let messageText = `【SonaBase通知】賞味期限が近い非常食があります！\n\n`;
-        userFoods.forEach(f => {
+      if (lineUserId && userSupplys.length > 0) {
+        let messageText = `【SonaBase通知】賞味期限が近い備蓄品があります！\n\n`;
+        userSupplys.forEach(f => {
           const urgency =
             f.remainingDays <= 3 ? '' : f.remainingDays <= 7 ? '' : '';
-          messageText += `${urgency} ${f.foodName}: ${f.expiryDate} (残り ${f.remainingDays} 日)\n`;
+          messageText += `${urgency} ${f.supplyName}: ${f.expiryDate} (残り ${f.remainingDays} 日)\n`;
 
-          foodsToUpdateNotifiedAt.push({
-            foodId: f.foodId,
+          suppliesToUpdateNotifiedAt.push({
+            supplyId: f.supplyId,
             lastNotifiedAt: FieldValue.serverTimestamp(),
           });
         });
@@ -149,11 +149,13 @@ export async function POST(req: Request) {
       }
     }
 
-    if (foodsToUpdateNotifiedAt.length > 0) {
+    if (suppliesToUpdateNotifiedAt.length > 0) {
       const batch = adminDb.batch();
-      foodsToUpdateNotifiedAt.forEach(update => {
-        const foodDocRef = adminDb.collection('foods').doc(update.foodId);
-        batch.update(foodDocRef, { lastNotifiedAt: update.lastNotifiedAt });
+      suppliesToUpdateNotifiedAt.forEach(update => {
+        const supplyDocRef = adminDb
+          .collection('supplies')
+          .doc(update.supplyId);
+        batch.update(supplyDocRef, { lastNotifiedAt: update.lastNotifiedAt });
       });
       await batch.commit();
     }

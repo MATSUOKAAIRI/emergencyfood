@@ -10,31 +10,31 @@ export default function TeamSelectPage() {
     <div className='min-h-screen flex items-center justify-center p-4 sm:p-6'>
       <div className='max-w-lg w-full text-center'>
         <h1 className='text-2xl sm:text-4xl font-bold text-gray-900 mb-8 sm:mb-12'>
-          {UI_CONSTANTS.TEAM_SELECTION_TITLE}
+          {UI_CONSTANTS.FAMILY_GROUP_SELECTION_TITLE}
         </h1>
 
         <div className='space-y-6 sm:space-y-10 mb-8 sm:mb-12'>
           <div>
             <p className='text-gray-600 mb-3 sm:mb-4 text-base sm:text-lg'>
-              既存のチームに参加する
+              既存の家族グループに参加する
             </p>
             <Link
               className='inline-block w-full max-w-xs bg-gray-800 text-white font-semibold py-3 sm:py-4 px-6 rounded-md hover:bg-gray-700 transition-colors text-sm sm:text-base'
               href='/teams/join'
             >
-              チームに参加
+              家族グループに参加
             </Link>
           </div>
 
           <div>
             <p className='text-black mb-3 sm:mb-4 text-base sm:text-lg'>
-              新しいチームを作成する
+              新しい家族グループを作る
             </p>
             <Link
               className='inline-block w-full max-w-xs bg-black text-white font-semibold py-3 sm:py-4 px-6 rounded-md hover:bg-gray-800 transition-colors text-sm sm:text-base'
               href='/teams/create'
             >
-              チームを作成
+              家族グループを作る
             </Link>
           </div>
         </div>

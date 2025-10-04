@@ -1,5 +1,69 @@
 import { DATE_FORMATS, EXPIRY_WARNING_DAYS } from './constants';
 
+interface BagInfo {
+  bagName: string;
+  storageLocation: string;
+  notes: string;
+}
+
+export const getBagInfoFromStorage = (
+  teamId: string,
+  evacuationLevel: 'primary' | 'secondary'
+): BagInfo | null => {
+  if (typeof window === 'undefined') return null;
+
+  const storageKey = `bagInfo_${teamId}_${evacuationLevel}`;
+  const storedBagInfo = localStorage.getItem(storageKey);
+
+  if (storedBagInfo) {
+    try {
+      return JSON.parse(storedBagInfo);
+    } catch {
+      return null;
+    }
+  }
+
+  return null;
+};
+
+export const getAllBagNames = (
+  teamId: string
+): { value: string; label: string }[] => {
+  if (typeof window === 'undefined') return [];
+
+  const bagOptions: { value: string; label: string }[] = [];
+
+  const primaryBag = getBagInfoFromStorage(teamId, 'primary');
+  if (primaryBag?.bagName) {
+    bagOptions.push({
+      value: primaryBag.bagName,
+      label: `${primaryBag.bagName} (一次避難用)`,
+    });
+  }
+
+  const secondaryBag = getBagInfoFromStorage(teamId, 'secondary');
+  if (secondaryBag?.bagName) {
+    bagOptions.push({
+      value: secondaryBag.bagName,
+      label: `${secondaryBag.bagName} (二次避難用)`,
+    });
+  }
+
+  if (bagOptions.length === 0) {
+    bagOptions.push({
+      value: 'その他',
+      label: 'その他の袋・容器',
+    });
+  } else {
+    bagOptions.push({
+      value: 'その他',
+      label: 'その他の袋・容器',
+    });
+  }
+
+  return bagOptions;
+};
+
 export const formatDate = (dateString: string): string => {
   const date = new Date(dateString);
   return date.toLocaleDateString(DATE_FORMATS.DISPLAY);
@@ -56,21 +120,21 @@ export const capitalizeFirst = (str: string): string => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
-export const sortFoodsByExpiry = <T extends { expiryDate: string }>(
-  foods: T[]
+export const sortSupplysByExpiry = <T extends { expiryDate: string }>(
+  supplies: T[]
 ): T[] => {
-  return [...foods].sort((a, b) => {
+  return [...supplies].sort((a, b) => {
     const dateA = new Date(a.expiryDate);
     const dateB = new Date(b.expiryDate);
     return dateA.getTime() - dateB.getTime();
   });
 };
 
-export const filterFoodsByCategory = <T extends { category: string }>(
-  foods: T[],
+export const filterSupplysByCategory = <T extends { category: string }>(
+  supplies: T[],
   category: string
 ): T[] => {
-  return foods.filter(food => food.category === category);
+  return supplies.filter(supply => supply.category === category);
 };
 
 export const getFirebaseErrorMessage = (error: any): string => {
