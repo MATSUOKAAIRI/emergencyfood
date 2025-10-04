@@ -3,7 +3,6 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import DisasterBoardClient from './DisasterBoardClient';
 
-// Server Component: Metadata generation
 export const metadata: Metadata = {
   title: '災害用伝言板 - SonaBase',
   description:
@@ -11,7 +10,6 @@ export const metadata: Metadata = {
   keywords: ['災害', '避難場所', '安否確認', '防災', '伝言板', '家族'],
 };
 
-// Server Component: Layout and static content
 export default function DisasterBoardPage() {
   return (
     <div className='container mx-auto py-8 min-h-screen'>

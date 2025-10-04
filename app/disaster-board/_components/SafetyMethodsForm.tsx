@@ -42,7 +42,6 @@ export function SafetyMethodsForm({
 
   const handleRemoveMethod = (id: string) => {
     const updatedMethods = methods.filter(method => method.id !== id);
-    // 優先度を再調整
     const reorderedMethods = updatedMethods.map((method, index) => ({
       ...method,
       priority: index + 1,
@@ -63,13 +62,11 @@ export function SafetyMethodsForm({
     const targetIndex =
       direction === 'up' ? currentIndex - 1 : currentIndex + 1;
 
-    // スワップ
     [newMethods[currentIndex], newMethods[targetIndex]] = [
       newMethods[targetIndex],
       newMethods[currentIndex],
     ];
 
-    // 優先度を更新
     const reorderedMethods = newMethods.map((method, index) => ({
       ...method,
       priority: index + 1,
@@ -90,12 +87,11 @@ export function SafetyMethodsForm({
           onClick={() => setIsAdding(true)}
           disabled={isAdding}
         >
-          + 追加
+          追加
         </Button>
       </div>
 
       <div className='space-y-3'>
-        {/* 既存の安否確認手段リスト */}
         {sortedMethods.map((method, index) => (
           <div
             key={method.id}
@@ -156,16 +152,12 @@ export function SafetyMethodsForm({
         {methods.length === 0 && !isAdding && (
           <div className='text-center py-8 text-gray-500'>
             <p>安否確認手段が登録されていません</p>
-            <p className='text-sm'>「+ 追加」ボタンから登録してください</p>
+            <p className='text-sm'>「追加」から登録してください</p>
           </div>
         )}
 
-        {/* 新規追加フォーム */}
         {isAdding && (
-          <div className='border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-50'>
-            <h3 className='font-medium text-gray-900 mb-4'>
-              新しい安否確認手段を追加
-            </h3>
+          <div className='border-2 border-solid border-gray-300 rounded-lg p-4 bg-gray-50'>
             <div className='space-y-4'>
               <Input
                 label='確認方法'
@@ -225,8 +217,8 @@ export function SafetyMethodsForm({
         )}
 
         {methods.length > 0 && (
-          <div className='mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg'>
-            <p className='text-sm text-blue-700'>
+          <div className='mt-4 p-3 bg-gray-50 border border-gray-200 rounded-lg'>
+            <p className='text-sm text-gray-700'>
               <strong>ヒント:</strong>{' '}
               優先度の高い順に並んでいます。↑↓ボタンで順番を変更できます。
             </p>

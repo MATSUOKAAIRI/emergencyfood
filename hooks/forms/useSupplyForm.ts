@@ -1,7 +1,6 @@
+import { useAuth } from '@/hooks/auth/useAuth';
 import type { FormMode, SupplyFormData } from '@/types/forms';
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '@/utils/constants';
-import { auth, db } from '@/utils/firebase';
-import { doc, updateDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -47,6 +46,7 @@ export function useSupplyForm({
   initialData,
 }: UseSupplyFormProps): UseSupplyFormReturn {
   const router = useRouter();
+  const { user } = useAuth();
   const [formData, setFormData] = useState<SupplyFormData>(initialFormState);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -126,7 +126,6 @@ export function useSupplyForm({
 
       if (mode === 'add') {
         // Get user token for API authentication
-        const user = auth.currentUser;
         if (!user) {
           setErrorMessage(ERROR_MESSAGES.UNAUTHORIZED);
           return;
@@ -185,8 +184,35 @@ export function useSupplyForm({
           storageLocation: storageLocation || '未設定',
         };
 
-        const supplyRef = doc(db, 'supplies', supplyId);
-        await updateDoc(supplyRef, updates);
+        // APIを使用して更新
+        if (!user) {
+          setErrorMessage(ERROR_MESSAGES.UNAUTHORIZED);
+          return;
+        }
+
+        const token = await user.getIdToken();
+        console.log('Update request:', { supplyId, updates });
+
+        const response = await fetch('/api/actions/update-supply', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            supplyId,
+            updates,
+          }),
+        });
+
+        console.log('Response status:', response.status);
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('API Error:', errorData);
+          throw new Error(errorData.error || '更新に失敗しました');
+        }
+
         setSuccessMessage('備蓄品情報が正常に更新されました！');
 
         setTimeout(() => {

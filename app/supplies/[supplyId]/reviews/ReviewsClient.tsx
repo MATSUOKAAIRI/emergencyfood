@@ -1,47 +1,51 @@
 'use client';
-import {
-  addDoc,
-  collection,
-  onSnapshot,
-  orderBy,
-  query,
-  serverTimestamp,
-  where,
-} from 'firebase/firestore';
 import { useParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
+import Modal from '@/components/ui/Modal';
 import { useAuth } from '@/hooks';
+import { useTeam } from '@/hooks/team/useTeam';
 import type { Review } from '@/types';
 import { ERROR_MESSAGES, UI_CONSTANTS } from '@/utils/constants';
-import { db } from '@/utils/firebase';
 
 export default function ReviewsClient() {
   const { supplyId } = useParams();
   const { user, loading } = useAuth(true);
+  const { currentTeamId } = useTeam(user);
   const [reviewText, setReviewText] = useState('');
   const [reviews, setReviews] = useState<Review[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [deletingReviewId, setDeletingReviewId] = useState<string | null>(null);
+  const [reviewToDelete, setReviewToDelete] = useState<string | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const fetchReviews = async () => {
+    if (!supplyId || !currentTeamId || !user) return;
+
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch(
+        `/api/event/supplies/${supplyId}/reviews?teamId=${currentTeamId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setReviews(data.reviews || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch reviews:', error);
+    }
+  };
 
   useEffect(() => {
-    if (supplyId) {
-      const reviewsRef = collection(db, 'supplyReviews');
-      const q = query(
-        reviewsRef,
-        where('supplyId', '==', supplyId),
-        orderBy('createdAt', 'desc')
-      );
-      const unsubscribeReviews = onSnapshot(q, snapshot => {
-        const fetchedReviews: Review[] = [];
-        snapshot.forEach(doc => {
-          fetchedReviews.push({ id: doc.id, ...doc.data() } as Review);
-        });
-        setReviews(fetchedReviews);
-      });
-      return () => unsubscribeReviews();
-    }
-  }, [supplyId]);
+    fetchReviews();
+  }, [supplyId, currentTeamId, user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,20 +56,82 @@ export default function ReviewsClient() {
     setError(null);
     setSubmitting(true);
     try {
-      await addDoc(collection(db, 'supplyReviews'), {
-        supplyId: supplyId,
-        userId: user.uid,
-        userName: user.email,
-        text: reviewText,
-        createdAt: serverTimestamp(),
-      });
+      const token = await user.getIdToken();
+      const response = await fetch(
+        `/api/event/supplies/${supplyId}/reviews?teamId=${currentTeamId}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            content: reviewText,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || '感想の投稿に失敗しました');
+      }
+
       setReviewText('');
-    } catch (_error: unknown) {
-      // console.error removed
-      setError('感想の投稿に失敗しました。');
+      // レビュー一覧を再取得
+      fetchReviews();
+    } catch (error: unknown) {
+      console.error('Review submission error:', error);
+      setError(
+        error instanceof Error ? error.message : '感想の投稿に失敗しました。'
+      );
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleDeleteClick = (reviewId: string) => {
+    setReviewToDelete(reviewId);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!user || !currentTeamId || !reviewToDelete) return;
+
+    setDeletingReviewId(reviewToDelete);
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch(
+        `/api/event/supplies/${supplyId}/reviews?reviewId=${reviewToDelete}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || '削除に失敗しました');
+      }
+
+      // レビュー一覧を再取得
+      fetchReviews();
+    } catch (error: unknown) {
+      console.error('Review deletion error:', error);
+      setError(
+        error instanceof Error ? error.message : '感想の削除に失敗しました。'
+      );
+    } finally {
+      setDeletingReviewId(null);
+      setReviewToDelete(null);
+      setShowDeleteModal(false);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setReviewToDelete(null);
+    setShowDeleteModal(false);
   };
 
   if (loading) {
@@ -77,15 +143,38 @@ export default function ReviewsClient() {
   }
 
   const formatDate = (timestamp: unknown) => {
-    if (
-      !timestamp ||
-      typeof timestamp !== 'object' ||
-      !('seconds' in timestamp) ||
-      typeof (timestamp as { seconds: unknown }).seconds !== 'number'
-    ) {
+    if (!timestamp) {
       return '日時情報がありません';
     }
-    const date = new Date((timestamp as { seconds: number }).seconds * 1000);
+
+    let date: Date;
+
+    // Firestore Timestamp形式の場合
+    if (
+      typeof timestamp === 'object' &&
+      timestamp !== null &&
+      (('seconds' in timestamp && typeof timestamp.seconds === 'number') ||
+        ('_seconds' in timestamp && typeof timestamp._seconds === 'number'))
+    ) {
+      const seconds = (timestamp as any).seconds || (timestamp as any)._seconds;
+      date = new Date(seconds * 1000);
+    }
+    // ISO文字列またはDate文字列の場合
+    else if (typeof timestamp === 'string') {
+      date = new Date(timestamp);
+    }
+    // Dateオブジェクトの場合
+    else if (timestamp instanceof Date) {
+      date = timestamp;
+    } else {
+      return '日時情報がありません';
+    }
+
+    // 有効な日付かチェック
+    if (isNaN(date.getTime())) {
+      return '日時情報がありません';
+    }
+
     return date.toLocaleString('ja-JP', {
       year: 'numeric',
       month: 'long',
@@ -173,10 +262,19 @@ export default function ReviewsClient() {
                       {formatDate(review.createdAt)}
                     </p>
                   </div>
+                  {user && review.userId === user.uid && (
+                    <button
+                      onClick={() => handleDeleteClick(review.id)}
+                      disabled={deletingReviewId === review.id}
+                      className='text-red-500 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium'
+                    >
+                      {deletingReviewId === review.id ? '削除中...' : '削除'}
+                    </button>
+                  )}
                 </div>
                 <div className='bg-gray-50 rounded-lg p-4'>
                   <p className='text-gray-700 leading-relaxed whitespace-pre-wrap'>
-                    {review.text}
+                    {review.content || review.text}
                   </p>
                 </div>
               </div>
@@ -190,6 +288,34 @@ export default function ReviewsClient() {
           </div>
         )}
       </div>
+
+      {/* 削除確認モーダル */}
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={handleDeleteCancel}
+        title='感想を削除しますか？'
+        size='sm'
+      >
+        <div className='space-y-4'>
+          <p className='text-gray-600'>この操作は取り消すことができません。</p>
+          <div className='flex justify-end space-x-3'>
+            <button
+              onClick={handleDeleteCancel}
+              disabled={deletingReviewId === reviewToDelete}
+              className='px-4 py-2 text-gray-600 hover:text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+            >
+              キャンセル
+            </button>
+            <button
+              onClick={handleDeleteConfirm}
+              disabled={deletingReviewId === reviewToDelete}
+              className='px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+            >
+              {deletingReviewId === reviewToDelete ? '削除中...' : '削除する'}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

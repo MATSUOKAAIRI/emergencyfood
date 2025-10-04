@@ -29,13 +29,10 @@ export function EvacuationTab({
 }: EvacuationTabProps) {
   return (
     <div className='space-y-8'>
-      {/* 避難場所 */}
       <EvacuationSitesForm sites={sites} onUpdate={onSitesUpdate} />
 
-      {/* 避難経路 */}
       <EvacuationRoutesForm routes={routes} onUpdate={onRoutesUpdate} />
 
-      {/* 避難時の持参物 */}
       <EmergencyItemsForm items={items} onUpdate={onItemsUpdate} />
     </div>
   );

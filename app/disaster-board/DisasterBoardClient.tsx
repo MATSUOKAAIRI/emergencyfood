@@ -34,7 +34,6 @@ export default function DisasterBoardClient() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // データの読み込み
   useEffect(() => {
     if (!user || !currentTeamId) return;
 
@@ -67,7 +66,6 @@ export default function DisasterBoardClient() {
     loadData();
   }, [user, currentTeamId]);
 
-  // データの保存
   const handleSave = async () => {
     if (!user || !currentTeamId) return;
 
@@ -95,7 +93,6 @@ export default function DisasterBoardClient() {
 
       setSuccess('災害用伝言板の情報を保存しました');
 
-      // 成功メッセージを3秒後に消す
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
       setError(err instanceof Error ? err.message : '保存に失敗しました');
@@ -133,7 +130,6 @@ export default function DisasterBoardClient() {
     );
   }
 
-  // タブの登録件数を計算
   const evacuationCount =
     data.evacuationSites.length +
     data.evacuationRoutes.length +
@@ -142,12 +138,10 @@ export default function DisasterBoardClient() {
     data.safetyMethods.length + data.familyAgreements.length;
   const basicInfoCount = data.useDisasterDial ? 1 : 0;
 
-  // タブアイテムの定義
   const tabItems: TabItem[] = [
     {
       id: 'evacuation',
       label: '避難関連',
-      badge: evacuationCount > 0 ? evacuationCount : undefined,
       content: (
         <EvacuationTab
           sites={data.evacuationSites}
@@ -168,7 +162,6 @@ export default function DisasterBoardClient() {
     {
       id: 'communication',
       label: '連絡・約束',
-      badge: communicationCount > 0 ? communicationCount : undefined,
       content: (
         <CommunicationTab
           methods={data.safetyMethods}
@@ -185,7 +178,6 @@ export default function DisasterBoardClient() {
     {
       id: 'basic-info',
       label: '基本情報',
-      badge: basicInfoCount > 0 ? '設定済み' : '未設定',
       content: (
         <BasicInfoTab
           useDisasterDial={data.useDisasterDial}
@@ -199,21 +191,17 @@ export default function DisasterBoardClient() {
 
   return (
     <div className='max-w-4xl mx-auto space-y-6'>
-      {/* エラー・成功メッセージ */}
       {error && <ErrorMessage message={error} />}
       {success && <SuccessMessage message={success} />}
 
-      {/* 保存ボタン */}
       <div className='flex justify-end'>
         <Button onClick={handleSave} loading={saving} disabled={saving}>
           {saving ? '保存中...' : '変更を保存'}
         </Button>
       </div>
 
-      {/* タブコンテンツ */}
       <Tabs items={tabItems} defaultTab='evacuation' />
 
-      {/* 最終更新日時 */}
       {data.lastUpdated && (
         <Card>
           <div className='text-center text-sm text-gray-500'>
@@ -238,7 +226,6 @@ export default function DisasterBoardClient() {
         </Card>
       )}
 
-      {/* 下部の保存ボタン */}
       <div className='flex justify-center pb-8'>
         <Button
           onClick={handleSave}

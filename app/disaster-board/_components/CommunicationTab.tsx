@@ -20,10 +20,8 @@ export function CommunicationTab({
 }: CommunicationTabProps) {
   return (
     <div className='space-y-8'>
-      {/* 安否確認手段 */}
       <SafetyMethodsForm methods={methods} onUpdate={onMethodsUpdate} />
 
-      {/* 家族の約束事 */}
       <FamilyAgreementsForm
         agreements={agreements}
         onUpdate={onAgreementsUpdate}

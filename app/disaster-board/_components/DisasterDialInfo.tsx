@@ -14,28 +14,24 @@ export function DisasterDialInfo({
       <h2 className='text-xl font-semibold text-gray-900 mb-6'>
         災害用伝言ダイヤル（171）
       </h2>
-      {/* 利用設定 */}
-      <div className='bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6'>
-        <h3 className='font-semibold text-gray-900 mb-3'>災害時の利用設定</h3>
+      <div className='bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6'>
         <div className='flex items-center justify-between'>
           <div>
             <p className='text-sm text-gray-700 mb-1'>
-              災害発生時に災害用伝言ダイヤル（171）を利用しますか？
+              災害発生時に災害用伝言ダイヤル（171）を利用する
             </p>
-            <p className='text-xs text-gray-600'>
-              チーム全体での方針を設定してください
-            </p>
+            <p className='text-xs text-gray-600'>家族での方針を決める</p>
           </div>
           <div className='flex items-center gap-3'>
             <span className='text-sm text-gray-700 font-medium'>
-              {useDisasterDial ? '利用する' : '利用しない'}
+              {useDisasterDial ? '利用' : '不利用'}
             </span>
             <Button
               variant={useDisasterDial ? 'primary' : 'secondary'}
               size='sm'
               onClick={() => onToggleUse(!useDisasterDial)}
             >
-              {useDisasterDial ? '✓ 利用する' : '利用する'}
+              {useDisasterDial ? '利用しない' : '利用する'}
             </Button>
           </div>
         </div>
@@ -50,7 +46,6 @@ export function DisasterDialInfo({
         </div>
 
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-          {/* 録音方法 */}
           <div className='bg-gray-50 border border-gray-200 rounded-lg p-4'>
             <h3 className='font-semibold text-gray-900 mb-3'>伝言を録音する</h3>
             <ol className='text-sm text-gray-700 space-y-2'>
@@ -68,7 +63,6 @@ export function DisasterDialInfo({
             </ol>
           </div>
 
-          {/* 再生方法 */}
           <div className='bg-gray-50 border border-gray-200 rounded-lg p-4'>
             <h3 className='font-semibold text-gray-900 mb-3'>伝言を再生する</h3>
             <ol className='text-sm text-gray-700 space-y-2'>
@@ -87,7 +81,6 @@ export function DisasterDialInfo({
           </div>
         </div>
 
-        {/* Web版 */}
         <div className='bg-gray-50 border border-gray-200 rounded-lg p-4'>
           <h3 className='font-semibold text-gray-900 mb-3'>
             災害用伝言板（web171）
@@ -105,7 +98,6 @@ export function DisasterDialInfo({
           </div>
         </div>
 
-        {/* 利用可能期間 */}
         <div className='bg-gray-50 border border-gray-200 rounded-lg p-4'>
           <h3 className='font-semibold text-gray-900 mb-3'>利用可能期間</h3>
 
@@ -136,7 +128,6 @@ export function DisasterDialInfo({
           </div>
         </div>
 
-        {/* 注意事項 */}
         <div className='bg-gray-50 border border-gray-200 rounded-lg p-4'>
           <h3 className='font-semibold text-gray-900 mb-3'>注意事項</h3>
           <ul className='text-sm text-gray-700 space-y-1'>

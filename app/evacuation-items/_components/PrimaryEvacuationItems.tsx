@@ -173,41 +173,28 @@ export default function PrimaryEvacuationItems() {
         </p>
       </div>
 
-      <div className='space-y-6'>
+      <div className='space-y-4'>
         {primaryEvacuationData.map((category, index) => (
-          <div key={index} className='border border-gray-200 rounded-lg p-4'>
-            <h3 className='text-xl font-semibold text-gray-800 mb-4 flex items-center'>
+          <div key={index} className='border border-gray-200 rounded-lg p-3'>
+            <h3 className='text-lg font-semibold text-gray-800 mb-3'>
               {category.title}
             </h3>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-2'>
               {category.items.map((item, itemIndex) => (
                 <div
                   key={itemIndex}
-                  className={`p-3 rounded-md border-l-4 ${
-                    item.priority === 'essential'
-                      ? 'bg-gray-50 border-gray-400'
-                      : 'bg-gray-100 border-gray-400'
-                  }`}
+                  className='flex items-center justify-between p-2 bg-gray-50 rounded text-sm'
                 >
-                  <div className='flex items-start justify-between'>
-                    <div className='flex-1'>
-                      <h4 className='font-medium text-gray-900 mb-1'>
-                        {item.name}
-                      </h4>
-                      <p className='text-sm text-gray-600'>
-                        {item.description}
-                      </p>
-                    </div>
-                    <span
-                      className={`ml-2 px-2 py-1 text-xs font-medium rounded-full ${
-                        item.priority === 'essential'
-                          ? 'bg-gray-200 text-gray-800'
-                          : 'bg-gray-200 text-gray-800'
-                      }`}
-                    >
-                      {item.priority === 'essential' ? '必須' : '推奨'}
-                    </span>
-                  </div>
+                  <span className='font-medium text-gray-900'>{item.name}</span>
+                  <span
+                    className={`px-1.5 py-0.5 text-xs font-medium rounded ${
+                      item.priority === 'essential'
+                        ? 'bg-red-100 text-red-700'
+                        : 'bg-blue-100 text-blue-700'
+                    }`}
+                  >
+                    {item.priority === 'essential' ? '必須' : '推奨'}
+                  </span>
                 </div>
               ))}
             </div>

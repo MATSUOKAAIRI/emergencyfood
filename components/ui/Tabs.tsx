@@ -33,7 +33,7 @@ export function Tabs({ items, defaultTab, className = '' }: TabsProps) {
                 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-colors
                 ${
                   activeTab === item.id
-                    ? 'border-blue-500 text-blue-600'
+                    ? 'border-gray-500 text-gray-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }
               `}
@@ -46,7 +46,7 @@ export function Tabs({ items, defaultTab, className = '' }: TabsProps) {
                     ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
                     ${
                       activeTab === item.id
-                        ? 'bg-blue-100 text-blue-800'
+                        ? 'bg-gray-100 text-gray-800'
                         : 'bg-gray-100 text-gray-800'
                     }
                   `}

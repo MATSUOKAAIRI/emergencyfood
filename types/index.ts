@@ -63,9 +63,11 @@ export interface Supply {
 export interface Review {
   id: string;
   supplyId: string;
-  userId: string;
+  userId?: string;
   userName: string;
-  text: string;
+  text?: string;
+  content?: string;
+  teamId?: string;
   createdAt: { seconds: number; nanoseconds: number };
 }
 

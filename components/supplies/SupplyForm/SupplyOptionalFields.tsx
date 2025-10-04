@@ -98,7 +98,7 @@ export function SupplyOptionalFields({
         ['一次避難', '二次避難'].includes(formData.evacuationLevel) && (
           <div className='bg-gray-50 border border-gray-200 rounded-lg p-4'>
             <h4 className='text-md font-medium text-gray-900 mb-3'>
-              🎒 袋への割り当て
+              袋への割り当て
             </h4>
             <Select
               id='containerType'
@@ -111,14 +111,14 @@ export function SupplyOptionalFields({
             />
             {formData.containerType === 'not_assigned' && (
               <p className='text-sm text-gray-600 mt-2'>
-                💡 後から避難用持ち物ページで袋を決めることができます
+                ※ 後から避難用持ち物ページで袋を決めることができます
               </p>
             )}
             {!availableBags.some(
               bag => bag.value && bag.value !== 'not_assigned'
             ) && (
               <p className='text-sm text-gray-600 mt-2'>
-                💡
+                ※
                 避難用持ち物ページで袋を登録すると、ここで選択できるようになります
               </p>
             )}

@@ -97,8 +97,8 @@ export default function RegisteredItems({
 
   if (!user || !currentTeamId) {
     return (
-      <div className='bg-yellow-50 border border-yellow-200 rounded-lg p-4'>
-        <p className='text-yellow-800'>
+      <div className='bg-gray-50 border border-gray-200 rounded-lg p-4'>
+        <p className='text-gray-800'>
           登録済みアイテムを表示するには、ログインしてチームを選択してください。
         </p>
       </div>
@@ -168,25 +168,41 @@ export default function RegisteredItems({
 
       {/* 入っていないアイテム */}
       {unassignedItems && unassignedItems.supplies.length > 0 && (
-        <div className='bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6'>
-          <h4 className='text-lg font-semibold text-yellow-900 mb-3 flex items-center'>
-            <span className='mr-2'>📦</span>
+        <div className='bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6'>
+          <h4 className='text-lg font-semibold text-gray-900 mb-3 flex items-center'>
             袋に入っていないアイテム
           </h4>
-          <p className='text-sm text-yellow-800 mb-4'>
+          <p className='text-sm text-gray-800 mb-4'>
             これらのアイテムはまだ袋に割り当てられていません。備品編集から袋を指定できます。
           </p>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
             {unassignedItems.supplies.map(supply => (
               <div
                 key={supply.id}
-                className='bg-white border border-yellow-300 rounded-md p-3'
+                className='bg-white border border-gray-300 rounded-md p-3'
               >
                 <div className='flex items-start justify-between mb-2'>
                   <h5 className='font-medium text-gray-900'>{supply.name}</h5>
-                  <span className='text-sm text-gray-600 font-medium'>
-                    {supply.quantity} {supply.unit}
-                  </span>
+                  <div className='flex items-center gap-2'>
+                    <span className='text-sm text-gray-600 font-medium'>
+                      {supply.quantity} {supply.unit}
+                    </span>
+                    <a
+                      href={`/supplies/edit/${supply.id}`}
+                      className='text-gray-400 hover:text-gray-600 transition-colors'
+                      title='編集'
+                    >
+                      <svg
+                        className='w-4 h-4'
+                        fill='currentColor'
+                        viewBox='0 0 20 20'
+                      >
+                        <circle cx='10' cy='4' r='2' />
+                        <circle cx='10' cy='10' r='2' />
+                        <circle cx='10' cy='16' r='2' />
+                      </svg>
+                    </a>
+                  </div>
                 </div>
                 <div className='space-y-1 text-sm text-gray-600'>
                   <p>カテゴリ: {supply.category}</p>
@@ -297,13 +313,30 @@ export default function RegisteredItems({
                     key={supply.id}
                     className='bg-white border border-gray-300 rounded-md p-3'
                   >
-                    <div className=' justify-between mb-2'>
+                    <div className='flex items-start justify-between mb-2'>
                       <h5 className='font-medium text-gray-900'>
                         {supply.name}
                       </h5>
-                      <span className='text-sm text-gray-600 font-medium'>
-                        {supply.quantity} {supply.unit}
-                      </span>
+                      <div className='flex items-center gap-2'>
+                        <span className='text-sm text-gray-600 font-medium'>
+                          {supply.quantity} {supply.unit}
+                        </span>
+                        <a
+                          href={`/supplies/edit/${supply.id}`}
+                          className='text-gray-400 hover:text-gray-600 transition-colors'
+                          title='編集'
+                        >
+                          <svg
+                            className='w-4 h-4'
+                            fill='currentColor'
+                            viewBox='0 0 20 20'
+                          >
+                            <circle cx='10' cy='4' r='2' />
+                            <circle cx='10' cy='10' r='2' />
+                            <circle cx='10' cy='16' r='2' />
+                          </svg>
+                        </a>
+                      </div>
                     </div>
 
                     <div className='space-y-1 text-sm text-gray-600'>

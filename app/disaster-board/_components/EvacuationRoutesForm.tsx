@@ -8,16 +8,19 @@ interface EvacuationRoutesFormProps {
   onUpdate: (routes: EvacuationRoute[]) => void;
 }
 
+const INITIAL_ROUTE: Omit<EvacuationRoute, 'id'> = {
+  name: '',
+  description: '',
+  landmarks: '',
+  notes: '',
+};
+
 export function EvacuationRoutesForm({
   routes,
   onUpdate,
 }: EvacuationRoutesFormProps) {
-  const [newRoute, setNewRoute] = useState<Omit<EvacuationRoute, 'id'>>({
-    name: '',
-    description: '',
-    landmarks: '',
-    notes: '',
-  });
+  const [newRoute, setNewRoute] =
+    useState<Omit<EvacuationRoute, 'id'>>(INITIAL_ROUTE);
   const [isAdding, setIsAdding] = useState(false);
 
   const handleAddRoute = () => {
@@ -29,12 +32,7 @@ export function EvacuationRoutesForm({
     };
 
     onUpdate([...routes, route]);
-    setNewRoute({
-      name: '',
-      description: '',
-      landmarks: '',
-      notes: '',
-    });
+    setNewRoute(INITIAL_ROUTE);
     setIsAdding(false);
   };
 
@@ -52,12 +50,11 @@ export function EvacuationRoutesForm({
           onClick={() => setIsAdding(true)}
           disabled={isAdding}
         >
-          + 追加
+          追加
         </Button>
       </div>
 
       <div className='space-y-4'>
-        {/* 既存の避難経路リスト */}
         {routes.map(route => (
           <div key={route.id} className='border border-gray-200 rounded-lg p-4'>
             <div className='flex justify-between items-start mb-2'>
@@ -89,19 +86,16 @@ export function EvacuationRoutesForm({
         {routes.length === 0 && !isAdding && (
           <div className='text-center py-8 text-gray-500'>
             <p>避難経路が登録されていません</p>
-            <p className='text-sm'>「+ 追加」ボタンから登録してください</p>
+            <p className='text-sm'>「追加」から登録してください</p>
           </div>
         )}
 
-        {/* 新規追加フォーム */}
         {isAdding && (
-          <div className='border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-50'>
-            <h3 className='font-medium text-gray-900 mb-4'>
-              新しい避難経路を追加
-            </h3>
+          <div className='border-2 border-solid border-gray-300 rounded-lg p-4 bg-gray-50'>
+            <h3 className='font-bold text-gray-900 mb-4'>避難経路を追加</h3>
             <div className='space-y-4'>
               <Input
-                label='経路名'
+                label='経路の名前'
                 required
                 value={newRoute.name}
                 onChange={e =>
@@ -154,12 +148,7 @@ export function EvacuationRoutesForm({
                   variant='secondary'
                   onClick={() => {
                     setIsAdding(false);
-                    setNewRoute({
-                      name: '',
-                      description: '',
-                      landmarks: '',
-                      notes: '',
-                    });
+                    setNewRoute(INITIAL_ROUTE);
                   }}
                 >
                   キャンセル

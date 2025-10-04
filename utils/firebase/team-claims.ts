@@ -1,4 +1,3 @@
-// Team ID claims management
 import { auth } from './client';
 
 export const setTeamIdClaim = async () => {

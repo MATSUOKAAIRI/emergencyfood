@@ -1,6 +1,5 @@
 // app/supplies/edit/[supplyId]/page.tsx
 'use client';
-import { doc, getDoc } from 'firebase/firestore';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -8,7 +7,6 @@ import SupplyFormComponent from '@/components/supplies/SupplyForm';
 import { useAuth, useTeam } from '@/hooks';
 import type { Supply, SupplyFormData } from '@/types';
 import { ERROR_MESSAGES } from '@/utils/constants';
-import { db } from '@/utils/firebase';
 
 export default function SupplyEditPage() {
   const { supplyId } = useParams();
@@ -27,18 +25,31 @@ export default function SupplyEditPage() {
         return;
       }
 
+      // 認証とチーム情報が取得されるまで待つ
+      if (!user || !currentTeamId || teamLoading) {
+        return;
+      }
+
       try {
-        const docRef = doc(db, 'supplies', supplyId);
-        const docSnap = await getDoc(docRef);
+        // APIを使用してデータを取得
+        const token = await user.getIdToken();
+        const response = await fetch(
+          `/api/supplies/list?teamId=${currentTeamId}&isArchived=false`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-        if (docSnap.exists()) {
-          const rawData = docSnap.data();
-          const { id: _id, ...dataWithoutId } = rawData;
-          const supply: Supply = {
-            id: docSnap.id,
-            ...(dataWithoutId as Omit<Supply, 'id'>),
-          };
+        if (!response.ok) {
+          throw new Error('備蓄品の取得に失敗しました');
+        }
 
+        const data = await response.json();
+        const supply = data.supplies.find((s: Supply) => s.id === supplyId);
+
+        if (supply) {
           setSuppliesData(supply);
 
           const formData: SupplyFormData = {
@@ -57,7 +68,8 @@ export default function SupplyEditPage() {
         } else {
           setError('指定された備蓄品が見つかりません。');
         }
-      } catch (_e: unknown) {
+      } catch (e: unknown) {
+        console.error('Supply fetch error:', e);
         setError('備蓄品データの取得に失敗しました。');
       } finally {
         setLoading(false);
@@ -65,7 +77,7 @@ export default function SupplyEditPage() {
     };
 
     fetchSupplies();
-  }, [supplyId]);
+  }, [supplyId, user, currentTeamId, teamLoading]);
 
   if (teamLoading || loading) {
     return (

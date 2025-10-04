@@ -3,7 +3,7 @@ import EvacuationItemsClient from './EvacuationItemsClient';
 
 export const metadata: Metadata = {
   title: '避難用持ち物リスト | Emergency Food',
-  description: '一次避難・二次避難に必要な持ち物リストを確認できます',
+  description: '避難に必要な持ち物リストを確認',
 };
 
 export default function EvacuationItemsPage() {

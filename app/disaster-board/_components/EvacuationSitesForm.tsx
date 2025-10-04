@@ -15,24 +15,24 @@ const DISASTER_TYPES: { value: DisasterType; label: string }[] = [
   { value: 'typhoon', label: '台風' },
 ];
 
-const DISASTER_TYPE_ICONS: Record<DisasterType, string> = {
-  earthquake: '🏠',
-  tsunami: '🌊',
-  flood: '☔',
-  typhoon: '🌀',
+const INITIAL_SITE: Omit<EvacuationSite, 'id'> = {
+  disasterType: 'earthquake',
+  name: '',
+  address: '',
+  notes: '',
 };
 
 export function EvacuationSitesForm({
   sites,
   onUpdate,
 }: EvacuationSitesFormProps) {
-  const [newSite, setNewSite] = useState<Omit<EvacuationSite, 'id'>>({
-    disasterType: 'earthquake',
-    name: '',
-    address: '',
-    notes: '',
-  });
+  const [newSite, setNewSite] =
+    useState<Omit<EvacuationSite, 'id'>>(INITIAL_SITE);
   const [isAdding, setIsAdding] = useState(false);
+
+  const resetForm = () => {
+    setNewSite(INITIAL_SITE);
+  };
 
   const handleAddSite = () => {
     if (!newSite.name.trim() || !newSite.address.trim()) return;
@@ -43,12 +43,7 @@ export function EvacuationSitesForm({
     };
 
     onUpdate([...sites, site]);
-    setNewSite({
-      disasterType: 'earthquake',
-      name: '',
-      address: '',
-      notes: '',
-    });
+    resetForm();
     setIsAdding(false);
   };
 
@@ -75,19 +70,15 @@ export function EvacuationSitesForm({
           onClick={() => setIsAdding(true)}
           disabled={isAdding}
         >
-          + 追加
+          追加
         </Button>
       </div>
 
       <div className='space-y-4'>
-        {/* 既存の避難場所リスト */}
         {sites.map(site => (
           <div key={site.id} className='border border-gray-200 rounded-lg p-4'>
             <div className='flex justify-between items-start mb-2'>
               <div className='flex items-center gap-2'>
-                <span className='text-lg'>
-                  {DISASTER_TYPE_ICONS[site.disasterType]}
-                </span>
                 <span className='font-medium text-gray-900'>{site.name}</span>
                 <span className='text-sm text-gray-500'>
                   (
@@ -120,19 +111,16 @@ export function EvacuationSitesForm({
         {sites.length === 0 && !isAdding && (
           <div className='text-center py-8 text-gray-500'>
             <p>避難場所が登録されていません</p>
-            <p className='text-sm'>「+ 追加」ボタンから登録してください</p>
+            <p className='text-sm'>「追加」から登録してください</p>
           </div>
         )}
 
-        {/* 新規追加フォーム */}
         {isAdding && (
-          <div className='border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-50'>
-            <h3 className='font-medium text-gray-900 mb-4'>
-              新しい避難場所を追加
-            </h3>
+          <div className='border-2 border-solid border-gray-300 rounded-lg p-4 bg-gray-50'>
+            <h3 className='font-bold text-gray-900 mb-4'>避難場所を追加</h3>
             <div className='space-y-4'>
               <Select
-                label='災害の種類'
+                label='どんな災害のときか'
                 required
                 value={newSite.disasterType}
                 onChange={e =>
@@ -155,13 +143,13 @@ export function EvacuationSitesForm({
               />
 
               <Input
-                label='住所'
+                label='住所・場所'
                 required
                 value={newSite.address}
                 onChange={e =>
                   setNewSite(prev => ({ ...prev, address: e.target.value }))
                 }
-                placeholder='例: 東京都〇〇区〇〇1-2-3'
+                placeholder='例: 〇〇市〇〇1-2-3'
               />
 
               <Input
@@ -170,7 +158,7 @@ export function EvacuationSitesForm({
                 onChange={e =>
                   setNewSite(prev => ({ ...prev, notes: e.target.value }))
                 }
-                placeholder='例: 3階建て、入口は正面玄関から'
+                placeholder='例: 3階建て'
               />
 
               <div className='flex gap-2'>
@@ -184,12 +172,7 @@ export function EvacuationSitesForm({
                   variant='secondary'
                   onClick={() => {
                     setIsAdding(false);
-                    setNewSite({
-                      disasterType: 'earthquake',
-                      name: '',
-                      address: '',
-                      notes: '',
-                    });
+                    resetForm();
                   }}
                 >
                   キャンセル

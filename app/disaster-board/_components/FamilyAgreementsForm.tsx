@@ -79,12 +79,11 @@ export function FamilyAgreementsForm({
           onClick={() => setIsAdding(true)}
           disabled={isAdding}
         >
-          + 追加
+          追加
         </Button>
       </div>
 
       <div className='space-y-6'>
-        {/* カテゴリ別の約束事表示 */}
         {Object.keys(groupedAgreements).length > 0 ? (
           <div className='space-y-4'>
             {Object.entries(groupedAgreements).map(
@@ -129,18 +128,15 @@ export function FamilyAgreementsForm({
         ) : (
           !isAdding && (
             <div className='text-center py-8 text-gray-500'>
-              <p>家族の約束事が登録されていません</p>
-              <p className='text-sm'>「+ 追加」ボタンから登録してください</p>
+              <p>家族の約束事はありません</p>
+              <p className='text-sm'>「追加」ボタンから登録しよう！</p>
             </div>
           )
         )}
 
-        {/* 新規追加フォーム */}
         {isAdding && (
-          <div className='border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-50'>
-            <h3 className='font-medium text-gray-900 mb-4'>
-              新しい約束事を追加
-            </h3>
+          <div className='border-2 border-solid border-gray-300 rounded-lg p-4 bg-gray-50'>
+            <h3 className='font-bold text-gray-900 mb-4'>約束事を追加</h3>
             <div className='space-y-4'>
               <Select
                 label='カテゴリ'
@@ -162,7 +158,7 @@ export function FamilyAgreementsForm({
                 onChange={e =>
                   setNewAgreement(prev => ({ ...prev, title: e.target.value }))
                 }
-                placeholder='例: 震度5以上で〇〇公園に集合'
+                placeholder='例:〇〇にいるとき'
               />
 
               <div className='space-y-1'>
@@ -178,7 +174,7 @@ export function FamilyAgreementsForm({
                       description: e.target.value,
                     }))
                   }
-                  placeholder='例: 地震発生後、安全を確認してから〇〇公園の時計台前に集合する。到着したら171で安否を報告。'
+                  placeholder='例: 地震発生後、安全を確認してから〇〇公園の時計台前に集合する。'
                   className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent'
                   rows={3}
                 />
@@ -212,21 +208,20 @@ export function FamilyAgreementsForm({
           </div>
         )}
 
-        {/* ヒント */}
         {agreements.length === 0 && (
           <div className='bg-gray-50 border border-gray-200 rounded-lg p-4'>
             <h3 className='font-medium text-gray-800 mb-2'>約束事の例</h3>
             <ul className='text-sm text-gray-700 space-y-1'>
               <li>
                 •
-                震度5以上の地震が発生したら、まず身の安全を確保してから〇〇公園に集合
+                震度5以上の地震が発生したら、まず身の安全を確保してから〇〇公園に集合！！
               </li>
               <li>
                 •
-                連絡が取れない場合は、毎日18時に災害用伝言ダイヤル（171）で安否報告
+                連絡が取れない場合は、毎日18時に災害用伝言ダイヤル（171）で安否報告する
               </li>
-              <li>• 避難時は長男が貴重品、長女がペットの世話を担当</li>
-              <li>• 津波警報が出たら、迷わず高台の△△神社へ避難</li>
+              <li>• 避難時は長男が貴重品、長女がペットの世話をお願いね！</li>
+              <li>• 津波警報が出たら、迷わず高台の△△神社へ避難する</li>
               <li>• 家族が帰宅困難になった場合の対応方法</li>
             </ul>
           </div>
