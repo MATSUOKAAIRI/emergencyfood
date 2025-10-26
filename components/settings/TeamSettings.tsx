@@ -25,8 +25,8 @@ export default function TeamSettings({ user }: TeamSettingsProps) {
   const router = useRouter();
   const { user: firebaseUser } = useAuth();
   const {
-    teamId,
-    currentTeamId,
+    teamId: _teamId,
+    currentTeamId: _currentTeamId,
     team,
     teamMembers,
     addAdmin,
@@ -180,7 +180,7 @@ export default function TeamSettings({ user }: TeamSettingsProps) {
     return (
       <div className='text-center py-8'>
         <div className='mb-4'>少しお待ちください</div>
-        <div className='text-sm text-gray-600'></div>
+        <div className='text-sm text-gray-600' />
       </div>
     );
   }
