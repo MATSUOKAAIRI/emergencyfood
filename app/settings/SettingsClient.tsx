@@ -6,6 +6,8 @@ import TeamSettings from '@/components/settings/TeamSettings';
 import { UI_CONSTANTS } from '@/utils/constants';
 import { useState } from 'react';
 
+import type { Team } from '@/types';
+
 interface ServerUser {
   uid: string;
   email: string;
@@ -15,11 +17,15 @@ interface ServerUser {
 
 interface SettingsClientProps {
   user: ServerUser;
+  initialTeam?: Team | null;
 }
 
 type SettingsTab = 'line' | 'account' | 'team' | 'logout';
 
-export default function SettingsClient({ user }: SettingsClientProps) {
+export default function SettingsClient({
+  user,
+  initialTeam,
+}: SettingsClientProps) {
   const [activeTab, setActiveTab] = useState<SettingsTab>('line');
 
   const tabs = [
@@ -49,7 +55,7 @@ export default function SettingsClient({ user }: SettingsClientProps) {
       case 'account':
         return <AccountSettings user={appUser} />;
       case 'team':
-        return <TeamSettings user={appUser} />;
+        return <TeamSettings user={appUser} initialTeam={initialTeam} />;
       case 'logout':
         return <LogoutSection />;
       default:

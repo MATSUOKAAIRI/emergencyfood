@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import CreateTeamForm from '@/components/teams/CreateTeamForm';
 import { useAuth, useTeam } from '@/hooks';
-import type { AppUser } from '@/types';
+import type { AppUser, Team } from '@/types';
 import {
   ERROR_MESSAGES,
   SUCCESS_MESSAGES,
@@ -13,6 +13,7 @@ import {
 
 interface TeamSettingsProps {
   user: AppUser;
+  initialTeam?: Team | null;
 }
 
 interface TeamInfo {
@@ -21,13 +22,13 @@ interface TeamInfo {
   isActive: boolean;
 }
 
-export default function TeamSettings({ user }: TeamSettingsProps) {
+export default function TeamSettings({ user, initialTeam }: TeamSettingsProps) {
   const router = useRouter();
   const { user: firebaseUser } = useAuth();
   const {
     teamId: _teamId,
     currentTeamId: _currentTeamId,
-    team,
+    team: clientTeam,
     teamMembers,
     addAdmin,
     removeAdmin,
@@ -35,6 +36,15 @@ export default function TeamSettings({ user }: TeamSettingsProps) {
     error,
     migrateTeamData,
   } = useTeam(firebaseUser);
+
+  const [team, setTeam] = useState<Team | null>(initialTeam || null);
+
+  useEffect(() => {
+    if (clientTeam && !loading) {
+      setTeam(clientTeam);
+    }
+  }, [clientTeam, loading]);
+
   const [message, setMessage] = useState<{
     type: 'success' | 'error';
     text: string;
@@ -179,7 +189,7 @@ export default function TeamSettings({ user }: TeamSettingsProps) {
   if (!team) {
     return (
       <div className='text-center py-8'>
-        <div className='mb-4'>少しお待ちください</div>
+        <div className='mb-4'>データを取得できませんでした</div>
         <div className='text-sm text-gray-600' />
       </div>
     );
