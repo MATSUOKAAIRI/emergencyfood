@@ -179,16 +179,8 @@ export default function TeamSettings({ user }: TeamSettingsProps) {
   if (!team) {
     return (
       <div className='text-center py-8'>
-        <div className='mb-4'>{ERROR_MESSAGES.FAMILY_GROUP_NOT_FOUND}</div>
-        <div className='text-sm text-gray-600'>
-          <p>デバッグ情報:</p>
-          <p>Loading: {loading ? 'true' : 'false'}</p>
-          <p>Error: {error || 'なし'}</p>
-          <p>FirebaseUser: {firebaseUser ? 'あり' : 'なし'}</p>
-          <p>User: {user ? 'あり' : 'なし'}</p>
-          <p>TeamId: {teamId || 'なし'}</p>
-          <p>CurrentTeamId: {currentTeamId || 'なし'}</p>
-        </div>
+        <div className='mb-4'>少しお待ちください</div>
+        <div className='text-sm text-gray-600'></div>
       </div>
     );
   }
