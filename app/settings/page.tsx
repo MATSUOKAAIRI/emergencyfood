@@ -1,19 +1,20 @@
-// app/settings/page.tsx
-import { Suspense } from 'react';
-
-import { ERROR_MESSAGES, UI_CONSTANTS } from '@/utils/constants';
-
+import { getServerUser } from '@/utils/auth/server';
+import { redirect } from 'next/navigation';
 import SettingsClient from './SettingsClient';
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  const user = await getServerUser();
+
+  if (!user) {
+    redirect('/auth/login');
+  }
+
   return (
     <div className='container mx-auto py-8 min-h-screen'>
-      <h1 className='text-2xl font-bold mb-6 text-black border-b border-gray-300 pb-4'>
-        {UI_CONSTANTS.SETTINGS_TITLE}
+      <h1 className='text-3xl font-bold mb-6 text-black border-b border-gray-300 pb-4'>
+        設定
       </h1>
-      <Suspense fallback={<p>{ERROR_MESSAGES.LOADING}</p>}>
-        <SettingsClient />
-      </Suspense>
+      <SettingsClient user={user} />
     </div>
   );
 }
