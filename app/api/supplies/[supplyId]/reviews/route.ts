@@ -24,8 +24,15 @@ interface Review {
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { supplyId } = await params;
-    const { searchParams } = new URL(request.url);
-    const teamId = searchParams.get('teamId');
+
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json({ error: '認証が必要です' }, { status: 401 });
+    }
+
+    const idToken = authHeader.split('Bearer ')[1];
+    const decodedToken = await adminAuth.verifyIdToken(idToken);
+    const teamId = decodedToken.teamId as string;
 
     if (!teamId) {
       return NextResponse.json(
@@ -45,7 +52,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       ...doc.data(),
     })) as Review[];
 
-    // 日付順にソート（新しい順）
     reviews.sort((a, b) => {
       const dateA = a.createdAt?.seconds || 0;
       const dateB = b.createdAt?.seconds || 0;
@@ -54,7 +60,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ reviews });
   } catch (_error) {
-    // console.error removed
     return NextResponse.json(
       { error: 'レビューの取得に失敗しました' },
       { status: 500 }
@@ -65,12 +70,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const { supplyId } = await params;
-    const { searchParams } = new URL(request.url);
-    const teamId = searchParams.get('teamId');
     const body = await request.json();
     const { content } = body;
 
-    // 認証チェック
     const authHeader = request.headers.get('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json({ error: '認証が必要です' }, { status: 401 });
@@ -79,6 +81,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const idToken = authHeader.split('Bearer ')[1];
     const decodedToken = await adminAuth.verifyIdToken(idToken);
     const uid = decodedToken.uid;
+    const teamId = decodedToken.teamId as string;
 
     if (!teamId) {
       return NextResponse.json(
@@ -94,7 +97,6 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // 備蓄品が存在するかチェック
     const supplyDoc = await adminDb.collection('supplies').doc(supplyId).get();
 
     if (!supplyDoc.exists) {
@@ -112,7 +114,6 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // ユーザー情報を取得
     let userName = 'ユーザー';
     try {
       const userDoc = await adminDb.collection('users').doc(uid).get();
@@ -131,7 +132,6 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       userName = decodedToken.email || 'ユーザー';
     }
 
-    // レビューを追加
     const reviewRef = await adminDb.collection('supplyReviews').add({
       supplyId,
       teamId,
@@ -160,7 +160,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     const { searchParams } = new URL(request.url);
     const reviewId = searchParams.get('reviewId');
 
-    // 認証チェック
     const authHeader = request.headers.get('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json({ error: '認証が必要です' }, { status: 401 });
@@ -177,7 +176,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // レビューを取得して権限チェック
     const reviewDoc = await adminDb
       .collection('supplyReviews')
       .doc(reviewId)
@@ -192,7 +190,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     const reviewData = reviewDoc.data();
 
-    // 投稿者本人かチェック
     if (reviewData?.userId !== uid) {
       return NextResponse.json(
         { error: '削除権限がありません' },
@@ -200,7 +197,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // レビューを削除
     await adminDb.collection('supplyReviews').doc(reviewId).delete();
 
     return NextResponse.json({

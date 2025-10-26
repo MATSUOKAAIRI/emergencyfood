@@ -4,7 +4,6 @@ import { adminAuth, adminDb } from '@/utils/firebase/admin';
 
 export async function GET(req: Request) {
   try {
-    // 認証チェック
     const authHeader = req.headers.get('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json(
@@ -35,7 +34,6 @@ export async function GET(req: Request) {
       );
     }
 
-    // 備蓄品を取得
     const suppliesSnapshot = await adminDb
       .collection('supplies')
       .where('teamId', '==', teamId)

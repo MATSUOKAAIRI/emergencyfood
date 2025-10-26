@@ -4,7 +4,6 @@ import { adminAuth, adminDb } from '@/utils/firebase/admin';
 
 export async function POST(req: Request) {
   try {
-    // 認証チェック
     const authHeader = req.headers.get('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json(
@@ -28,7 +27,6 @@ export async function POST(req: Request) {
     const uid = decodedToken.uid;
     const suppliesData = await req.json();
 
-    // 必須フィールドの検証
     const { name, quantity, expiryDate, category, unit, teamId } = suppliesData;
 
     if (!name || !quantity || !expiryDate || !category || !unit || !teamId) {
@@ -38,7 +36,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // 備蓄品を追加
     const supplyRef = await adminDb.collection('supplies').add({
       name,
       quantity: Number(quantity) || 1,
@@ -46,7 +43,6 @@ export async function POST(req: Request) {
       isArchived: false,
       category,
       unit,
-      evacuationLevel: suppliesData.evacuationLevel || '',
       amount:
         suppliesData.amount !== undefined ? Number(suppliesData.amount) : null,
       purchaseLocation: suppliesData.purchaseLocation || null,
