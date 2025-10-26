@@ -1,5 +1,10 @@
 'use client';
-
+import {
+  refreshAuthToken,
+  removeAuthTokenFromCookie,
+  saveAuthTokenToCookie,
+} from '@/utils/auth/cookies';
+import { auth, onAuthStateChanged } from '@/utils/firebase';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   createContext,
@@ -9,12 +14,9 @@ import {
   useState,
 } from 'react';
 
-import { auth, onAuthStateChanged } from '@/utils/firebase';
-
 interface AuthContextType {
   user: unknown;
   teamId: string | null;
-  isCheckingAuth: boolean;
   handleLogoClick: () => void;
 }
 
@@ -37,22 +39,18 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const pathname = usePathname();
   const [user, setUser] = useState<unknown>(null);
   const [teamId, setTeamId] = useState<string | null>(null);
-  const [isCheckingAuth, setIsCheckingAuth] = useState<boolean>(true);
+  const [lastTokenRefresh, setLastTokenRefresh] = useState<number>(0);
 
+  //リダイレクトの処理
   const handleRedirect = useCallback(
     async (currentUser: unknown, currentPath: string) => {
       const isAuthPage = currentPath.startsWith('/auth/');
       const isHomepage = currentPath === '/';
-      const isEventPage = currentPath.startsWith('/event');
-      const isTeamRelatedPage =
-        pathname === '/teams/select' ||
-        pathname === '/teams/join' ||
-        pathname === '/teams/create';
+      const isTeamRelatedPage = pathname === '/teams/invite';
 
       const isAllowedForTeamUsersPage =
         currentPath.startsWith('/supplies/') ||
-        currentPath.startsWith('/disaster-board') ||
-        currentPath.startsWith('/evacuation-items') ||
+        currentPath.startsWith('/handbook') ||
         currentPath.startsWith('/settings');
 
       const isSettingsPage = currentPath.startsWith('/settings');
@@ -60,7 +58,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
       if (!currentUser) {
         setTeamId(null);
-        if (!isAuthPage && !isHomepage && !isEventPage) {
+        if (!isAuthPage && !isHomepage) {
           targetPath = '/auth/login';
         } else {
           targetPath = currentPath;
@@ -76,13 +74,21 @@ export default function AuthProvider({ children }: AuthProviderProps) {
             typeof (currentUser as { getIdTokenResult: unknown })
               .getIdTokenResult === 'function'
           ) {
+            const now = Date.now();
+            const shouldRefresh = now - lastTokenRefresh > 50 * 60 * 1000;
+
             const idTokenResult = await (
               currentUser as {
                 getIdTokenResult: (forceRefresh?: boolean) => Promise<{
                   claims: { teamId?: string };
                 }>;
               }
-            ).getIdTokenResult(true);
+            ).getIdTokenResult(shouldRefresh);
+
+            if (shouldRefresh) {
+              setLastTokenRefresh(now);
+            }
+
             userTeamId = (idTokenResult.claims.teamId as string | null) || null;
           }
         } catch (_error) {
@@ -92,13 +98,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         setTeamId(userTeamId);
 
         if (userTeamId) {
-          if (
-            !isAllowedForTeamUsersPage &&
-            !isAuthPage &&
-            !isHomepage &&
-            !isEventPage
-          ) {
-            targetPath = `/supplies/list?teamId=${userTeamId}`;
+          if (!isAllowedForTeamUsersPage && !isAuthPage && !isHomepage) {
+            targetPath = '/';
           } else {
             targetPath = currentPath;
           }
@@ -107,10 +108,9 @@ export default function AuthProvider({ children }: AuthProviderProps) {
             !isTeamRelatedPage &&
             !isHomepage &&
             !isSettingsPage &&
-            !isAuthPage &&
-            !isEventPage
+            !isAuthPage
           ) {
-            targetPath = '/teams/select';
+            targetPath = '/';
           } else {
             targetPath = currentPath;
           }
@@ -124,22 +124,25 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     [router, pathname]
   );
 
+  //ログイン時の処理
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
 
     const unsubscribeAuth = onAuthStateChanged(auth, async currentUser => {
       setUser(currentUser);
-      setIsCheckingAuth(true);
 
-      // デバウンス処理で無限ループを防ぐ
+      if (currentUser) {
+        saveAuthTokenToCookie(currentUser);
+      } else {
+        removeAuthTokenFromCookie();
+      }
+
       clearTimeout(timeoutId);
       timeoutId = setTimeout(async () => {
         try {
           await handleRedirect(currentUser, pathname);
         } catch (error) {
           console.error('Redirect error:', error);
-        } finally {
-          setIsCheckingAuth(false);
         }
       }, 100);
     });
@@ -149,22 +152,59 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       unsubscribeAuth();
     };
   }, [pathname, router, handleRedirect]);
+  //トークン
+  useEffect(() => {
+    if (!user) return;
 
+    const refreshInterval = setInterval(
+      async () => {
+        try {
+          if (
+            user &&
+            typeof user === 'object' &&
+            'getIdTokenResult' in user &&
+            typeof (user as { getIdTokenResult: unknown }).getIdTokenResult ===
+              'function'
+          ) {
+            const idTokenResult = await (
+              user as {
+                getIdTokenResult: (forceRefresh?: boolean) => Promise<{
+                  claims: { teamId?: string };
+                }>;
+              }
+            ).getIdTokenResult(true);
+
+            const newTeamId =
+              (idTokenResult.claims.teamId as string | null) || null;
+            setTeamId(newTeamId);
+            setLastTokenRefresh(Date.now());
+
+            refreshAuthToken(user as any);
+          }
+        } catch (error) {
+          console.error('Token auto-refresh error:', error);
+        }
+      },
+      50 * 60 * 1000
+    );
+
+    return () => clearInterval(refreshInterval);
+  }, [user]);
+
+  // ロゴクリックの処理
   const handleLogoClick = useCallback(() => {
-    if (isCheckingAuth) return;
     if (!user) {
       router.push('/');
     } else if (teamId !== null) {
-      router.push(`/supplies/list?teamId=${teamId}`);
+      router.push('/supplies/list');
     } else {
-      router.push('/teams/select');
+      router.push('/settings?tab=team');
     }
-  }, [isCheckingAuth, user, teamId, router]);
+  }, [user, teamId, router]);
 
   const contextValue: AuthContextType = {
     user,
     teamId,
-    isCheckingAuth,
     handleLogoClick,
   };
 

@@ -1,13 +1,10 @@
 'use client';
-
-import { usePathname } from 'next/navigation';
-
-import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import AuthProvider, {
   useAuthContext,
 } from '@/components/providers/AuthProvider';
-import { ErrorBoundary, LoadingSpinner } from '@/components/ui';
+import { ErrorBoundary } from '@/components/ui';
+import { usePathname } from 'next/navigation';
 
 interface ClientLayoutContentProps {
   children: React.ReactNode;
@@ -15,16 +12,7 @@ interface ClientLayoutContentProps {
 
 function ClientLayoutContent({ children }: ClientLayoutContentProps) {
   const pathname = usePathname();
-  const { user, teamId, isCheckingAuth, handleLogoClick } = useAuthContext();
-
-  if (isCheckingAuth) {
-    return (
-      <div className='flex flex-col justify-center items-center min-h-screen'>
-        <LoadingSpinner size='lg' />
-        <p className='text-gray-600 mt-4'>認証情報を確認中...</p>
-      </div>
-    );
-  }
+  const { user, teamId, handleLogoClick } = useAuthContext();
 
   return (
     <ErrorBoundary>
@@ -39,7 +27,6 @@ function ClientLayoutContent({ children }: ClientLayoutContentProps) {
         <main className='flex-1 px-4 sm:px-6 py-4 sm:py-6'>
           <ErrorBoundary>{children}</ErrorBoundary>
         </main>
-        <Footer />
       </div>
     </ErrorBoundary>
   );

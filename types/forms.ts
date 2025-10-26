@@ -1,26 +1,21 @@
-// Base form interfaces
 export interface BaseFormData {
   id?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-// Supply form specific types
 export interface SupplyFormData extends BaseFormData {
   name: string;
   quantity: number;
   expiryDate: string;
   category: string;
   unit: string;
-  evacuationLevel: string;
   amount?: string | number | null;
   purchaseLocation?: string | null;
   label?: string | null;
   storageLocation?: string | null;
-  containerType?: string | null; // 袋の種類
 }
 
-// Form validation types
 export interface FormError {
   field: string;
   message: string;
@@ -31,7 +26,6 @@ export interface FormValidationResult {
   errors: FormError[];
 }
 
-// Form state types
 export interface FormState<T> {
   data: T;
   errors: Record<string, string>;
@@ -39,10 +33,8 @@ export interface FormState<T> {
   isValid: boolean;
 }
 
-// Form mode types
 export type FormMode = 'add' | 'edit' | 'view';
 
-// Disaster board types
 export type DisasterType = 'earthquake' | 'tsunami' | 'flood' | 'typhoon';
 
 export interface EvacuationSite {
@@ -69,15 +61,6 @@ export interface SafetyConfirmationMethod {
   notes?: string;
 }
 
-export interface EmergencyItem {
-  id?: string;
-  name: string;
-  quantity?: number;
-  container?: string; // どの袋/容器に入れるか
-  category?: string; // カテゴリ
-  notes?: string;
-}
-
 export interface FamilyAgreement {
   id?: string;
   title: string;
@@ -89,14 +72,12 @@ export interface DisasterBoardData extends BaseFormData {
   evacuationSites: EvacuationSite[];
   evacuationRoutes: EvacuationRoute[];
   safetyMethods: SafetyConfirmationMethod[];
-  emergencyItems: EmergencyItem[];
   familyAgreements: FamilyAgreement[];
   useDisasterDial: boolean;
   lastUpdated?: Date;
-  lastUpdatedBy?: string; // ユーザーのdisplayNameまたはemail
+  lastUpdatedBy?: string;
 }
 
-// Common form props
 export interface BaseFormProps {
   mode?: FormMode;
   onSubmit?: (data: any) => Promise<void>;
@@ -104,7 +85,6 @@ export interface BaseFormProps {
   className?: string;
 }
 
-// Supply form specific props
 export interface SupplyFormProps extends BaseFormProps {
   uid: string | null;
   teamId: string | null;

@@ -1,4 +1,3 @@
-// API Response types
 export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
@@ -6,21 +5,18 @@ export interface ApiResponse<T = any> {
   message?: string;
 }
 
-// API Error types
 export interface ApiError {
   code: string;
   message: string;
   details?: any;
 }
 
-// Firebase specific types
 export interface FirebaseDocument {
   id: string;
-  createdAt: any; // Firestore Timestamp
-  updatedAt?: any; // Firestore Timestamp
+  createdAt: any;
+  updatedAt?: any;
 }
 
-// Supply API types
 export interface SupplyDocument extends FirebaseDocument {
   name: string;
   quantity: number;
@@ -28,17 +24,15 @@ export interface SupplyDocument extends FirebaseDocument {
   isArchived: boolean;
   category: string;
   unit: string;
-  evacuationLevel: string;
   amount?: number | null;
   purchaseLocation?: string | null;
   label?: string | null;
   storageLocation?: string;
-  registeredAt: any; // Firestore Timestamp
+  registeredAt: any;
   teamId: string;
   uid: string;
 }
 
-// Team API types
 export interface TeamDocument extends FirebaseDocument {
   name: string;
   adminUids: string[];
@@ -46,7 +40,6 @@ export interface TeamDocument extends FirebaseDocument {
   inviteCode: string;
 }
 
-// User API types
 export interface UserDocument extends FirebaseDocument {
   email: string;
   displayName?: string;
@@ -54,10 +47,8 @@ export interface UserDocument extends FirebaseDocument {
   isAdmin?: boolean;
 }
 
-// API operation types
 export type ApiOperation = 'create' | 'read' | 'update' | 'delete' | 'list';
 
-// Request/Response patterns
 export interface CreateRequest<T> {
   data: Omit<T, keyof FirebaseDocument>;
 }
