@@ -3,6 +3,7 @@ import React from 'react';
 import { Input, Select } from '@/components/ui';
 import type { SupplyFormData } from '@/types/forms';
 import { FOOD_UNITS } from '@/utils/constants';
+import { getExpiryType } from '@/utils/stockRecommendations';
 
 interface SupplyBasicFieldsProps {
   formData: SupplyFormData;
@@ -19,6 +20,10 @@ export function SupplyBasicFields({
     value: unit,
     label: unit,
   }));
+
+  const expiryType = getExpiryType(formData.category);
+  const expiryLabel = expiryType.label;
+  const isExpiryRequired = expiryType.type !== 'noExpiry';
 
   return (
     <div className='space-y-4'>
@@ -57,10 +62,12 @@ export function SupplyBasicFields({
       </div>
 
       <Input
-        required
+        required={isExpiryRequired}
         id='expiryDate'
-        label='賞味期限'
-        min={new Date().toISOString().split('T')[0]}
+        label={expiryLabel}
+        min={
+          isExpiryRequired ? new Date().toISOString().split('T')[0] : undefined
+        }
         name='expiryDate'
         type='date'
         value={formData.expiryDate}

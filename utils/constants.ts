@@ -69,7 +69,7 @@ export const UI_CONSTANTS = {
   LOGOUT: 'ログアウト',
   ACCOUNT_NAME: 'アカウント名',
   EMAIL_ADDRESS: 'メールアドレス',
-  CHANGE_PASSWORD: 'パスワード変更',
+  CHANGE_PASSWORD: 'パスワードを変更する',
   FAMILY_GROUP_NAME: '家族グループ名',
   FAMILY_GROUP_OWNER: 'オーナー',
   FAMILY_GROUP_MEMBERS: 'メンバー',
