@@ -51,7 +51,6 @@ export async function POST(request: NextRequest) {
     const idToken = authHeader.split('Bearer ')[1];
     const decodedToken = await adminAuth.verifyIdToken(idToken);
     const teamId = decodedToken.teamId as string;
-    const uid = decodedToken.uid;
 
     if (!teamId) {
       return NextResponse.json(

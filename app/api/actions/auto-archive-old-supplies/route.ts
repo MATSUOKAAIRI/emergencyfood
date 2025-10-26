@@ -26,11 +26,10 @@ export async function POST(req: Request) {
       );
     }
 
-    const uid = decodedToken.uid;
+    const _uid = decodedToken.uid;
 
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    const thirtyDaysAgoISO = thirtyDaysAgo.toISOString();
 
     const oldSuppliesSnapshot = await adminDb
       .collection('supplies')

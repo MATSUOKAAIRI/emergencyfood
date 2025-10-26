@@ -3,7 +3,7 @@
 import { formatDistanceToNow } from 'date-fns';
 import { ja } from 'date-fns/locale/ja';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { RestockModal } from '@/components/supplies/RestockModal';
@@ -56,7 +56,7 @@ const getExpiryLabel = (category: string) => {
 
 export default function SupplyItem({
   supply,
-  onArchiveSupply,
+  onArchiveSupply: _onArchiveSupply,
   onUpdateSupply,
   onRestoreSupply,
   onDeleteSupply,
@@ -64,7 +64,6 @@ export default function SupplyItem({
   onRefetch,
   teamStockSettings,
 }: SupplyItemProps) {
-  const pathname = usePathname();
   const router = useRouter();
   const { user } = useAuth(false);
 

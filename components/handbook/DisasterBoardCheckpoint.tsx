@@ -38,7 +38,7 @@ const defaultData: DisasterBoardData = {
 export default function DisasterBoardCheckpoint({
   initialData,
   initialTeamData,
-  user: serverUser,
+  user: _serverUser,
 }: DisasterBoardCheckpointProps) {
   const { user: firebaseUser } = useAuth();
   const [data, setData] = useState<DisasterBoardData>(

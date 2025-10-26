@@ -1,6 +1,6 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import CreateTeamForm from '@/components/teams/CreateTeamForm';
 import { useAuth, useTeam } from '@/hooks';
@@ -44,7 +44,7 @@ export default function TeamSettings({ user }: TeamSettingsProps) {
   const [inviteLink, setInviteLink] = useState<string | null>(null);
   const [showInviteDialog, setShowInviteDialog] = useState(false);
   const [generatingInvite, setGeneratingInvite] = useState(false);
-  const [userTeams, setUserTeams] = useState<TeamInfo[]>([]);
+  const [_userTeams, setUserTeams] = useState<TeamInfo[]>([]);
   const [showGuide, setShowGuide] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [isEditingTeamName, setIsEditingTeamName] = useState(false);
@@ -135,7 +135,7 @@ export default function TeamSettings({ user }: TeamSettingsProps) {
   }, [team]);
 
   // 所属チーム一覧を取得
-  const fetchUserTeams = async () => {
+  const fetchUserTeams = useCallback(async () => {
     if (!firebaseUser) return;
 
     try {
@@ -162,11 +162,11 @@ export default function TeamSettings({ user }: TeamSettingsProps) {
     } catch (error) {
       console.error('チーム一覧取得エラー:', error);
     }
-  };
+  }, [firebaseUser]);
 
   useEffect(() => {
     fetchUserTeams();
-  }, [firebaseUser]);
+  }, [firebaseUser, fetchUserTeams]);
 
   if (loading) {
     return <div className='text-center py-8'>{ERROR_MESSAGES.LOADING}</div>;
@@ -399,7 +399,7 @@ export default function TeamSettings({ user }: TeamSettingsProps) {
       setInviteLink(link);
       setShowInviteDialog(true);
       setMessage({ type: 'success', text: '招待リンクを生成しました' });
-    } catch (error) {
+    } catch (_error) {
       setMessage({ type: 'error', text: '招待リンクの生成に失敗しました' });
     } finally {
       setGeneratingInvite(false);
@@ -412,7 +412,7 @@ export default function TeamSettings({ user }: TeamSettingsProps) {
     try {
       await navigator.clipboard.writeText(inviteLink);
       setMessage({ type: 'success', text: 'リンクをコピーしました' });
-    } catch (error) {
+    } catch (_error) {
       setMessage({ type: 'error', text: 'コピーに失敗しました' });
     }
   };

@@ -121,7 +121,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         router.replace(targetPath);
       }
     },
-    [router, pathname]
+    [router, pathname, lastTokenRefresh]
   );
 
   //ログイン時の処理

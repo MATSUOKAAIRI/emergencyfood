@@ -28,7 +28,7 @@ export default function SupplyHistoryView({
   user,
 }: SupplyHistoryViewProps) {
   const router = useRouter();
-  const [histories, setHistories] = useState<SupplyHistory[]>(initialHistories);
+  const [histories] = useState<SupplyHistory[]>(initialHistories);
   const [sortBy, setSortBy] = useState<HistorySortOption>('archivedAt');
   const sortOrder = 'desc';
   const [showRestockModal, setShowRestockModal] = useState(false);

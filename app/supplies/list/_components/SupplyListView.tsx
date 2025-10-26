@@ -7,7 +7,6 @@ import type { Supply, Team } from '@/types';
 import { FOOD_CATEGORIES, FOOD_UNITS } from '@/utils/constants';
 import { sortSupplies } from '@/utils/sortSupplies';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 interface ServerUser {
@@ -28,11 +27,10 @@ export default function SupplyListView({
   initialTeam,
   user,
 }: SupplyListViewProps) {
-  const router = useRouter();
   const [sortBy, setSortBy] = useState<SortOption>('registeredAt');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const [supplies, setSupplies] = useState<Supply[]>(initialSupplies);
-  const [team, setTeam] = useState<Team | null>(initialTeam);
+  const [team] = useState<Team | null>(initialTeam);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [showEditModal, setShowEditModal] = useState(false);

@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { useAuth } from '@/hooks';
@@ -27,7 +27,6 @@ export default function Header({
   customTitle,
 }: HeaderProps) {
   const pathname = usePathname();
-  const router = useRouter();
   const { user } = useAuth(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isTeamMenuOpen, setIsTeamMenuOpen] = useState(false);

@@ -25,7 +25,6 @@ export function MissingCategoriesAlert({
   teamStockSettings,
 }: MissingCategoriesAlertProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isSettingsExpanded, setIsSettingsExpanded] = useState(false);
   const userSupplies = supplies.map(s => ({
     category: s.category,
     quantity: s.quantity,

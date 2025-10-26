@@ -352,7 +352,7 @@ export default function SuppliesChecklist({
     }
   };
 
-  const handleGoToSettings = () => {
+  const _handleGoToSettings = () => {
     router.push('/settings');
   };
 

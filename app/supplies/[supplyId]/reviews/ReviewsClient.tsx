@@ -21,7 +21,7 @@ interface ReviewsClientProps {
 export default function ReviewsClient({
   supplyId,
   user,
-  supplyName,
+  supplyName: _supplyName,
 }: ReviewsClientProps) {
   const { user: firebaseUser } = useAuth();
   const [reviewText, setReviewText] = useState('');
