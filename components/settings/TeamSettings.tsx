@@ -478,7 +478,7 @@ export default function TeamSettings({ user }: TeamSettingsProps) {
                     setIsEditingTeamName(true);
                   }}
                 >
-                  ✏️ 編集
+                  編集
                 </button>
               )}
             </div>
