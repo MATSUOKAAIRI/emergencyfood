@@ -1,7 +1,12 @@
 'use client';
 import { useState } from 'react';
 
-export type SortOption = 'name' | 'expiryDate' | 'registeredAt' | 'category';
+export type SortOption =
+  | 'name'
+  | 'expiryDate'
+  | 'registeredAt'
+  | 'category'
+  | 'reviewCount';
 export type SortOrder = 'asc' | 'desc';
 
 interface SupplySortProps {
@@ -18,10 +23,11 @@ export default function SupplySort({
   const [isOpen, setIsOpen] = useState(false);
 
   const sortOptions = [
-    { value: 'name', label: '名前' },
+    { value: 'name', label: '商品名' },
     { value: 'expiryDate', label: '賞味期限' },
     { value: 'registeredAt', label: '登録日' },
     { value: 'category', label: 'カテゴリ' },
+    { value: 'reviewCount', label: 'レビュー数' },
   ] as const;
 
   const handleSortChange = (option: SortOption) => {
@@ -33,7 +39,7 @@ export default function SupplySort({
 
   const getCurrentSortLabel = () => {
     const option = sortOptions.find(opt => opt.value === currentSort);
-    return option ? option.label : '名前';
+    return option ? option.label : '商品名';
   };
 
   return (

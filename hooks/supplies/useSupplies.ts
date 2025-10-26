@@ -1,5 +1,5 @@
 import type { AppUser, Supply } from '@/types';
-import { ERROR_MESSAGES, UI_CONSTANTS } from '@/utils/constants';
+import { ERROR_MESSAGES } from '@/utils/constants';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -65,46 +65,13 @@ export const useSupplies = (
     fetchSupplies();
   }, [user, teamId, isArchived]);
 
+  // アーカイブ機能は履歴機能に統合されました
+  // この関数は後方互換性のために残していますが、実際の処理は SupplyItem で行われます
   const archiveSupply = async (supplyIdToArchive: string) => {
-    if (!window.confirm(UI_CONSTANTS.CONFIRM_ARCHIVE)) {
-      return;
-    }
-
-    if (!user?.uid || !teamId) {
-      setError(ERROR_MESSAGES.UNAUTHORIZED);
-      return;
-    }
-
-    try {
-      const idToken = await user.getIdToken();
-      const response = await fetch('/api/actions/archive-supply', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${idToken}`,
-        },
-        body: JSON.stringify({ supplyId: supplyIdToArchive }),
-      });
-
-      if (!response.ok) {
-        const result = await response.json();
-        throw new Error(result.error || '備蓄品のアーカイブに失敗しました');
-      }
-
-      setSupplies(prevSupplies =>
-        prevSupplies.filter(supply => supply.id !== supplyIdToArchive)
-      );
-
-      router.push('/supplies/archived');
-    } catch (e: unknown) {
-      if (e instanceof Error) {
-        setError(
-          `${ERROR_MESSAGES.FOOD_ARCHIVE_FAILED}: ${e.message || ERROR_MESSAGES.UNKNOWN_ERROR}`
-        );
-      } else {
-        setError(ERROR_MESSAGES.UNKNOWN_ERROR);
-      }
-    }
+    // SupplyItem で直接履歴APIを呼ぶため、ここでは何もしない
+    console.warn(
+      'archiveSupply is deprecated. Use archive-to-history API directly.'
+    );
   };
 
   const updateSupply = (supplyIdToUpdate: string) => {};

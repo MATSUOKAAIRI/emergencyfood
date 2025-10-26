@@ -18,9 +18,6 @@ interface OptimizedSupplyListProps {
   onArchive: (supplyId: string) => void;
 }
 
-/**
- * Optimized supply list with search, filtering, and virtualization
- */
 export const OptimizedSupplyList = memo(function OptimizedSupplyList({
   supplies,
   canDelete,
@@ -33,14 +30,11 @@ export const OptimizedSupplyList = memo(function OptimizedSupplyList({
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
 
-  // Debounce search to avoid excessive filtering
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-  // Memoized filtered and sorted supplies
   const processedSupplies = useMemo(() => {
     let filtered = supplies;
 
-    // Apply search filter
     if (debouncedSearchTerm) {
       filtered = filtered.filter(
         supply =>
@@ -56,22 +50,18 @@ export const OptimizedSupplyList = memo(function OptimizedSupplyList({
       );
     }
 
-    // Apply category filter
     if (categoryFilter !== 'all') {
       filtered = filtered.filter(supply => supply.category === categoryFilter);
     }
 
-    // Apply sorting
     return sortSupplies(filtered, sortBy, sortOrder);
   }, [supplies, debouncedSearchTerm, categoryFilter, sortBy, sortOrder]);
 
-  // Get unique categories for filter
   const categories = useMemo(() => {
     const uniqueCategories = Array.from(new Set(supplies.map(s => s.category)));
     return uniqueCategories.sort();
   }, [supplies]);
 
-  // Memoized callbacks to prevent unnecessary re-renders
   const handleUpdateSupply = useMemoizedCallback(
     (supplyId: string) => onUpdate(supplyId),
     [onUpdate]
@@ -102,10 +92,8 @@ export const OptimizedSupplyList = memo(function OptimizedSupplyList({
 
   return (
     <div className='space-y-6'>
-      {/* Search and Filter Controls */}
       <Card className='p-4'>
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-          {/* Search Input */}
           <div>
             <label
               className='block text-sm font-medium text-gray-700 mb-1'
@@ -123,7 +111,6 @@ export const OptimizedSupplyList = memo(function OptimizedSupplyList({
             />
           </div>
 
-          {/* Category Filter */}
           <div>
             <label
               className='block text-sm font-medium text-gray-700 mb-1'
@@ -146,7 +133,6 @@ export const OptimizedSupplyList = memo(function OptimizedSupplyList({
             </select>
           </div>
 
-          {/* Sort Controls */}
           <div>
             <label
               className='block text-sm font-medium text-gray-700 mb-1'
@@ -179,7 +165,6 @@ export const OptimizedSupplyList = memo(function OptimizedSupplyList({
           </div>
         </div>
 
-        {/* Results Summary */}
         <div className='mt-4 text-sm text-gray-600'>
           {processedSupplies.length} 件の備蓄品
           {debouncedSearchTerm && ` (「${debouncedSearchTerm}」で検索)`}
@@ -187,7 +172,6 @@ export const OptimizedSupplyList = memo(function OptimizedSupplyList({
         </div>
       </Card>
 
-      {/* Supply List */}
       {processedSupplies.length === 0 ? (
         <Card className='text-center py-8'>
           <p className='text-gray-600'>

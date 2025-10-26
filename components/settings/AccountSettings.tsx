@@ -1,6 +1,4 @@
 'use client';
-import { useState } from 'react';
-
 import { useAuth } from '@/hooks';
 import type { AppUser } from '@/types';
 import {
@@ -8,6 +6,7 @@ import {
   SUCCESS_MESSAGES,
   UI_CONSTANTS,
 } from '@/utils/constants';
+import { useState } from 'react';
 
 interface AccountSettingsProps {
   user: AppUser;
@@ -34,7 +33,7 @@ export default function AccountSettings({ user }: AccountSettingsProps) {
     type: 'success' | 'error';
     text: string;
   } | null>(null);
-
+  //名前保存
   const handleNameSave = async () => {
     if (!displayName.trim()) {
       setMessage({ type: 'error', text: '名前を入力してください' });
@@ -52,7 +51,7 @@ export default function AccountSettings({ user }: AccountSettingsProps) {
       setLoading(false);
     }
   };
-
+  //パスワード変更
   const handlePasswordChange = async () => {
     if (newPassword.length < 6) {
       setMessage({
@@ -89,7 +88,6 @@ export default function AccountSettings({ user }: AccountSettingsProps) {
       <h2 className='text-xl font-semibold text-gray-900 mb-4'>
         {UI_CONSTANTS.ACCOUNT_SETTINGS}
       </h2>
-
       {message && (
         <div
           className={`p-3 rounded-md ${
@@ -101,7 +99,7 @@ export default function AccountSettings({ user }: AccountSettingsProps) {
           {message.text}
         </div>
       )}
-
+      {/* アカウント名 */}
       <div className='space-y-2'>
         <label className='block text-sm font-medium text-gray-900'>
           {UI_CONSTANTS.ACCOUNT_NAME}
@@ -143,8 +141,8 @@ export default function AccountSettings({ user }: AccountSettingsProps) {
             </button>
           </div>
         )}
+        {/* メールアドレス */}
       </div>
-
       <div className='space-y-2'>
         <label className='block text-sm font-medium text-gray-900'>
           {UI_CONSTANTS.EMAIL_ADDRESS}
@@ -153,10 +151,10 @@ export default function AccountSettings({ user }: AccountSettingsProps) {
           <span className='text-gray-900'>{user.email}</span>
         </div>
       </div>
-
+      {/* パスワード変更 */}
       <div className='space-y-2'>
         <label className='block text-sm font-medium text-gray-900'>
-          {UI_CONSTANTS.CHANGE_PASSWORD}
+          パスワード変更
         </label>
         {isChangingPassword ? (
           <div className='space-y-3'>

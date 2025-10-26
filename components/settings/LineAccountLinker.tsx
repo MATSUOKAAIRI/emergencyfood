@@ -26,7 +26,7 @@ export default function LineAccountLinker({
   const [showUnlinkConfirm, setShowUnlinkConfirm] = useState(false);
   const _firebaseAuth = getAuth();
 
-  // Fetch LINE user ID from Firestore
+  //firebaseに確認
   useEffect(() => {
     const fetchLineUserId = async () => {
       if (!currentUser?.uid) return;
@@ -49,6 +49,7 @@ export default function LineAccountLinker({
     }
   }, [currentUser]);
 
+  //LINE連携
   const handleLinkLineAccount = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -93,6 +94,7 @@ export default function LineAccountLinker({
     }
   };
 
+  //LINE連携解除
   const handleUnlinkLineAccount = async () => {
     setShowUnlinkConfirm(true);
   };

@@ -1,11 +1,9 @@
 import type { AppUser, Team, TeamMember } from '@/types';
 import { API_ENDPOINTS, ERROR_MESSAGES } from '@/utils/constants';
-import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 interface UseTeamReturn {
   teamId: string | null;
-  teamIdFromURL: string | null;
   currentTeamId: string | null;
   team: Team | null;
   teamMembers: TeamMember[];
@@ -27,18 +25,11 @@ interface UseTeamReturn {
 
 export const useTeam = (user: AppUser | null): UseTeamReturn => {
   const [teamId, setTeamId] = useState<string | null>(null);
-  const [teamIdFromURL, setTeamIdFromURL] = useState<string | null>(null);
   const [currentTeamId, setCurrentTeamId] = useState<string | null>(null);
   const [team, setTeam] = useState<Team | null>(null);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
-    const teamIdParam = searchParams.get('teamId');
-    setTeamIdFromURL(teamIdParam);
-  }, [searchParams]);
 
   useEffect(() => {
     const getTeamIdFromClaims = async () => {
@@ -49,13 +40,15 @@ export const useTeam = (user: AppUser | null): UseTeamReturn => {
       }
 
       try {
-        const idTokenResult = await user.getIdTokenResult(true);
+        const idTokenResult = await user.getIdTokenResult(false);
         const teamIdFromClaims =
           (idTokenResult.claims.teamId as string | null) || null;
         setTeamId(teamIdFromClaims);
+        setCurrentTeamId(teamIdFromClaims);
       } catch (e) {
         setError('チームIDの取得に失敗しました');
         setTeamId(null);
+        setCurrentTeamId(null);
       } finally {
         setLoading(false);
       }
@@ -63,10 +56,6 @@ export const useTeam = (user: AppUser | null): UseTeamReturn => {
 
     getTeamIdFromClaims();
   }, [user]);
-
-  useEffect(() => {
-    setCurrentTeamId(teamIdFromURL || teamId);
-  }, [teamIdFromURL, teamId]);
 
   const fetchTeamInfo = async () => {
     if (!currentTeamId || !user) return;
@@ -147,6 +136,11 @@ export const useTeam = (user: AppUser | null): UseTeamReturn => {
 
     if (!response.ok) {
       throw new Error(result.error || 'チームの作成に失敗しました。');
+    }
+
+    if (result.teamId) {
+      await user.getIdToken(true);
+      setTeamId(result.teamId);
     }
 
     return result;
@@ -237,7 +231,6 @@ export const useTeam = (user: AppUser | null): UseTeamReturn => {
 
   return {
     teamId,
-    teamIdFromURL,
     currentTeamId,
     team,
     teamMembers,

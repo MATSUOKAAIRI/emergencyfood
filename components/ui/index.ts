@@ -20,11 +20,6 @@ export type { CardProps } from './layout/Card';
 export { Tabs } from './Tabs';
 export type { TabItem } from './Tabs';
 
-// Accessibility Components
-export { FocusTrap } from './accessibility/FocusTrap';
-export { ScreenReaderOnly } from './accessibility/ScreenReaderOnly';
-export { SkipLink } from './accessibility/SkipLink';
-
 // Existing Components (re-export for compatibility)
 export { default as ConfirmDialog } from './ConfirmDialog';
 export { default as ErrorBoundary } from './ErrorBoundary';

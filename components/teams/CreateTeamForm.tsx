@@ -6,10 +6,12 @@ import React, { useState } from 'react';
 import { useAuth, useTeam } from '@/hooks';
 import { ERROR_MESSAGES } from '@/utils/constants';
 
-export default function CreateTeamForm() {
+interface CreateTeamFormProps {
+  onClose?: () => void;
+}
+
+export default function CreateTeamForm({ onClose }: CreateTeamFormProps) {
   const [teamName, setTeamName] = useState('');
-  const [teamPassword, setTeamPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -29,20 +31,23 @@ export default function CreateTeamForm() {
       return;
     }
 
-    if (teamPassword !== confirmPassword) {
-      setError('パスワードが一致しません');
-      setLoading(false);
-      return;
-    }
-
     try {
-      const result = await createTeam(teamName, teamPassword);
+      const result = await createTeam(teamName, '');
       setSuccessMessage(
         result.message || `家族グループ "${teamName}" を作成し、参加しました！`
       );
 
       if (result.teamId) {
-        router.replace(`/supplies/list?teamId=${result.teamId}`);
+        if (onClose) {
+          router.push(`/settings?tab=team&teamId=${result.teamId}`);
+          router.refresh();
+          setTimeout(() => {
+            onClose();
+          }, 500);
+        } else {
+          router.push(`/supplies/list?teamId=${result.teamId}`);
+          router.refresh();
+        }
       } else {
         router.replace('/supplies/list');
       }
@@ -91,42 +96,9 @@ export default function CreateTeamForm() {
             value={teamName}
             onChange={e => setTeamName(e.target.value)}
           />
-        </div>
-        <div>
-          <label
-            className='block text-black text-sm font-medium mb-1 sm:mb-2'
-            htmlFor='teamPassword'
-          >
-            パスワード
-          </label>
-          <input
-            required
-            className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent text-gray-900 text-base'
-            disabled={loading}
-            id='teamPassword'
-            placeholder='パスワードを入力'
-            type='password'
-            value={teamPassword}
-            onChange={e => setTeamPassword(e.target.value)}
-          />
-        </div>
-        <div>
-          <label
-            className='block text-black text-sm font-medium mb-1 sm:mb-2'
-            htmlFor='confirmPassword'
-          >
-            パスワードを再入力
-          </label>
-          <input
-            required
-            className='w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent text-gray-900 text-base'
-            disabled={loading}
-            id='confirmPassword'
-            placeholder='パスワードを再入力'
-            type='password'
-            value={confirmPassword}
-            onChange={e => setConfirmPassword(e.target.value)}
-          />
+          <p className='text-xs text-gray-600 mt-1'>
+            家族を招待するには、作成後に招待リンクを生成してください
+          </p>
         </div>
       </div>
       <button

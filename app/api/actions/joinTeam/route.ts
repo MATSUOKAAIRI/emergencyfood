@@ -67,19 +67,22 @@ export async function POST(req: Request) {
       const userData = userDoc.data();
       const teamDataAfterTransaction = teamDocFromTransaction.data();
 
-      if (userData?.teamId !== null && userData?.teamId !== undefined) {
-        throw new Error(
-          'You are already a member of another team. Please leave it first.'
-        );
-      }
-
       const currentTeamMembers = teamDataAfterTransaction?.members || [];
+      const currentUserTeams = userData?.teams || [];
 
       if (currentTeamMembers.includes(uid)) {
+        transaction.update(userDocRef, {
+          activeTeamId: foundTeamId,
+          teamId: foundTeamId,
+        });
         return;
       }
 
-      transaction.update(userDocRef, { teamId: foundTeamId });
+      transaction.update(userDocRef, {
+        teams: [...currentUserTeams, foundTeamId],
+        activeTeamId: foundTeamId,
+        teamId: foundTeamId,
+      });
       transaction.update(teamDocRef, { members: [...currentTeamMembers, uid] });
     });
 

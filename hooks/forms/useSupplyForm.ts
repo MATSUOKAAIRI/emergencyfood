@@ -31,7 +31,6 @@ const initialFormState: SupplyFormData = {
   expiryDate: '',
   category: '',
   unit: '',
-  evacuationLevel: '',
   amount: undefined,
   purchaseLocation: undefined,
   label: undefined,
@@ -73,17 +72,9 @@ export function useSupplyForm({
   };
 
   const validateForm = (): boolean => {
-    const { name, quantity, expiryDate, category, unit, evacuationLevel } =
-      formData;
+    const { name, quantity, expiryDate, category, unit } = formData;
 
-    if (
-      !name ||
-      !quantity ||
-      !expiryDate ||
-      !category ||
-      !unit ||
-      !evacuationLevel
-    ) {
+    if (!name || !quantity || !expiryDate || !category || !unit) {
       setErrorMessage('必須フィールドをすべて入力してください。');
       return false;
     }
@@ -117,7 +108,6 @@ export function useSupplyForm({
         expiryDate,
         category,
         unit,
-        evacuationLevel,
         amount,
         purchaseLocation,
         label,
@@ -125,7 +115,6 @@ export function useSupplyForm({
       } = formData;
 
       if (mode === 'add') {
-        // Get user token for API authentication
         if (!user) {
           setErrorMessage(ERROR_MESSAGES.UNAUTHORIZED);
           return;
@@ -144,7 +133,6 @@ export function useSupplyForm({
             expiryDate,
             category,
             unit,
-            evacuationLevel,
             amount: amount !== undefined ? Number(amount) : null,
             purchaseLocation: purchaseLocation || null,
             label: label || null,
@@ -161,7 +149,6 @@ export function useSupplyForm({
         resetForm();
         setSuccessMessage(SUCCESS_MESSAGES.FOOD_CREATED);
 
-        // リダイレクトでリストページに移動
         setTimeout(() => {
           router.push('/supplies/list');
         }, 1500);
@@ -177,14 +164,12 @@ export function useSupplyForm({
           expiryDate,
           category,
           unit,
-          evacuationLevel,
           amount: amount !== undefined ? Number(amount) : null,
           purchaseLocation: purchaseLocation || null,
           label: label || null,
           storageLocation: storageLocation || '未設定',
         };
 
-        // APIを使用して更新
         if (!user) {
           setErrorMessage(ERROR_MESSAGES.UNAUTHORIZED);
           return;

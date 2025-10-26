@@ -1,7 +1,17 @@
+'use client';
 import Link from 'next/link';
-import BackButton from './_components/BackButton';
+import { useRouter } from 'next/navigation';
 
 export default function NotFound() {
+  const router = useRouter();
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push('/');
+    }
+  };
+
   return (
     <div className='flex flex-col items-center justify-center min-h-[50vh] p-8'>
       <div className='text-center max-w-md'>
@@ -19,7 +29,12 @@ export default function NotFound() {
           >
             ホームに戻る
           </Link>
-          <BackButton />
+          <button
+            className='w-full px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium'
+            onClick={handleBack}
+          >
+            前のページに戻る
+          </button>
         </div>
       </div>
     </div>

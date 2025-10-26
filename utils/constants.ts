@@ -69,7 +69,7 @@ export const UI_CONSTANTS = {
   LOGOUT: 'ログアウト',
   ACCOUNT_NAME: 'アカウント名',
   EMAIL_ADDRESS: 'メールアドレス',
-  CHANGE_PASSWORD: 'パスワード変更',
+  CHANGE_PASSWORD: 'パスワードを変更する',
   FAMILY_GROUP_NAME: '家族グループ名',
   FAMILY_GROUP_OWNER: 'オーナー',
   FAMILY_GROUP_MEMBERS: 'メンバー',
@@ -131,21 +131,31 @@ export const FOOD_CATEGORIES = [
   '米・パン',
   '麺類',
   '缶詰',
+  'レトルト食品',
+  'インスタント食品',
   '乾物',
   '調味料',
   '飲料',
+  '野菜・果物',
   '菓子',
   // 日用品
   'トイレットペーパー',
   'ティッシュペーパー',
+  'ウェットティッシュ',
   '洗剤・石鹸',
   'シャンプー・ボディソープ',
   '歯磨き粉・歯ブラシ',
   '生理用品',
   'おむつ・ベビー用品',
   'マスク・消毒液',
+  // その他必需品
+  '医薬品',
   '懐中電灯・電池',
-  'その他',
+  'カセットコンロ・ガスボンベ',
+  'ラップ・アルミホイル',
+  'ポリ袋・ゴミ袋',
+  'ペットフード',
+  'その他（期限のないものなど）',
 ] as const;
 
 export const FOOD_UNITS = [
@@ -171,13 +181,6 @@ export const FOOD_UNITS = [
   '枚',
   '束',
   '房',
-  'その他',
-] as const;
-
-export const EVACUATION_LEVELS = [
-  '一次避難',
-  '二次避難',
-  '三次避難',
   'その他',
 ] as const;
 

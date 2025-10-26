@@ -1,34 +1,32 @@
 'use client';
-import { useState } from 'react';
-
 import AccountSettings from '@/components/settings/AccountSettings';
 import LineAccountLinker from '@/components/settings/LineAccountLinker';
 import LogoutSection from '@/components/settings/LogoutSection';
 import TeamSettings from '@/components/settings/TeamSettings';
-import { useAuth } from '@/hooks';
-import { ERROR_MESSAGES, UI_CONSTANTS } from '@/utils/constants';
+import { UI_CONSTANTS } from '@/utils/constants';
+import { useState } from 'react';
+
+import type { Team } from '@/types';
+
+interface ServerUser {
+  uid: string;
+  email: string;
+  displayName?: string;
+  teamId?: string;
+}
+
+interface SettingsClientProps {
+  user: ServerUser;
+  initialTeam?: Team | null;
+}
 
 type SettingsTab = 'line' | 'account' | 'team' | 'logout';
 
-export default function SettingsClient() {
-  const { user, loading: authLoading } = useAuth(true);
+export default function SettingsClient({
+  user,
+  initialTeam,
+}: SettingsClientProps) {
   const [activeTab, setActiveTab] = useState<SettingsTab>('line');
-
-  if (authLoading) {
-    return (
-      <div className='text-center mt-10 text-gray-600'>
-        {ERROR_MESSAGES.LOADING}
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className='text-center mt-10 text-gray-600'>
-        {ERROR_MESSAGES.UNAUTHORIZED}
-      </div>
-    );
-  }
 
   const tabs = [
     {
@@ -41,17 +39,27 @@ export default function SettingsClient() {
   ];
 
   const renderTabContent = () => {
+    const appUser = {
+      ...user,
+      getIdToken: async () => {
+        throw new Error('getIdToken not available in server context');
+      },
+      getIdTokenResult: async () => {
+        throw new Error('getIdTokenResult not available in server context');
+      },
+    };
+
     switch (activeTab) {
       case 'line':
-        return <LineAccountLinker currentUser={user} />;
+        return <LineAccountLinker currentUser={appUser} />;
       case 'account':
-        return <AccountSettings user={user} />;
+        return <AccountSettings user={appUser} />;
       case 'team':
-        return <TeamSettings user={user} />;
+        return <TeamSettings user={appUser} initialTeam={initialTeam} />;
       case 'logout':
         return <LogoutSection />;
       default:
-        return <LineAccountLinker currentUser={user} />;
+        return <LineAccountLinker currentUser={appUser} />;
     }
   };
 

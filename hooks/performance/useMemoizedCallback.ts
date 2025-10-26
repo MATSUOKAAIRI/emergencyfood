@@ -1,9 +1,5 @@
 import { useCallback, useRef } from 'react';
 
-/**
- * Enhanced useCallback that compares dependencies deeply
- * Useful for preventing unnecessary re-renders
- */
 export function useMemoizedCallback<T extends (...args: any[]) => any>(
   callback: T,
   deps: React.DependencyList
@@ -12,7 +8,6 @@ export function useMemoizedCallback<T extends (...args: any[]) => any>(
     undefined
   );
 
-  // Deep comparison of dependencies
   const depsChanged =
     !ref.current ||
     deps.length !== ref.current.deps.length ||

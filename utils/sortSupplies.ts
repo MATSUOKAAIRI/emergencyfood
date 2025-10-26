@@ -1,5 +1,6 @@
 import type { SortOption, SortOrder } from '@/components/supplies/SupplySort';
 import type { Supply } from '@/types';
+import { getNearestExpiryDate } from './supplyHelpers';
 
 export const sortSupplies = (
   supplies: Supply[],
@@ -16,14 +17,18 @@ export const sortSupplies = (
         comparison = a.name.localeCompare(b.name, 'ja');
         break;
       case 'expiryDate':
-        comparison =
-          new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime();
+        const dateA = getNearestExpiryDate(a);
+        const dateB = getNearestExpiryDate(b);
+        comparison = new Date(dateA).getTime() - new Date(dateB).getTime();
         break;
       case 'registeredAt':
         comparison = a.registeredAt.seconds - b.registeredAt.seconds;
         break;
       case 'category':
         comparison = a.category.localeCompare(b.category, 'ja');
+        break;
+      case 'reviewCount':
+        comparison = (a.reviewCount || 0) - (b.reviewCount || 0);
         break;
       default:
         comparison = 0;

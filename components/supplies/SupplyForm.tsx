@@ -39,18 +39,15 @@ export default function SupplyForm({
     <div className='max-w-2xl mx-auto'>
       <Card>
         <form onSubmit={handleSubmit}>
-          {/* Error and Success Messages */}
           {errorMessage && <ErrorMessage message={errorMessage} />}
           {successMessage && <SuccessMessage message={successMessage} />}
 
-          {/* Form Fields */}
           <div className='space-y-6'>
             <SupplyBasicFields formData={formData} onChange={handleChange} />
             <SupplyCategoryFields formData={formData} onChange={handleChange} />
             <SupplyOptionalFields formData={formData} onChange={handleChange} />
           </div>
 
-          {/* Form Actions */}
           <SupplyFormActions
             mode={mode}
             submitting={submitting}

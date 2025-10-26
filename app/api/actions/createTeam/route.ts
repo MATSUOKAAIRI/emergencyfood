@@ -27,9 +27,9 @@ export async function POST(req: Request) {
     const uid = decodedToken.uid;
     const { teamName, teamPassword } = await req.json();
 
-    if (!teamName || !teamPassword) {
+    if (!teamName) {
       return NextResponse.json(
-        { error: 'Team name and password are required' },
+        { error: 'Team name is required' },
         { status: 400 }
       );
     }
@@ -45,7 +45,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const hashedPassword = teamPassword;
+    const hashedPassword = teamPassword || `auto-${uid}-${Date.now()}`;
 
     const newTeamId = await adminDb.runTransaction(
       async (transaction: Transaction) => {
@@ -57,11 +57,7 @@ export async function POST(req: Request) {
         }
 
         const userData = userDoc.data();
-        if (userData?.teamId !== null && userData?.teamId !== undefined) {
-          throw new Error(
-            'You are already a member of another team. Please leave it first.'
-          );
-        }
+        const currentTeams = userData?.teams || [];
 
         const newTeamRef = teamsRef.doc();
         const generatedId = newTeamRef.id;
@@ -76,7 +72,11 @@ export async function POST(req: Request) {
           createdBy: uid,
         });
 
-        transaction.update(userDocRef, { teamId: generatedId });
+        transaction.update(userDocRef, {
+          teams: [...currentTeams, generatedId],
+          activeTeamId: generatedId,
+          teamId: generatedId,
+        });
 
         return generatedId;
       }
