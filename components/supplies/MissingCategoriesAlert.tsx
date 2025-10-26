@@ -25,7 +25,7 @@ export function MissingCategoriesAlert({
   teamStockSettings,
 }: MissingCategoriesAlertProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-
+  const [isSettingsExpanded, setIsSettingsExpanded] = useState(false);
   const userSupplies = supplies.map(s => ({
     category: s.category,
     quantity: s.quantity,
@@ -119,9 +119,21 @@ export function MissingCategoriesAlert({
                 {teamStockSettings.stockDays}日分目標
               </span>
             )}
-            <button className='text-gray-600 hover:text-gray-900 text-xl'>
-              {isExpanded ? '▲' : '▼'}
-            </button>
+            <svg
+              className={`w-5 h-5 text-gray-600 transition-transform ${
+                isExpanded ? 'transform rotate-180' : ''
+              }`}
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M19 9l-7 7-7-7'
+              />
+            </svg>
           </div>
         </div>
 

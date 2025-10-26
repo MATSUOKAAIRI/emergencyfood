@@ -61,7 +61,7 @@ export default function HandbookClient({
             onClick={() => setActiveCheckpoint(checkpoint.id)}
             className={`px-3 py-2 rounded-lg font-medium transition-colors ${
               activeCheckpoint === checkpoint.id
-                ? 'bg-orange-400 text-white'
+                ? 'bg-gray-800 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
