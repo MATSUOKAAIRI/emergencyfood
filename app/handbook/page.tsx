@@ -1,5 +1,9 @@
 import { getServerUser } from '@/utils/auth/server';
-import { fetchDisasterBoardFromDB, fetchTeamFromDB } from '@/utils/data/server';
+import {
+  fetchDisasterBoardFromDB,
+  fetchHandbookChecklistFromDB,
+  fetchTeamFromDB,
+} from '@/utils/data/server';
 import { redirect } from 'next/navigation';
 import HandbookClient from './_components/HandbookClient';
 
@@ -12,10 +16,13 @@ export default async function HandbookPage() {
     redirect('/settings?tab=team');
   }
 
-  const [disasterBoardData, teamData] = await Promise.all([
-    fetchDisasterBoardFromDB(user.teamId),
-    fetchTeamFromDB(user.teamId),
-  ]);
+  const [disasterBoardData, teamData, initialChecklistData] = await Promise.all(
+    [
+      fetchDisasterBoardFromDB(user.teamId),
+      fetchTeamFromDB(user.teamId),
+      fetchHandbookChecklistFromDB(user.teamId),
+    ]
+  );
 
   return (
     <div className='container mx-auto py-8 min-h-screen'>
@@ -28,6 +35,7 @@ export default async function HandbookPage() {
       <HandbookClient
         initialDisasterBoardData={disasterBoardData}
         initialTeamData={teamData}
+        initialChecklistData={initialChecklistData}
         user={user}
       />
     </div>

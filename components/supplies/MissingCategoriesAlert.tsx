@@ -6,11 +6,9 @@ import { useState } from 'react';
 import type { Supply, TeamStockSettings } from '@/types';
 import { aggregateStockStatus } from '@/utils/stockCalculator';
 import {
-  getLevelProgress,
-  getMissingCategoriesByPriorityAndLevel,
+  getMissingCategoriesByPriority,
+  getProgress,
   getRecommendedItems,
-  STOCK_LEVELS,
-  type StockLevel,
 } from '@/utils/stockRecommendations';
 
 interface MissingCategoriesAlertProps {
@@ -30,13 +28,12 @@ export function MissingCategoriesAlert({
     quantity: s.quantity,
   }));
 
-  const stockLevel = (teamStockSettings?.stockLevel ||
-    'standard') as StockLevel;
-  const missing = getMissingCategoriesByPriorityAndLevel(
+  const derivedDays = teamStockSettings?.stockDays || 14;
+  const missing = getMissingCategoriesByPriority(
     userSupplies,
-    stockLevel
+    teamStockSettings
   );
-  const progress = getLevelProgress(userSupplies, stockLevel);
+  const progress = getProgress(userSupplies);
   const aggregate = aggregateStockStatus(supplies, teamStockSettings);
   const totalMissing =
     missing.essential.length +
@@ -51,25 +48,19 @@ export function MissingCategoriesAlert({
             <div className='flex items-center gap-2'>
               <div>
                 <p className='text-green-800 font-semibold'>
-                  {progress.levelConfig.name}を達成しました！
+                  目標{derivedDays}日分を達成しました！
                 </p>
                 <p className='text-sm text-green-600'>
                   達成率 {aggregate.overallPercentage}%
                   {aggregate.out > 0 && ` • 在庫切れ ${aggregate.out}品目`}
-                  {aggregate.critical + aggregate.low > 0 &&
-                    ` • 少ない ${aggregate.critical + aggregate.low}品目`}
+                  {aggregate.critical > 0 &&
+                    ` • 緊急 ${aggregate.critical}品目`}
+                  {aggregate.low > 0 && ` • 少ない ${aggregate.low}品目`}
                 </p>
                 <p className='text-xs text-green-500'>
                   {progress.progressPercentage}% 完了（
                   {progress.stockedCategories}/{progress.totalCategories}
                   カテゴリ）
-                  {progress.nextLevel && (
-                    <>
-                      {' '}
-                      • 次のレベル「{STOCK_LEVELS[progress.nextLevel].name}
-                      」に挑戦してみませんか？
-                    </>
-                  )}
                 </p>
               </div>
             </div>
@@ -96,18 +87,18 @@ export function MissingCategoriesAlert({
           <div className='flex items-center gap-2'>
             <div>
               <p className='font-semibold text-gray-900'>
-                ＊{progress.levelConfig.name}の推奨（{totalMissing}件）
+                ＊目標{derivedDays}日分の推奨（{totalMissing}件）
               </p>
               <p className='text-sm text-gray-600'>
                 達成率 {aggregate.overallPercentage}%
                 {aggregate.out > 0 && ` • 在庫切れ ${aggregate.out}品目`}
-                {aggregate.critical + aggregate.low > 0 &&
-                  ` • 少ない ${aggregate.critical + aggregate.low}品目`}
+                {aggregate.critical > 0 && ` • 緊急 ${aggregate.critical}品目`}
+                {aggregate.low > 0 && ` • 少ない ${aggregate.low}品目`}
               </p>
               <p className='text-xs text-gray-500'>
                 {progress.progressPercentage}% 完了（
                 {progress.stockedCategories}/{progress.totalCategories}
-                カテゴリ） • {progress.levelConfig.description}
+                カテゴリ）
               </p>
             </div>
           </div>
@@ -140,7 +131,7 @@ export function MissingCategoriesAlert({
           <div className='mt-4 space-y-4'>
             {missing.essential.length > 0 && (
               <div>
-                <h4 className='font-semibold text-red-700 mb-2 flex items-center gap-2'>
+                <h4 className='font-semibold text-orange-700 mb-2 flex items-center gap-2'>
                   <span>必須カテゴリ（{missing.essential.length}件）</span>
                 </h4>
                 <div className='space-y-2'>
@@ -153,9 +144,6 @@ export function MissingCategoriesAlert({
                         <div className='flex-1'>
                           <p className='font-semibold text-gray-900'>
                             {rec.category}
-                          </p>
-                          <p className='text-sm text-gray-600 mt-1'>
-                            {rec.description}
                           </p>
                           <div className='mt-2'>
                             <p className='text-xs text-gray-500 font-semibold mb-1'>
@@ -280,19 +268,6 @@ export function MissingCategoriesAlert({
                   ))}
                 </div>
               </details>
-            )}
-
-            {/* レベルアップの提案 */}
-            {progress.nextLevel && (
-              <div className='mt-4 p-3 bg-gray-50 border border-gray-200 rounded-md'>
-                <p className='text-gray-800 font-semibold text-sm'>
-                  レベルアップの準備ができています！
-                </p>
-                <p className='text-gray-600 text-xs mt-1'>
-                  次のレベル「{STOCK_LEVELS[progress.nextLevel].name}
-                  」に挑戦してみませんか？
-                </p>
-              </div>
             )}
           </div>
         )}

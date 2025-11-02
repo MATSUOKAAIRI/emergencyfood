@@ -15,12 +15,17 @@ interface ServerUser {
 interface HandbookClientProps {
   initialDisasterBoardData: DisasterBoardData | null;
   initialTeamData: Team | null;
+  initialChecklistData: {
+    checkedItemIds: string[];
+    checkedPetItems: { [petType: string]: string[] };
+  } | null;
   user: ServerUser;
 }
 
 export default function HandbookClient({
   initialDisasterBoardData,
   initialTeamData,
+  initialChecklistData,
   user,
 }: HandbookClientProps) {
   const [activeCheckpoint, setActiveCheckpoint] = useState<
@@ -36,7 +41,12 @@ export default function HandbookClient({
   const renderCheckpoint = () => {
     switch (activeCheckpoint) {
       case 'supplies':
-        return <SuppliesChecklist initialTeamData={initialTeamData} />;
+        return (
+          <SuppliesChecklist
+            initialTeamData={initialTeamData}
+            initialChecklistData={initialChecklistData}
+          />
+        );
       case 'hazardmap':
         return <HazardMapCheckpoint />;
       case 'disasterboard':
@@ -48,7 +58,12 @@ export default function HandbookClient({
           />
         );
       default:
-        return <SuppliesChecklist initialTeamData={initialTeamData} />;
+        return (
+          <SuppliesChecklist
+            initialTeamData={initialTeamData}
+            initialChecklistData={initialChecklistData}
+          />
+        );
     }
   };
 

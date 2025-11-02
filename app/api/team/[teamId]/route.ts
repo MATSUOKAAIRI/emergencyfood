@@ -79,6 +79,7 @@ export async function GET(
       members: teamData.members,
       createdAt: teamData.createdAt,
       createdBy: teamData.createdBy,
+      stockSettings: teamData.stockSettings || undefined,
     };
 
     return NextResponse.json({

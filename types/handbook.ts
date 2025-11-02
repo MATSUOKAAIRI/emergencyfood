@@ -17,17 +17,17 @@ export const PET_TYPE_LABELS: Record<PetType, string> = {
 };
 
 export const AGE_GROUP_EMOJIS: Record<AgeGroup, string> = {
-  adult: '👨',
-  child: '👦',
-  infant: '👶',
-  elderly: '👴',
+  adult: '',
+  child: '',
+  infant: '',
+  elderly: '',
 };
 
 export const PET_TYPE_EMOJIS: Record<PetType, string> = {
-  dog: '🐕',
-  cat: '🐈',
-  small_animal: '🐰',
-  bird: '🐦',
+  dog: '',
+  cat: '',
+  small_animal: '',
+  bird: '',
 };
 
 export interface SupplyItem {
@@ -39,6 +39,7 @@ export interface SupplyItem {
 }
 
 export interface AgeGroupChecklist {
+  id: string;
   ageGroup: AgeGroup;
   count: number;
   items: SupplyItem[];

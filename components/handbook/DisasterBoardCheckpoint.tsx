@@ -198,11 +198,11 @@ export default function DisasterBoardCheckpoint({
       </div>
 
       {/* 使い方ガイド */}
-      <div className='bg-blue-50 border border-blue-200 rounded-lg p-4'>
-        <h4 className='text-lg font-medium text-blue-900 mb-2'>
+      <div className='bg-gray-50 border border-gray-200 rounded-lg p-4'>
+        <h4 className='text-lg font-medium text-gray-900 mb-2'>
           災害用伝言板の使い方
         </h4>
-        <div className='text-sm text-blue-800 space-y-2'>
+        <div className='text-sm text-gray-800 space-y-2'>
           <p>
             <strong>避難関連</strong>: 避難場所と避難経路を事前に決めておく
           </p>
@@ -216,9 +216,9 @@ export default function DisasterBoardCheckpoint({
       </div>
 
       {/* 注意事項 */}
-      <div className='bg-yellow-50 border border-yellow-200 rounded-lg p-4'>
-        <h4 className='text-lg font-medium text-yellow-900 mb-2'>注意事項</h4>
-        <div className='text-sm text-yellow-800 space-y-2'>
+      <div className='bg-gray-50 border border-gray-200 rounded-lg p-4'>
+        <h4 className='text-lg font-medium text-gray-900 mb-2'>注意事項</h4>
+        <div className='text-sm text-gray-800 space-y-2'>
           <p>• 災害時に備えて、定期的に情報を更新してください</p>
           <p>• 家族全員で情報を共有し、定期的に確認してください</p>
           <p>• 避難場所や連絡方法は実際に確認しておきましょう</p>

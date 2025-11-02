@@ -23,8 +23,16 @@ export interface StockRecommendation {
 export const STOCK_LEVELS = {
   beginner: {
     name: '最小限（1週間）',
-    description: 'まずはこれだけ！基本的な5カテゴリ',
-    categories: ['米・パン', '飲料', '缶詰', 'トイレットペーパー', '医薬品'],
+    description: 'まずはこれだけ！政府推奨の最低限カテゴリ',
+    categories: [
+      '米・パン',
+      '飲料',
+      '缶詰',
+      'レトルト食品',
+      'インスタント食品',
+      'トイレットペーパー',
+      '医薬品',
+    ],
     color: 'green',
   },
   standard: {
@@ -179,7 +187,7 @@ export function getExpiryType(category: string): {
 export const STOCK_RECOMMENDATIONS: Record<string, StockRecommendation> = {
   '米・パン': {
     category: '米・パン',
-    perPersonPerDay: 3, // 1日3食
+    perPersonPerDay: 3, // 政府推奨：ご飯（アルファ米など）2食分、乾パンなど1食分
     byAgeGroup: {
       adult: 3,
       child: 2.5,
@@ -188,7 +196,7 @@ export const STOCK_RECOMMENDATIONS: Record<string, StockRecommendation> = {
     },
     unit: '食',
     priority: 'essential',
-    description: '主食は最も重要な備蓄品です',
+    description: '主食は最も重要な備蓄品（政府推奨：ご飯・乾パンなど）',
   },
   麺類: {
     category: '麺類',
@@ -205,18 +213,18 @@ export const STOCK_RECOMMENDATIONS: Record<string, StockRecommendation> = {
   },
   缶詰: {
     category: '缶詰',
-    perPersonPerDay: 2,
+    perPersonPerDay: 3, // 政府推奨：肉や魚の缶詰3缶/日
     byAgeGroup: {
-      adult: 2,
-      child: 1.5,
-      infant: 1,
-      elderly: 1.5,
+      adult: 3,
+      child: 2,
+      infant: 1.5,
+      elderly: 2.5,
     },
     perDogPerDay: 2, // 中型犬想定
     perCatPerDay: 2,
     unit: '缶',
     priority: 'essential',
-    description: 'タンパク質源として重要',
+    description: 'タンパク質源として重要（政府推奨：肉や魚の缶詰）',
   },
   乾物: {
     category: '乾物',
@@ -319,29 +327,29 @@ export const STOCK_RECOMMENDATIONS: Record<string, StockRecommendation> = {
   },
   レトルト食品: {
     category: 'レトルト食品',
-    perPersonPerDay: 1.5,
+    perPersonPerDay: 3, // 政府推奨：副菜としてレトルト食品3食分/日
     byAgeGroup: {
-      adult: 1.5,
-      child: 1,
-      infant: 0.5,
-      elderly: 1.5,
+      adult: 3,
+      child: 2,
+      infant: 1,
+      elderly: 2.5,
     },
     unit: '食',
     priority: 'essential',
-    description: '温めるだけで食べられる主菜として重要',
+    description: '副菜として重要（政府推奨：野菜の缶詰やレトルト食品3食分）',
   },
   インスタント食品: {
     category: 'インスタント食品',
-    perPersonPerDay: 2,
+    perPersonPerDay: 3, // 政府推奨：汁物として即席みそ汁やスープ3食分/日
     byAgeGroup: {
-      adult: 2,
-      child: 1.5,
-      infant: 0.5,
-      elderly: 2,
+      adult: 3,
+      child: 2,
+      infant: 1,
+      elderly: 2.5,
     },
     unit: '食',
     priority: 'important',
-    description: '味噌汁やスープで栄養補給',
+    description: '汁物として重要（政府推奨：即席みそ汁やスープ3食分）',
   },
   '野菜・果物': {
     category: '野菜・果物',
@@ -435,38 +443,58 @@ export function getRecommendationsByPriority(
 }
 
 /**
- * ユーザーが備蓄していないカテゴリを取得（レベル別）
+ * ユーザーが備蓄していないカテゴリを取得（全カテゴリ対象、家族構成を考慮）
  */
-export function getMissingCategoriesByLevel(
+export function getMissingCategories(
   userSupplies: Array<{ category: string; quantity: number }>,
-  stockLevel: StockLevel = 'standard'
+  teamStockSettings?: {
+    composition?: { infant?: number };
+    hasPets?: boolean;
+  } | null
 ): StockRecommendation[] {
-  const levelConfig = STOCK_LEVELS[stockLevel];
   const userCategories = new Set(
     userSupplies.filter(s => s.quantity > 0).map(s => s.category)
   );
 
-  // レベルに応じたカテゴリのみをチェック
-  const levelCategories = levelConfig.categories;
+  // 全カテゴリを対象にチェック（家族構成を考慮）
+  return Object.values(STOCK_RECOMMENDATIONS).filter(rec => {
+    // 既に備蓄しているカテゴリは除外
+    if (userCategories.has(rec.category)) {
+      return false;
+    }
 
-  return levelCategories
-    .filter(category => !userCategories.has(category))
-    .map(category => STOCK_RECOMMENDATIONS[category])
-    .filter(Boolean);
+    // おむつ・ベビー用品は乳幼児がいる場合のみ表示
+    if (rec.category === 'おむつ・ベビー用品') {
+      const hasInfant =
+        teamStockSettings?.composition?.infant !== undefined &&
+        teamStockSettings.composition.infant > 0;
+      return hasInfant;
+    }
+
+    // ペットフードはペットがいる場合のみ表示
+    if (rec.category === 'ペットフード') {
+      return teamStockSettings?.hasPets === true;
+    }
+
+    return true;
+  });
 }
 
 /**
- * 優先度別に不足カテゴリを取得（レベル別）
+ * 優先度別に不足カテゴリを取得（全カテゴリ対象、家族構成を考慮）
  */
-export function getMissingCategoriesByPriorityAndLevel(
+export function getMissingCategoriesByPriority(
   userSupplies: Array<{ category: string; quantity: number }>,
-  stockLevel: StockLevel = 'standard'
+  teamStockSettings?: {
+    composition?: { infant?: number };
+    hasPets?: boolean;
+  } | null
 ): {
   essential: StockRecommendation[];
   important: StockRecommendation[];
   recommended: StockRecommendation[];
 } {
-  const missing = getMissingCategoriesByLevel(userSupplies, stockLevel);
+  const missing = getMissingCategories(userSupplies, teamStockSettings);
 
   return {
     essential: missing.filter(rec => rec.priority === 'essential'),
@@ -475,7 +503,39 @@ export function getMissingCategoriesByPriorityAndLevel(
   };
 }
 
-//レベル別の進捗状況を取得
+/**
+ * 全カテゴリの進捗状況を取得（レベル不要）
+ */
+export function getProgress(
+  userSupplies: Array<{ category: string; quantity: number }>
+): {
+  totalCategories: number;
+  stockedCategories: number;
+  missingCategories: number;
+  progressPercentage: number;
+} {
+  const userCategories = new Set(
+    userSupplies.filter(s => s.quantity > 0).map(s => s.category)
+  );
+
+  const totalCategories = Object.keys(STOCK_RECOMMENDATIONS).length;
+  const stockedCategories = Object.keys(STOCK_RECOMMENDATIONS).filter(
+    category => userCategories.has(category)
+  ).length;
+  const missingCategories = totalCategories - stockedCategories;
+  const progressPercentage = Math.round(
+    (stockedCategories / totalCategories) * 100
+  );
+
+  return {
+    totalCategories,
+    stockedCategories,
+    missingCategories,
+    progressPercentage,
+  };
+}
+
+//レベル別の進捗状況を取得（非推奨：getProgressを使用してください）
 export function getLevelProgress(
   userSupplies: Array<{ category: string; quantity: number }>,
   stockLevel: StockLevel = 'standard'
