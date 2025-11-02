@@ -79,7 +79,33 @@ export async function POST(req: Request) {
       dogCount: stockSettings.dogCount || 0,
       catCount: stockSettings.catCount || 0,
       updatedAt: new Date().toISOString(),
-    };
+      ...(stockSettings.useDetailedComposition
+        ? {
+            useDetailedComposition: true,
+            composition: {
+              adult: Number(stockSettings.composition?.adult || 0),
+              child: Number(stockSettings.composition?.child || 0),
+              infant: Number(stockSettings.composition?.infant || 0),
+              elderly: Number(stockSettings.composition?.elderly || 0),
+            },
+          }
+        : {}),
+      ...(stockSettings.notifications
+        ? {
+            notifications: {
+              enabled: stockSettings.notifications.enabled !== false,
+              criticalStock:
+                stockSettings.notifications.criticalStock !== false,
+              lowStock: stockSettings.notifications.lowStock !== false,
+              expiryNear: stockSettings.notifications.expiryNear !== false,
+              weeklyReport: !!stockSettings.notifications.weeklyReport,
+            },
+          }
+        : {}),
+      ...(stockSettings.stockLevel
+        ? { stockLevel: stockSettings.stockLevel }
+        : {}),
+    } as TeamStockSettings;
 
     await adminDb.collection('teams').doc(teamId).update({
       stockSettings: settingsToSave,

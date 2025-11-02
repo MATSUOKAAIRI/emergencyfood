@@ -2,8 +2,7 @@
 import { useAuth } from '@/hooks';
 import type { AgeGroupChecklist, PetChecklist, Team } from '@/types';
 import {
-  AGE_GROUP_EMOJIS,
-  AGE_GROUP_LABELS,
+  type SupplyItem,
   PET_TYPE_EMOJIS,
   PET_TYPE_LABELS,
 } from '@/types/handbook';
@@ -12,10 +11,15 @@ import { useEffect, useState } from 'react';
 
 interface SuppliesChecklistProps {
   initialTeamData: Team | null;
+  initialChecklistData: {
+    checkedItemIds: string[];
+    checkedPetItems: { [petType: string]: string[] };
+  } | null;
 }
 
 export default function SuppliesChecklist({
   initialTeamData,
+  initialChecklistData,
 }: SuppliesChecklistProps) {
   const { user } = useAuth();
   const router = useRouter();
@@ -78,9 +82,6 @@ export default function SuppliesChecklist({
   const [notifyWeeklyReport, setNotifyWeeklyReport] = useState(
     initialTeamData?.stockSettings?.notifications?.weeklyReport || false
   );
-  const [stockLevel, setStockLevel] = useState<
-    'beginner' | 'standard' | 'advanced'
-  >(initialTeamData?.stockSettings?.stockLevel || 'beginner');
   const [isSettingsExpanded, setIsSettingsExpanded] = useState(false);
 
   const [message, setMessage] = useState<{
@@ -90,14 +91,24 @@ export default function SuppliesChecklist({
 
   useEffect(() => {
     if (!initialTeamData?.stockSettings) {
+      // 初期設定時も1つのチェックリストで人数を含む
       setChecklists({
         ageGroups: [
           {
+            id: 'adult',
             ageGroup: 'adult',
             count: 1,
             items: [
-              { id: 'adult-water', name: '水（1人1日3L）', isEssential: true },
-              { id: 'adult-food', name: '非常食（3日分）', isEssential: true },
+              {
+                id: 'adult-water',
+                name: '水（1人1日3L）',
+                isEssential: true,
+              },
+              {
+                id: 'adult-food',
+                name: '非常食（3日分）',
+                isEssential: true,
+              },
               { id: 'adult-medicine', name: '常備薬', isEssential: true },
               { id: 'adult-clothes', name: '着替え', isEssential: false },
               { id: 'adult-hygiene', name: '衛生用品', isEssential: true },
@@ -111,107 +122,213 @@ export default function SuppliesChecklist({
     }
 
     const {
-      householdSize,
-      hasPets,
-      dogCount,
-      catCount,
-      useDetailedComposition,
-      composition,
+      householdSize: initialHouseholdSize,
+      hasPets: initialHasPets,
+      dogCount: initialDogCount,
+      catCount: initialCatCount,
+      useDetailedComposition: initialUseDetailedComposition,
+      composition: initialComposition,
     } = initialTeamData.stockSettings;
 
+    // コンポーネントのstateの値を使用（設定変更時に即時反映）
+    const currentHouseholdSize = householdSize ?? initialHouseholdSize ?? 1;
+    const currentHasPets = hasPets ?? initialHasPets ?? false;
+    const currentDogCount = dogCount ?? initialDogCount ?? 0;
+    const currentCatCount = catCount ?? initialCatCount ?? 0;
+    const currentUseDetailedComposition =
+      useDetailedComposition ?? initialUseDetailedComposition ?? false;
+    const currentComposition = currentUseDetailedComposition
+      ? {
+          adult: adultCount || initialComposition?.adult || 0,
+          child: childCount || initialComposition?.child || 0,
+          infant: infantCount || initialComposition?.infant || 0,
+          elderly: elderlyCount || initialComposition?.elderly || 0,
+        }
+      : initialComposition;
+
     const ageGroups: AgeGroupChecklist[] = [];
+    const allItems: SupplyItem[] = [];
 
-    if (useDetailedComposition && composition) {
-      if (composition.adult > 0) {
-        ageGroups.push({
-          ageGroup: 'adult',
-          count: composition.adult,
-          items: [
-            { id: 'adult-water', name: '水（1人1日3L）', isEssential: true },
-            { id: 'adult-food', name: '非常食（3日分）', isEssential: true },
-            { id: 'adult-medicine', name: '常備薬', isEssential: true },
-            { id: 'adult-clothes', name: '着替え', isEssential: false },
-            { id: 'adult-hygiene', name: '衛生用品', isEssential: true },
-          ],
-          checkedItems: [],
-        });
+    if (currentUseDetailedComposition && currentComposition) {
+      // 大人のアイテムをリストに追加
+      if (currentComposition.adult > 0) {
+        const adultCount = currentComposition.adult;
+        allItems.push(
+          {
+            id: 'adult-water',
+            name: `大人：水（1人1日3L${adultCount > 1 ? ` × ${adultCount}人分 = ${adultCount * 3}L/日` : ''}）`,
+            isEssential: true,
+          },
+          {
+            id: 'adult-food',
+            name: `大人：非常食（3日分${adultCount > 1 ? ` × ${adultCount}人` : ''}）`,
+            isEssential: true,
+          },
+          {
+            id: 'adult-medicine',
+            name: `大人：常備薬${adultCount > 1 ? `（${adultCount}人分）` : ''}`,
+            isEssential: true,
+          },
+          {
+            id: 'adult-clothes',
+            name: `大人：着替え${adultCount > 1 ? `（${adultCount}人分）` : ''}`,
+            isEssential: false,
+          },
+          {
+            id: 'adult-hygiene',
+            name: `大人：衛生用品${adultCount > 1 ? `（${adultCount}人分）` : ''}`,
+            isEssential: true,
+          }
+        );
       }
 
-      if (composition.child > 0) {
-        ageGroups.push({
-          ageGroup: 'child',
-          count: composition.child,
-          items: [
-            { id: 'child-water', name: '水（1人1日2L）', isEssential: true },
-            { id: 'child-food', name: '子供用非常食', isEssential: true },
-            { id: 'child-toy', name: 'おもちゃ・絵本', isEssential: false },
-            { id: 'child-clothes', name: '着替え', isEssential: true },
-            {
-              id: 'child-diaper',
-              name: 'おむつ（必要に応じて）',
-              isEssential: false,
-            },
-          ],
-          checkedItems: [],
-        });
+      // 子供のアイテムをリストに追加
+      if (currentComposition.child > 0) {
+        const childCount = currentComposition.child;
+        allItems.push(
+          {
+            id: 'child-water',
+            name: `子供：水（1人1日2L${childCount > 1 ? ` × ${childCount}人分 = ${childCount * 2}L/日` : ''}）`,
+            isEssential: true,
+          },
+          {
+            id: 'child-food',
+            name: `子供：子供用非常食${childCount > 1 ? `（${childCount}人分）` : ''}`,
+            isEssential: true,
+          },
+          {
+            id: 'child-toy',
+            name: `子供：おもちゃ・絵本${childCount > 1 ? `（${childCount}人分）` : ''}`,
+            isEssential: false,
+          },
+          {
+            id: 'child-clothes',
+            name: `子供：着替え${childCount > 1 ? `（${childCount}人分）` : ''}`,
+            isEssential: true,
+          },
+          {
+            id: 'child-diaper',
+            name: `子供：おむつ（必要に応じて）${childCount > 1 ? `（${childCount}人分）` : ''}`,
+            isEssential: false,
+          }
+        );
       }
 
-      if (composition.infant > 0) {
-        ageGroups.push({
-          ageGroup: 'infant',
-          count: composition.infant,
-          items: [
-            { id: 'infant-milk', name: '粉ミルク', isEssential: true },
-            { id: 'infant-water', name: '水（調乳用）', isEssential: true },
-            { id: 'infant-diaper', name: 'おむつ', isEssential: true },
-            { id: 'infant-clothes', name: 'ベビー服', isEssential: true },
-            { id: 'infant-toy', name: 'ベビー用品', isEssential: false },
-          ],
-          checkedItems: [],
-        });
+      // 乳幼児のアイテムをリストに追加
+      if (currentComposition.infant > 0) {
+        const infantCount = currentComposition.infant;
+        allItems.push(
+          {
+            id: 'infant-milk',
+            name: `乳幼児：粉ミルク${infantCount > 1 ? `（${infantCount}人分）` : ''}`,
+            isEssential: true,
+          },
+          {
+            id: 'infant-water',
+            name: `乳幼児：水（調乳用）${infantCount > 1 ? `（${infantCount}人分）` : ''}`,
+            isEssential: true,
+          },
+          {
+            id: 'infant-diaper',
+            name: `乳幼児：おむつ${infantCount > 1 ? `（${infantCount}人分）` : ''}`,
+            isEssential: true,
+          },
+          {
+            id: 'infant-clothes',
+            name: `乳幼児：ベビー服${infantCount > 1 ? `（${infantCount}人分）` : ''}`,
+            isEssential: true,
+          },
+          {
+            id: 'infant-toy',
+            name: `乳幼児：ベビー用品${infantCount > 1 ? `（${infantCount}人分）` : ''}`,
+            isEssential: false,
+          }
+        );
       }
 
-      if (composition.elderly > 0) {
-        ageGroups.push({
-          ageGroup: 'elderly',
-          count: composition.elderly,
-          items: [
-            { id: 'elderly-water', name: '水（1人1日3L）', isEssential: true },
-            {
-              id: 'elderly-food',
-              name: '介護食・やわらかい食品',
-              isEssential: true,
-            },
-            { id: 'elderly-medicine', name: '薬・医療用品', isEssential: true },
-            { id: 'elderly-glasses', name: '眼鏡・補聴器', isEssential: true },
-            { id: 'elderly-clothes', name: '着替え', isEssential: true },
-          ],
-          checkedItems: [],
-        });
+      // 高齢者のアイテムをリストに追加
+      if (currentComposition.elderly > 0) {
+        const elderlyCount = currentComposition.elderly;
+        allItems.push(
+          {
+            id: 'elderly-water',
+            name: `高齢者：水（1人1日3L${elderlyCount > 1 ? ` × ${elderlyCount}人分 = ${elderlyCount * 3}L/日` : ''}）`,
+            isEssential: true,
+          },
+          {
+            id: 'elderly-food',
+            name: `高齢者：介護食・やわらかい食品${elderlyCount > 1 ? `（${elderlyCount}人分）` : ''}`,
+            isEssential: true,
+          },
+          {
+            id: 'elderly-medicine',
+            name: `高齢者：薬・医療用品${elderlyCount > 1 ? `（${elderlyCount}人分）` : ''}`,
+            isEssential: true,
+          },
+          {
+            id: 'elderly-glasses',
+            name: `高齢者：眼鏡・補聴器${elderlyCount > 1 ? `（${elderlyCount}人分）` : ''}`,
+            isEssential: true,
+          },
+          {
+            id: 'elderly-clothes',
+            name: `高齢者：着替え${elderlyCount > 1 ? `（${elderlyCount}人分）` : ''}`,
+            isEssential: true,
+          }
+        );
       }
     } else {
-      const totalPeople = householdSize || 1;
+      // 詳細設定が無効な場合
+      const totalPeople = currentHouseholdSize;
+      if (totalPeople > 0) {
+        allItems.push(
+          {
+            id: 'adult-water',
+            name: `水（1人1日3L${totalPeople > 1 ? ` × ${totalPeople}人分 = ${totalPeople * 3}L/日` : ''}）`,
+            isEssential: true,
+          },
+          {
+            id: 'adult-food',
+            name: `非常食（3日分${totalPeople > 1 ? ` × ${totalPeople}人` : ''}）`,
+            isEssential: true,
+          },
+          {
+            id: 'adult-medicine',
+            name: `常備薬${totalPeople > 1 ? `（${totalPeople}人分）` : ''}`,
+            isEssential: true,
+          },
+          {
+            id: 'adult-clothes',
+            name: `着替え${totalPeople > 1 ? `（${totalPeople}人分）` : ''}`,
+            isEssential: false,
+          },
+          {
+            id: 'adult-hygiene',
+            name: `衛生用品${totalPeople > 1 ? `（${totalPeople}人分）` : ''}`,
+            isEssential: true,
+          }
+        );
+      }
+    }
+
+    // 1つのチェックリストグループとして作成
+    if (allItems.length > 0) {
       ageGroups.push({
-        ageGroup: 'adult',
-        count: totalPeople,
-        items: [
-          { id: 'adult-water', name: '水（1人1日3L）', isEssential: true },
-          { id: 'adult-food', name: '非常食（3日分）', isEssential: true },
-          { id: 'adult-medicine', name: '常備薬', isEssential: true },
-          { id: 'adult-clothes', name: '着替え', isEssential: false },
-          { id: 'adult-hygiene', name: '衛生用品', isEssential: true },
-        ],
+        id: 'all',
+        ageGroup: 'adult', // 型互換性のため（実際には表示で使用しない）
+        count: currentHouseholdSize,
+        items: allItems,
         checkedItems: [],
       });
     }
 
     const pets: PetChecklist[] = [];
 
-    if (hasPets) {
-      if ((dogCount ?? 0) > 0) {
+    if (currentHasPets) {
+      if (currentDogCount > 0) {
         pets.push({
           petType: 'dog',
-          count: dogCount ?? 0,
+          count: currentDogCount,
           items: [
             {
               id: 'dog-food',
@@ -227,10 +344,10 @@ export default function SuppliesChecklist({
         });
       }
 
-      if ((catCount ?? 0) > 0) {
+      if (currentCatCount > 0) {
         pets.push({
           petType: 'cat',
-          count: catCount ?? 0,
+          count: currentCatCount,
           items: [
             {
               id: 'cat-food',
@@ -247,8 +364,46 @@ export default function SuppliesChecklist({
       }
     }
 
+    // 保存されたチェックリストの状態をマージ
+    // アイテムIDは固定なので、アイテムタイプベースで復元
+    if (initialChecklistData) {
+      const checkedItemIdsSet = new Set(
+        initialChecklistData.checkedItemIds || []
+      );
+
+      // 年齢層のチェック状態を復元（アイテムIDが一致するものを復元）
+      ageGroups.forEach(group => {
+        group.checkedItems = group.items
+          .map(item => item.id)
+          .filter(itemId => checkedItemIdsSet.has(itemId));
+      });
+
+      // ペットのチェック状態を復元
+      pets.forEach(pet => {
+        const savedCheckedItems =
+          initialChecklistData.checkedPetItems?.[pet.petType];
+        if (savedCheckedItems) {
+          pet.checkedItems = savedCheckedItems.filter(itemId =>
+            pet.items.some(item => item.id === itemId)
+          );
+        }
+      });
+    }
+
     setChecklists({ ageGroups, pets });
-  }, [initialTeamData]);
+  }, [
+    initialTeamData,
+    initialChecklistData,
+    householdSize,
+    hasPets,
+    dogCount,
+    catCount,
+    useDetailedComposition,
+    adultCount,
+    childCount,
+    infantCount,
+    elderlyCount,
+  ]);
 
   const toggleItem = (type: 'age' | 'pet', groupId: string, itemId: string) => {
     setChecklists(prev => {
@@ -256,7 +411,7 @@ export default function SuppliesChecklist({
         return {
           ...prev,
           ageGroups: prev.ageGroups.map(group =>
-            group.ageGroup === groupId
+            group.id === groupId
               ? {
                   ...group,
                   checkedItems: group.checkedItems.includes(itemId)
@@ -286,6 +441,67 @@ export default function SuppliesChecklist({
 
   const getProgress = (checkedItems: string[], totalItems: number) => {
     return Math.round((checkedItems.length / totalItems) * 100);
+  };
+
+  const [savingChecklist, setSavingChecklist] = useState(false);
+
+  const handleSaveChecklist = async () => {
+    if (!initialTeamData || !user) return;
+
+    setSavingChecklist(true);
+    try {
+      const idToken = await user.getIdToken();
+      if (!idToken) {
+        throw new Error('認証トークンを取得できませんでした');
+      }
+
+      // チェック済みアイテムIDを収集（重複除去）
+      const checkedItemIds = new Set<string>();
+      checklists.ageGroups.forEach(group => {
+        group.checkedItems.forEach(itemId => {
+          checkedItemIds.add(itemId);
+        });
+      });
+
+      // ペットのチェック済みアイテム
+      const checkedPetItems: { [key: string]: string[] } = {};
+      checklists.pets.forEach(pet => {
+        if (pet.checkedItems.length > 0) {
+          checkedPetItems[pet.petType] = pet.checkedItems;
+        }
+      });
+
+      const response = await fetch('/api/handbook/checklist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({
+          checkedItemIds: Array.from(checkedItemIds),
+          checkedPetItems,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setMessage({ type: 'success', text: 'チェックリストを保存しました' });
+        router.refresh();
+      } else {
+        throw new Error(result.error || 'チェックリストの保存に失敗しました');
+      }
+    } catch (error) {
+      setMessage({
+        type: 'error',
+        text:
+          error instanceof Error
+            ? error.message
+            : 'チェックリストの保存に失敗しました',
+      });
+    } finally {
+      setSavingChecklist(false);
+    }
   };
 
   const handleUpdateStockSettings = async () => {
@@ -328,7 +544,6 @@ export default function SuppliesChecklist({
               expiryNear: notifyExpiryNear,
               weeklyReport: notifyWeeklyReport,
             },
-            stockLevel,
           },
         }),
       });
@@ -462,7 +677,7 @@ export default function SuppliesChecklist({
                 <option value='30'>30日分</option>
               </select>
               <p className='text-xs text-gray-500 mt-1'>
-                ※ 政府推奨は最低3日分、できれば7日分以上
+                ※ 政府推奨：最低3日分（1週間分以上が望ましい。広域災害に備えて）
               </p>
             </div>
 
@@ -692,87 +907,6 @@ export default function SuppliesChecklist({
               )}
             </div>
 
-            {/* レベル設定 */}
-            <div className='mb-6'>
-              <h3 className='text-lg font-semibold text-gray-900 mb-4'>
-                レベル設定
-              </h3>
-              <div className='space-y-3'>
-                <div>
-                  <label className='block text-sm font-medium text-gray-700 mb-2'>
-                    レベル
-                  </label>
-                  <div className='space-y-2'>
-                    <label className='flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50'>
-                      <input
-                        type='radio'
-                        name='stockLevel'
-                        value='beginner'
-                        checked={stockLevel === 'beginner'}
-                        onChange={e =>
-                          setStockLevel(e.target.value as 'beginner')
-                        }
-                        className='mr-3'
-                      />
-                      <div>
-                        <div className='flex items-center gap-2'>
-                          <div className='font-semibold'>最小限（1週間）</div>
-                        </div>
-                        <p className='text-sm text-gray-600 mt-1'>
-                          まずはこれだけ！基本的な3カテゴリ（米・パン、飲料、缶詰）
-                        </p>
-                      </div>
-                    </label>
-
-                    <label className='flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50'>
-                      <input
-                        type='radio'
-                        name='stockLevel'
-                        value='standard'
-                        checked={stockLevel === 'standard'}
-                        onChange={e =>
-                          setStockLevel(e.target.value as 'standard')
-                        }
-                        className='mr-3'
-                      />
-                      <div>
-                        <div className='flex items-center gap-2'>
-                          <div className='font-semibold'>標準（2週間）</div>
-                        </div>
-                        <p className='text-sm text-gray-600 mt-1'>
-                          バランス良く備蓄。推奨レベル（5カテゴリ）
-                        </p>
-                      </div>
-                    </label>
-
-                    <label className='flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50'>
-                      <input
-                        type='radio'
-                        name='stockLevel'
-                        value='advanced'
-                        checked={stockLevel === 'advanced'}
-                        onChange={e =>
-                          setStockLevel(e.target.value as 'advanced')
-                        }
-                        className='mr-3'
-                      />
-                      <div>
-                        <div className='flex items-center gap-2'>
-                          <div className='font-semibold'>充実（1ヶ月）</div>
-                        </div>
-                        <p className='text-sm text-gray-600 mt-1'>
-                          本格的な備蓄。全カテゴリを推奨（25カテゴリ）
-                        </p>
-                      </div>
-                    </label>
-                  </div>
-                  <p className='text-xs text-gray-500 mt-2'>
-                    ※ レベルに応じて推奨カテゴリが変わります
-                  </p>
-                </div>
-              </div>
-            </div>
-
             {/* メッセージ表示 */}
             {message && (
               <div
@@ -796,47 +930,60 @@ export default function SuppliesChecklist({
           </div>
         )}
       </div>
-      {/* 年齢別チェックリスト */}
-      {checklists.ageGroups.map(group => (
-        <div key={group.ageGroup} className='bg-white border rounded-lg p-4'>
-          <div className='flex items-center justify-between mb-3'>
-            <h4 className='text-lg font-medium text-gray-900'>
-              {AGE_GROUP_EMOJIS[group.ageGroup]}{' '}
-              {AGE_GROUP_LABELS[group.ageGroup]}
-              <span className='text-sm text-gray-600 ml-2'>
-                ({group.count}人)
-              </span>
-            </h4>
-            <div className='text-sm text-gray-600'>
-              進捗: {getProgress(group.checkedItems, group.items.length)}%
+      {/* チェックリスト保存ボタン */}
+      <div className='bg-white border rounded-lg p-4'>
+        <button
+          onClick={handleSaveChecklist}
+          disabled={savingChecklist}
+          className='w-full px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors text-sm font-medium'
+        >
+          {savingChecklist ? '保存中...' : 'チェックリストを保存'}
+        </button>
+        {message &&
+          message.type === 'success' &&
+          message.text.includes('チェックリスト') && (
+            <p className='text-sm text-green-600 mt-2'>{message.text}</p>
+          )}
+      </div>
+      {/* 備蓄品チェックリスト */}
+      {checklists.ageGroups.map(group => {
+        return (
+          <div key={group.id} className='bg-white border rounded-lg p-4'>
+            <div className='flex items-center justify-between mb-3'>
+              <h4 className='text-lg font-medium text-gray-900'>
+                備蓄品チェックリスト
+              </h4>
+              <div className='text-sm text-gray-600'>
+                進捗: {getProgress(group.checkedItems, group.items.length)}%
+              </div>
+            </div>
+
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-2'>
+              {group.items.map(item => (
+                <label
+                  key={item.id}
+                  className='flex items-center space-x-2 p-2 hover:bg-gray-50 rounded'
+                >
+                  <input
+                    type='checkbox'
+                    checked={group.checkedItems.includes(item.id)}
+                    onChange={() => toggleItem('age', group.id, item.id)}
+                    className='rounded'
+                  />
+                  <span
+                    className={`text-sm ${item.isEssential ? 'font-medium text-gray-900' : 'text-gray-600'}`}
+                  >
+                    {item.name}
+                    {item.isEssential && (
+                      <span className='text-red-500 ml-1'>*</span>
+                    )}
+                  </span>
+                </label>
+              ))}
             </div>
           </div>
-
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-2'>
-            {group.items.map(item => (
-              <label
-                key={item.id}
-                className='flex items-center space-x-2 p-2 hover:bg-gray-50 rounded'
-              >
-                <input
-                  type='checkbox'
-                  checked={group.checkedItems.includes(item.id)}
-                  onChange={() => toggleItem('age', group.ageGroup, item.id)}
-                  className='rounded'
-                />
-                <span
-                  className={`text-sm ${item.isEssential ? 'font-medium text-gray-900' : 'text-gray-600'}`}
-                >
-                  {item.name}
-                  {item.isEssential && (
-                    <span className='text-red-500 ml-1'>*</span>
-                  )}
-                </span>
-              </label>
-            ))}
-          </div>
-        </div>
-      ))}
+        );
+      })}
       {/* ペット別チェックリスト */}
       {checklists.pets.map(pet => (
         <div key={pet.petType} className='bg-white border rounded-lg p-4'>

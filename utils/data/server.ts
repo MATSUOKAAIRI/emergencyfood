@@ -187,3 +187,62 @@ export async function fetchHistoriesFromDB(
     return [];
   }
 }
+
+/**
+ * サーバーサイドでハンドブックチェックリストデータを取得
+ */
+export async function fetchHandbookChecklistFromDB(teamId: string): Promise<{
+  checkedItemIds: string[];
+  checkedPetItems: { [petType: string]: string[] };
+} | null> {
+  try {
+    const checklistDoc = await adminDb
+      .collection('handbook-checklists')
+      .doc(teamId)
+      .get();
+
+    if (!checklistDoc.exists) {
+      return null;
+    }
+
+    const rawData = checklistDoc.data();
+
+    // 新しい形式があればそのまま返す
+    if (rawData?.checkedItemIds) {
+      return convertTimestampsToDates({
+        checkedItemIds: rawData.checkedItemIds || [],
+        checkedPetItems: rawData.checkedPetItems || {},
+      });
+    }
+
+    // 後方互換性: 古い形式（ageGroups）があれば変換
+    if (rawData?.ageGroups) {
+      const checkedItemIds = new Set<string>();
+      rawData.ageGroups.forEach((group: any) => {
+        group.checkedItems?.forEach((itemId: string) => {
+          checkedItemIds.add(itemId);
+        });
+      });
+
+      const checkedPetItems: { [key: string]: string[] } = {};
+      rawData.pets?.forEach((pet: any) => {
+        if (pet.checkedItems && pet.checkedItems.length > 0) {
+          checkedPetItems[pet.petType] = pet.checkedItems;
+        }
+      });
+
+      return convertTimestampsToDates({
+        checkedItemIds: Array.from(checkedItemIds),
+        checkedPetItems,
+      });
+    }
+
+    return convertTimestampsToDates({
+      checkedItemIds: [],
+      checkedPetItems: {},
+    });
+  } catch (error) {
+    console.error('Error fetching handbook checklist:', error);
+    return null;
+  }
+}

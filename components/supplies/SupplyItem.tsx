@@ -361,14 +361,14 @@ export default function SupplyItem({
             {!supply.isArchived && (
               <div className='flex gap-2'>
                 <button
-                  className='px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+                  className='px-2 py-1 text-xs bg-orange-100 text-orange-500 rounded hover:bg-orange-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
                   disabled={consuming || supply.quantity <= 0}
                   onClick={handleConsume}
                 >
                   {consuming ? '処理中...' : '使った'}
                 </button>
                 <button
-                  className='px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors disabled:opacity-50'
+                  className='px-2 py-1 text-xs bg-gray-700 text-white rounded hover:bg-gray-800 transition-colors disabled:opacity-50'
                   disabled={restocking}
                   onClick={() => setShowRestockModal(true)}
                 >

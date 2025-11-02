@@ -106,9 +106,6 @@ export default function TeamSettings({ user, initialTeam }: TeamSettingsProps) {
   const [notifyWeeklyReport, setNotifyWeeklyReport] = useState(
     team?.stockSettings?.notifications?.weeklyReport || false
   );
-  const [stockLevel, setStockLevel] = useState<
-    'beginner' | 'standard' | 'advanced'
-  >(team?.stockSettings?.stockLevel || 'standard');
 
   // チーム設定が更新されたらstateを同期
   useEffect(() => {
@@ -140,7 +137,6 @@ export default function TeamSettings({ user, initialTeam }: TeamSettingsProps) {
       setNotifyWeeklyReport(
         team.stockSettings.notifications?.weeklyReport || false
       );
-      setStockLevel(team.stockSettings.stockLevel || 'standard');
     }
   }, [team]);
 
@@ -334,7 +330,6 @@ export default function TeamSettings({ user, initialTeam }: TeamSettingsProps) {
               expiryNear: notifyExpiryNear,
               weeklyReport: notifyWeeklyReport,
             },
-            stockLevel,
           },
         }),
       });
@@ -726,7 +721,7 @@ export default function TeamSettings({ user, initialTeam }: TeamSettingsProps) {
               <option value='30'>30日分</option>
             </select>
             <p className='text-xs text-gray-500 mt-1'>
-              ※ 政府推奨は最低3日分、できれば7日分以上
+              ※ 政府推奨：最低3日分（1週間分以上が望ましい。広域災害に備えて）
             </p>
           </div>
 
@@ -948,90 +943,6 @@ export default function TeamSettings({ user, initialTeam }: TeamSettingsProps) {
                 </p>
               </div>
             )}
-          </div>
-
-          {/* 備蓄レベル設定 */}
-          <div className='mb-6'>
-            <h3 className='text-lg font-semibold text-gray-900 mb-4'>
-              備蓄レベル設定
-            </h3>
-            <div className='space-y-3'>
-              <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>
-                  推奨レベル
-                </label>
-                <div className='space-y-2'>
-                  <label className='flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50'>
-                    <input
-                      type='radio'
-                      name='stockLevel'
-                      value='beginner'
-                      checked={stockLevel === 'beginner'}
-                      onChange={e =>
-                        setStockLevel(e.target.value as 'beginner')
-                      }
-                      className='mr-3'
-                    />
-                    <div>
-                      <div className='flex items-center gap-2'>
-                        <span className='text-xl'>🌱</span>
-                        <span className='font-semibold'>最小限（1週間）</span>
-                      </div>
-                      <p className='text-sm text-gray-600 mt-1'>
-                        まずはこれだけ！基本的な3カテゴリ（米・パン、飲料、缶詰）
-                      </p>
-                    </div>
-                  </label>
-
-                  <label className='flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50'>
-                    <input
-                      type='radio'
-                      name='stockLevel'
-                      value='standard'
-                      checked={stockLevel === 'standard'}
-                      onChange={e =>
-                        setStockLevel(e.target.value as 'standard')
-                      }
-                      className='mr-3'
-                    />
-                    <div>
-                      <div className='flex items-center gap-2'>
-                        <span className='text-xl'>⭐</span>
-                        <span className='font-semibold'>標準（2週間）</span>
-                      </div>
-                      <p className='text-sm text-gray-600 mt-1'>
-                        バランス良く備蓄。推奨レベル（5カテゴリ）
-                      </p>
-                    </div>
-                  </label>
-
-                  <label className='flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50'>
-                    <input
-                      type='radio'
-                      name='stockLevel'
-                      value='advanced'
-                      checked={stockLevel === 'advanced'}
-                      onChange={e =>
-                        setStockLevel(e.target.value as 'advanced')
-                      }
-                      className='mr-3'
-                    />
-                    <div>
-                      <div className='flex items-center gap-2'>
-                        <span className='text-xl'>🏆</span>
-                        <span className='font-semibold'>充実（1ヶ月）</span>
-                      </div>
-                      <p className='text-sm text-gray-600 mt-1'>
-                        本格的な備蓄。全カテゴリを推奨（25カテゴリ）
-                      </p>
-                    </div>
-                  </label>
-                </div>
-                <p className='text-xs text-gray-500 mt-2'>
-                  ※ レベルに応じて推奨カテゴリが変わります
-                </p>
-              </div>
-            </div>
           </div>
 
           <button
